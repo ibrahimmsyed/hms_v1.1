@@ -39,7 +39,7 @@ export default function ShopProductSearch() {
     try {
       setSearchQuery(value);
       if (value) {
-        const response = await axios.get('/api/products/search', {
+        const response = await axios.get('https://minimal-assets-api.vercel.app/api/products/search', {
           params: { query: value },
         });
 
