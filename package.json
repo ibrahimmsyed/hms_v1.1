@@ -1,8 +1,7 @@
 {
-  "name": "@hms/hmsv1.1",
-  "homepage": "https://ibrahimmsyed.github.io/hms_v1.1",
-  "author": "minimals.cc",
-  "version": "3.3.0",
+  "name": "@hms/hms",
+  "author": "Syed Ibrahim M",
+  "version": "1.1.0",
   "description": "Javascript Version",
   "private": true,
   "scripts": {
@@ -13,9 +12,7 @@
     "lint:fix": "eslint --fix --ext .js,.jsx ./src",
     "clear-all": "rm -rf build node_modules",
     "re-start": "rm -rf build node_modules && yarn install && yarn start",
-    "re-build": "rm -rf build node_modules && yarn install && yarn build",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "re-build": "rm -rf build node_modules && yarn install && yarn build"
   },
   "eslintConfig": {
     "extends": [
@@ -136,7 +133,6 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
-    "gh-pages": "^3.2.3",
     "prettier": "^2.5.1",
     "typescript": "^4.5.5"
   }
