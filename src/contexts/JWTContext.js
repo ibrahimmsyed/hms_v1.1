@@ -74,8 +74,13 @@ function AuthProvider({ children }) {
         if (accessToken && isValidToken(accessToken)) {
           setSession(accessToken);
 
-          const response = await axios.get('https://minimal-assets-api.vercel.app/api/account/my-account');
-          const { user } = response.data;
+          const response = await axios.get('http://localhost:8000/auth/users/me/', {
+            headers: {
+              Authorization: `JWT ${accessToken}`
+            }
+          })
+
+          const { data:user } = response;
 
           dispatch({
             type: 'INITIALIZE',
@@ -108,14 +113,21 @@ function AuthProvider({ children }) {
     initialize();
   }, []);
 
+  // https://minimal-assets-api.vercel.app/api/account/login
+  // http://localhost:8000/auth/token/login/
   const login = async (email, password) => {
-    const response = await axios.post('https://minimal-assets-api.vercel.app/api/account/login', {
+    const response = await axios.post('http://localhost:8000/auth/api/token/', {
       email,
       password,
     });
-    const { accessToken, user } = response.data;
-
+    const { access: accessToken } = response.data;
     setSession(accessToken);
+    const userresponse = await axios.get('http://localhost:8000/auth/users/me/', {
+      headers: {
+        Authorization: `JWT ${accessToken}`
+      }
+    })
+    const { data:user } = userresponse;
     dispatch({
       type: 'LOGIN',
       payload: {
@@ -143,6 +155,12 @@ function AuthProvider({ children }) {
   };
 
   const logout = async () => {
+    // const accessToken = window.localStorage.getItem('accessToken');
+    // const userresponse = await axios.get('http://localhost:8000/auth/users/me/', {
+    //   headers: {
+    //     Authorization: `JWT ${accessToken}`
+    //   }
+    // })
     setSession(null);
     dispatch({ type: 'LOGOUT' });
   };

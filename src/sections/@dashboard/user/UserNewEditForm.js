@@ -19,6 +19,7 @@ import { countries } from '../../../_mock';
 import Label from '../../../components/Label';
 import { FormProvider, RHFSelect, RHFSwitch, RHFTextField, RHFUploadAvatar } from '../../../components/hook-form';
 
+import UserApiService from '../../../services/User'
 // ----------------------------------------------------------------------
 
 UserNewEditForm.propTypes = {
@@ -28,37 +29,59 @@ UserNewEditForm.propTypes = {
 
 export default function UserNewEditForm({ isEdit, currentUser }) {
   const navigate = useNavigate();
+  const userApiService = new UserApiService();
 
   const { enqueueSnackbar } = useSnackbar();
 
   const NewUserSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
+    userName: Yup.string().required('userName is required'),
+    firstName: Yup.string().required('firstName is required'),
     email: Yup.string().required('Email is required').email(),
     phoneNumber: Yup.string().required('Phone number is required'),
-    address: Yup.string().required('Address is required'),
-    country: Yup.string().required('country is required'),
-    company: Yup.string().required('Company is required'),
-    state: Yup.string().required('State is required'),
-    city: Yup.string().required('City is required'),
-    role: Yup.string().required('Role Number is required'),
+    lastName: Yup.string().required('lastName is required'),
+    registrationNumber: Yup.string().required('registrationNumber is required'),
+    calendarColor: Yup.string().required('calendarColor is required'),
     avatarUrl: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
+    newPassword: Yup.string().min(6, 'Password must be at least 6 characters').required('New Password is required'),
+    confirmNewPassword: Yup.string().oneOf([Yup.ref('newPassword'), null], 'Passwords must match'),
   });
+
+  const colorCode = [
+    {id: 1,code: '#f44336', name:'RED'},
+    {id: 2,code: '#e91e63', name:'PINK'},
+    {id: 3,code: '#9c27b0', name:'PURPLE'},
+    {id: 4,code: '#673ab7', name:'indigo'},
+    {id: 5,code: '#2196f3', name:'blue'},
+    {id: 6,code: '#03a9f4', name:'lightBlue'},
+    {id: 7,code: '#00bcd4', name:'cyan'},
+    {id: 8,code: '#009688', name:'teal'},
+    {id: 9,code: '#4caf50', name:'green'},
+    {id: 10,code: '#8bc34a', name:'lightGreen'},
+    {id: 11,code: '#cddc39', name:'lime'},
+    {id: 12,code: '#ffeb3b', name:'yellow'},
+    {id: 13,code: '#ffc107', name:'amber'},
+    {id: 14,code: '#ff9800', name:'orange'},
+    {id: 15,code: '#ff5722', name:'deepOrange'},
+    {id: 16,code: '#795548', name:'brown'},
+    {id: 17,code: '#9e9e9e', name:'grey'},
+    {id: 18,code: '#607d8b', name:'blueGrey'}
+  ]
 
   const defaultValues = useMemo(
     () => ({
-      name: currentUser?.name || '',
+      userName: currentUser?.userName || '',
+      firstName: currentUser?.firstName || '',
       email: currentUser?.email || '',
       phoneNumber: currentUser?.phoneNumber || '',
-      address: currentUser?.address || '',
-      country: currentUser?.country || '',
-      state: currentUser?.state || '',
-      city: currentUser?.city || '',
-      zipCode: currentUser?.zipCode || '',
+      lastName: currentUser?.lastName || '',
+      registrationNumber: currentUser?.registrationNumber || '',
+      calendarColor: currentUser?.calendarColor || '',
       avatarUrl: currentUser?.avatarUrl || '',
-      isVerified: currentUser?.isVerified || true,
-      status: currentUser?.status,
-      company: currentUser?.company || '',
-      role: currentUser?.role || '',
+      isActive: currentUser?.isActive || true,
+      isStaff: currentUser?.isStaff || true,
+      isAdmin: currentUser?.isAdmin || false,
+      newPassword: '',
+      confirmNewPassword: '',
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentUser]
@@ -90,12 +113,14 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, currentUser]);
 
-  const onSubmit = async () => {
+  const onSubmit = async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
-      enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
-      navigate(PATH_DASHBOARD.user.list);
+      console.log(data)
+      const response = await userApiService.createUser(data)
+      // await new Promise((resolve) => setTimeout(resolve, 500));
+      // reset();
+      // enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
+      // navigate(PATH_DASHBOARD.user.list);
     } catch (error) {
       console.error(error);
     }
@@ -184,22 +209,6 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
                 sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
               />
             )}
-
-            <RHFSwitch
-              name="isVerified"
-              labelPlacement="start"
-              label={
-                <>
-                  <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                    Email Verified
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Disabling this will automatically send the user a verification email
-                  </Typography>
-                </>
-              }
-              sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
-            />
           </Card>
         </Grid>
 
@@ -213,25 +222,71 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
                 gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
               }}
             >
-              <RHFTextField name="name" label="Full Name" />
-              <RHFTextField name="email" label="Email Address" />
-              <RHFTextField name="phoneNumber" label="Phone Number" />
+              <RHFTextField name="firstName" label="First Name"/>
+              <RHFTextField name="lastName" label="Last Name"/>
+              <RHFTextField name="email" label="Email Address"/>
 
-              <RHFSelect name="country" label="Country" placeholder="Country">
+              <RHFTextField name="phoneNumber" label="Phone Number"/>
+              <RHFTextField name="userName" label="User Name"/>
+              <RHFTextField name="registrationNumber" label="Registration Number"/>
+
+              <RHFSelect name="calendarColor" label="Calendar Color" placeholder="Calendar Color">
                 <option value="" />
-                {countries.map((option) => (
-                  <option key={option.code} value={option.label}>
-                    {option.label}
+                {colorCode.map((option) => (
+                  <option style={{background: option.code, color: '#FFF'}} key={option.id} value={option.code}>
+                    {option.name}
                   </option>
                 ))}
               </RHFSelect>
 
-              <RHFTextField name="state" label="State/Region" />
-              <RHFTextField name="city" label="City" />
-              <RHFTextField name="address" label="Address" />
-              <RHFTextField name="zipCode" label="Zip/Code" />
-              <RHFTextField name="company" label="Company" />
-              <RHFTextField name="role" label="Role" />
+              <RHFTextField name="newPassword" type="password" label="New Password" />
+              <RHFTextField name="confirmNewPassword" type="password" label="Confirm New Password" />
+              
+              <RHFSwitch
+                name="isActive"
+                labelPlacement="start"
+                label={
+                  <>
+                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                      User Status
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      Disabling this will inactive the user
+                    </Typography>
+                  </>
+                }
+                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+              />
+              <RHFSwitch
+                name="isStaff"
+                labelPlacement="start"
+                label={
+                  <>
+                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                      Staff
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      Enable if the user is Staff
+                    </Typography>
+                  </>
+                }
+                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+              />
+              <RHFSwitch
+                name="isAdmin"
+                labelPlacement="start"
+                label={
+                  <>
+                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                      Admin
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      Enable if the user is Admin
+                    </Typography>
+                  </>
+                }
+                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+              />
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>

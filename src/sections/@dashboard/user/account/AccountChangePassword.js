@@ -8,10 +8,12 @@ import { Stack, Card } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // components
 import { FormProvider, RHFTextField } from '../../../../components/hook-form';
-
+// Service
+import UserApiService from '../../../../services/User'
 // ----------------------------------------------------------------------
 
 export default function AccountChangePassword() {
+  const userApiService = new UserApiService();
   const { enqueueSnackbar } = useSnackbar();
 
   const ChangePassWordSchema = Yup.object().shape({
@@ -37,14 +39,31 @@ export default function AccountChangePassword() {
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = async () => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+  const onSubmit = async (data) => {
+    let message;
+    let classType;
+    const response = await userApiService.changePassword(data)
+    if(response?.status === 204){
+        message = 'Update success!';
+        classType = 'success';
+    }else{
+        message = response.detail ? response.detail : Object.entries(response).join(' ').replace(/[_,]/g, " ").toUpperCase();
+        classType = 'error';
+    }
+    reset();
+    enqueueSnackbar(message,{
+      variant: classType,
+    });
+   /* try {
+      const message = userApiService.changePassword(data)
+      await new Promise((resolve) => {
+        message = userApiService.changePassword(data)
+      });
       reset();
-      enqueueSnackbar('Update success!');
+      enqueueSnackbar(message);
     } catch (error) {
       console.error(error);
-    }
+    } */
   };
 
   return (
