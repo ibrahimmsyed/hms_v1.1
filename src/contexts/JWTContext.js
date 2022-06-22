@@ -1,8 +1,10 @@
-import { createContext, useEffect, useReducer } from 'react';
+import { createContext, useEffect, useReducer, useContext } from 'react';
 import PropTypes from 'prop-types';
 // utils
 import axios from '../utils/axios';
 import { isValidToken, setSession } from '../utils/jwt';
+import useUsers from '../hooks/useUsers';
+import { UsersContext } from './UsersContext';
 
 // ----------------------------------------------------------------------
 
@@ -65,7 +67,7 @@ AuthProvider.propTypes = {
 
 function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
-
+  const useUsers = useContext(UsersContext);
   useEffect(() => {
     const initialize = async () => {
       try {
@@ -73,13 +75,13 @@ function AuthProvider({ children }) {
 
         if (accessToken && isValidToken(accessToken)) {
           setSession(accessToken);
-
+          
           const response = await axios.get('http://localhost:8000/auth/users/me/', {
             headers: {
               Authorization: `JWT ${accessToken}`
             }
           })
-
+          await useUsers.userDetails()
           const { data:user } = response;
 
           dispatch({
@@ -127,6 +129,7 @@ function AuthProvider({ children }) {
         Authorization: `JWT ${accessToken}`
       }
     })
+    await useUsers.userDetails()
     const { data:user } = userresponse;
     dispatch({
       type: 'LOGIN',

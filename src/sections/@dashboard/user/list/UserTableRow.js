@@ -21,7 +21,7 @@ UserTableRow.propTypes = {
 export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const theme = useTheme();
 
-  const { name, avatarUrl, company, role, isVerified, status } = row;
+  const { firstName, lastName, displayPicture, isActive, isSuperuser, isFrontOffice, isBackOffice, isStaff, lastLogin, status } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -35,43 +35,35 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
 
   return (
     <TableRow hover selected={selected}>
-      <TableCell padding="checkbox">
+      {/* <TableCell padding="checkbox">
         <Checkbox checked={selected} onClick={onSelectRow} />
-      </TableCell>
+      </TableCell> */}
 
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={name} src={avatarUrl} sx={{ mr: 2 }} />
+        <Avatar alt={firstName} src={displayPicture} sx={{ mr: 2 }} />
         <Typography variant="subtitle2" noWrap>
-          {name}
+          {firstName} {lastName}
         </Typography>
       </TableCell>
 
-      <TableCell align="left">{company}</TableCell>
-
       <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
-        {role}
-      </TableCell>
-
-      <TableCell align="center">
-        <Iconify
-          icon={isVerified ? 'eva:checkmark-circle-fill' : 'eva:clock-outline'}
-          sx={{
-            width: 20,
-            height: 20,
-            color: 'success.main',
-            ...(!isVerified && { color: 'warning.main' }),
-          }}
-        />
+        {isSuperuser ? 'Admin': ''}
+        {isStaff ? 'Doctor': ''}
+        {isFrontOffice ? 'Front Office': 'Back Office'}
       </TableCell>
 
       <TableCell align="left">
         <Label
           variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-          color={(status === 'banned' && 'error') || 'success'}
+          color={(isActive && 'success') || 'error'}
           sx={{ textTransform: 'capitalize' }}
         >
-          {status}
+          {isActive ? 'Active': 'Not Active'}
         </Label>
+      </TableCell>
+
+      <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
+        {new Date(lastLogin).toString()}
       </TableCell>
 
       <TableCell align="right">

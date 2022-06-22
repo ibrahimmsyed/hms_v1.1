@@ -20,6 +20,7 @@ import Label from '../../../components/Label';
 import { FormProvider, RHFSelect, RHFSwitch, RHFTextField, RHFUploadAvatar } from '../../../components/hook-form';
 
 import UserApiService from '../../../services/User'
+import useUsers from '../../../hooks/useUsers';
 // ----------------------------------------------------------------------
 
 UserNewEditForm.propTypes = {
@@ -30,21 +31,52 @@ UserNewEditForm.propTypes = {
 export default function UserNewEditForm({ isEdit, currentUser }) {
   const navigate = useNavigate();
   const userApiService = new UserApiService();
-
+  const { setUserDetails } = useUsers();
   const { enqueueSnackbar } = useSnackbar();
+  if(isEdit && currentUser){
+    Object.entries(currentUser).forEach(
+      ([key, value]) => {
+        ['isBackOffice','isFrontOffice','isStaff'].forEach(role=>{
+          if(key === role && value){
+            currentUser.userRole = key
+          }
+        })
+        console.log(key, value)
+    });
+  }
+  
 
   const NewUserSchema = Yup.object().shape({
-    userName: Yup.string().required('userName is required'),
+    username: Yup.string().required('username is required'),
     firstName: Yup.string().required('firstName is required'),
     email: Yup.string().required('Email is required').email(),
     phoneNumber: Yup.string().required('Phone number is required'),
     lastName: Yup.string().required('lastName is required'),
     registrationNumber: Yup.string().required('registrationNumber is required'),
     calendarColor: Yup.string().required('calendarColor is required'),
+    userRole: Yup.string().required('userRole is required'),
     avatarUrl: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
     newPassword: Yup.string().min(6, 'Password must be at least 6 characters').required('New Password is required'),
     confirmNewPassword: Yup.string().oneOf([Yup.ref('newPassword'), null], 'Passwords must match'),
   });
+
+  const EditUserSchema = Yup.object().shape({
+    username: Yup.string().required('username is required'),
+    firstName: Yup.string().required('firstName is required'),
+    email: Yup.string().required('Email is required').email(),
+    phoneNumber: Yup.string().required('Phone number is required'),
+    lastName: Yup.string().required('lastName is required'),
+    registrationNumber: Yup.string().required('registrationNumber is required'),
+    calendarColor: Yup.string().required('calendarColor is required'),
+    userRole: Yup.string().required('userRole is required'),
+    avatarUrl: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
+  });
+
+  const userRole = [
+    {id: 1,code: 'isStaff', name:'Doctor'},
+    {id: 2,code: 'isFrontOffice', name:'Front Office'},
+    {id: 3,code: 'isBackOffice', name:'Back Office'},
+  ]
 
   const colorCode = [
     {id: 1,code: '#f44336', name:'RED'},
@@ -69,7 +101,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
 
   const defaultValues = useMemo(
     () => ({
-      userName: currentUser?.userName || '',
+      username: currentUser?.username || '',
       firstName: currentUser?.firstName || '',
       email: currentUser?.email || '',
       phoneNumber: currentUser?.phoneNumber || '',
@@ -78,8 +110,8 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
       calendarColor: currentUser?.calendarColor || '',
       avatarUrl: currentUser?.avatarUrl || '',
       isActive: currentUser?.isActive || true,
-      isStaff: currentUser?.isStaff || true,
-      isAdmin: currentUser?.isAdmin || false,
+      userRole: currentUser?.userRole || '',
+      isSuperuser: currentUser?.isSuperuser || false,
       newPassword: '',
       confirmNewPassword: '',
     }),
@@ -88,7 +120,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewUserSchema),
+    resolver: yupResolver(!isEdit ? NewUserSchema : EditUserSchema),
     defaultValues,
   });
 
@@ -115,16 +147,37 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
 
   const onSubmit = async (data) => {
     try {
-      console.log(data)
-      const response = await userApiService.createUser(data)
-      // await new Promise((resolve) => setTimeout(resolve, 500));
-      // reset();
-      // enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
-      // navigate(PATH_DASHBOARD.user.list);
+      data = await handleUserRole(data)
+      if (data){
+        const response = isEdit ? await userApiService.updateUser(data, currentUser.id) : await userApiService.createUser(data)
+        setUserDetails(response)
+        reset();
+        enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
+        navigate(PATH_DASHBOARD.settings.practicestaff);
+      }
+      
     } catch (error) {
       console.error(error);
     }
   };
+
+  const handleUserRole = (data) => {
+    data.isFrontOffice = false;
+    data.isBackOffice = false;
+    data.isStaff = false;
+    switch(data.userRole){
+      case 'isFrontOffice':
+        data.isFrontOffice = true;
+        break;
+      case 'isBackOffice':
+        data.isBackOffice = true;
+        break;
+      default:
+        data.isStaff = true;
+        break;
+    }
+    return data
+  }
 
   const handleDrop = useCallback(
     (acceptedFiles) => {
@@ -149,10 +202,10 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
           <Card sx={{ py: 10, px: 3 }}>
             {isEdit && (
               <Label
-                color={values.status !== 'active' ? 'error' : 'success'}
+                color={!currentUser.isActive ? 'error' : 'success'}
                 sx={{ textTransform: 'uppercase', position: 'absolute', top: 24, right: 24 }}
               >
-                {values.status}
+                {currentUser.isActive ? 'Active':'Not Active'}
               </Label>
             )}
 
@@ -179,36 +232,6 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
                 }
               />
             </Box>
-
-            {isEdit && (
-              <FormControlLabel
-                labelPlacement="start"
-                control={
-                  <Controller
-                    name="status"
-                    control={control}
-                    render={({ field }) => (
-                      <Switch
-                        {...field}
-                        checked={field.value !== 'active'}
-                        onChange={(event) => field.onChange(event.target.checked ? 'banned' : 'active')}
-                      />
-                    )}
-                  />
-                }
-                label={
-                  <>
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                      Banned
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Apply disable account
-                    </Typography>
-                  </>
-                }
-                sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
-              />
-            )}
           </Card>
         </Grid>
 
@@ -222,12 +245,13 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
                 gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
               }}
             >
+              <RHFTextField name="email" label="Email Address" disabled={isEdit}/>
+              <RHFTextField name="username" label="User Name" disabled={isEdit}/>
+              
               <RHFTextField name="firstName" label="First Name"/>
               <RHFTextField name="lastName" label="Last Name"/>
-              <RHFTextField name="email" label="Email Address"/>
-
+              
               <RHFTextField name="phoneNumber" label="Phone Number"/>
-              <RHFTextField name="userName" label="User Name"/>
               <RHFTextField name="registrationNumber" label="Registration Number"/>
 
               <RHFSelect name="calendarColor" label="Calendar Color" placeholder="Calendar Color">
@@ -239,9 +263,22 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
                 ))}
               </RHFSelect>
 
+              <RHFSelect name="userRole" label="User Role" placeholder="User Role">
+                <option value="" />
+                {userRole.map((option) => (
+                  <option key={option.id} value={option.code}>
+                    {option.name}
+                  </option>
+                ))}
+              </RHFSelect>
+
+              {!isEdit && (
               <RHFTextField name="newPassword" type="password" label="New Password" />
+              )}
+              {!isEdit && (
               <RHFTextField name="confirmNewPassword" type="password" label="Confirm New Password" />
-              
+              )}
+
               <RHFSwitch
                 name="isActive"
                 labelPlacement="start"
@@ -258,22 +295,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
                 sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
               />
               <RHFSwitch
-                name="isStaff"
-                labelPlacement="start"
-                label={
-                  <>
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                      Staff
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Enable if the user is Staff
-                    </Typography>
-                  </>
-                }
-                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
-              />
-              <RHFSwitch
-                name="isAdmin"
+                name="isSuperuser"
                 labelPlacement="start"
                 label={
                   <>

@@ -38,6 +38,7 @@ import { store, persistor } from './redux/store';
 // contexts
 import { SettingsProvider } from './contexts/SettingsContext';
 import { CollapseDrawerProvider } from './contexts/CollapseDrawerContext';
+import { UsersProvider } from './contexts/UsersContext';
 
 // Check our docs
 // https://docs-minimals.vercel.app/authentication/ts-version
@@ -55,6 +56,7 @@ import reportWebVitals from './reportWebVitals';
 // ----------------------------------------------------------------------
 
 ReactDOM.render(
+  <UsersProvider>
   <AuthProvider>
     <HelmetProvider>
       <ReduxProvider store={store}>
@@ -62,16 +64,19 @@ ReactDOM.render(
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <SettingsProvider>
               <CollapseDrawerProvider>
-                <BrowserRouter>
-                  <App />
-                </BrowserRouter>
+                
+                  <BrowserRouter>
+                    <App />
+                  </BrowserRouter>
+              
               </CollapseDrawerProvider>
             </SettingsProvider>
           </LocalizationProvider>
         </PersistGate>
       </ReduxProvider>
     </HelmetProvider>
-  </AuthProvider>,
+  </AuthProvider>
+  </UsersProvider>,
   document.getElementById('root')
 );
 

@@ -15,10 +15,12 @@ import useIsMountedRef from '../../../hooks/useIsMountedRef';
 // components
 import Iconify from '../../../components/Iconify';
 import { FormProvider, RHFTextField, RHFCheckbox } from '../../../components/hook-form';
-
+import { useDispatch, useSelector } from '../../../redux/store';
+import { getUsersDetails } from '../../../redux/slices/user';
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
+  const dispatch = useDispatch();
   const { login } = useAuth();
 
   const isMountedRef = useIsMountedRef();
@@ -51,6 +53,7 @@ export default function LoginForm() {
   const onSubmit = async (data) => {
     try {
       await login(data.email, data.password);
+      // dispatch(getUsersDetails());
     } catch (error) {
       console.error(error);
       reset();

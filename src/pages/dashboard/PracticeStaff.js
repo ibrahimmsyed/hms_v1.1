@@ -1,6 +1,11 @@
 import { paramCase } from 'change-case';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
+import camelCase from 'lodash/camelCase'; 
+import mapKeys from 'lodash/mapKeys';
+
+
 // @mui
 import {
   Box,
@@ -18,14 +23,20 @@ import {
   TableContainer,
   TablePagination,
   FormControlLabel,
+  DialogTitle,
+  DialogActions,
+  Typography
 } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
+import useUsers from '../../hooks/useUsers';
 import useTabs from '../../hooks/useTabs';
 import useSettings from '../../hooks/useSettings';
 import useTable, { getComparator, emptyRows } from '../../hooks/useTable';
 // _mock_
+import { useDispatch, useSelector } from '../../redux/store';
+import { getUsersDetails } from '../../redux/slices/user';
 import { _userList } from '../../_mock';
 // components
 import Page from '../../components/Page';
@@ -33,38 +44,39 @@ import Iconify from '../../components/Iconify';
 import Scrollbar from '../../components/Scrollbar';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } from '../../components/table';
+import { DialogAnimate } from '../../components/animate';
 // sections
 import { UserTableToolbar, UserTableRow } from '../../sections/@dashboard/user/list';
+import UserApiService from '../../services/User'
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = ['all', 'active', 'banned'];
+const STATUS_OPTIONS = ['all', 'active', 'in active'];
 
 const ROLE_OPTIONS = [
   'all',
-  'ux designer',
-  'full stack designer',
-  'backend developer',
-  'project manager',
-  'leader',
-  'ui designer',
-  'ui/ux designer',
-  'front end developer',
-  'full stack developer',
+  'front office',
+  'back office',
+  'doctor',
+  'admin'
 ];
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', align: 'left' },
-  { id: 'company', label: 'Company', align: 'left' },
   { id: 'role', label: 'Role', align: 'left' },
-  { id: 'isVerified', label: 'Verified', align: 'center' },
   { id: 'status', label: 'Status', align: 'left' },
-  { id: '' },
+  { id: 'lost_login', label: 'Last Login', align: 'left' },
+  { id: 'action', label: 'Action', align: 'right'},
 ];
-
 // ----------------------------------------------------------------------
 
 export default function PracticeStaff() {
+  const userApiService = new UserApiService();
+  const { enqueueSnackbar } = useSnackbar();
+  const dispatch = useDispatch();
+  const [open, setOpen] = useState(false);
+  const { user: _userList } = useUsers();
+  
   const {
     dense,
     page,
@@ -84,9 +96,15 @@ export default function PracticeStaff() {
     onChangeRowsPerPage,
   } = useTable();
 
+  useEffect(() => {
+    if(_userList) {setTableData(_userList)}
+  }, [_userList])
+
   const { themeStretch } = useSettings();
 
   const navigate = useNavigate();
+
+  const [id, setDeleteId] = useState(false);
 
   const [tableData, setTableData] = useState(_userList);
 
@@ -104,21 +122,33 @@ export default function PracticeStaff() {
   const handleFilterRole = (event) => {
     setFilterRole(event.target.value);
   };
+  
+  const openDialog = (id) => {
+    setOpen(true);
+    setDeleteId(id)
+  };
 
-  const handleDeleteRow = (id) => {
+  const handleDeleteRow = () => {
+    console.log(id)
+    const response = userApiService.deleteUser(id)
+    enqueueSnackbar('Deleted successfully');
     const deleteRow = tableData.filter((row) => row.id !== id);
     setSelected([]);
     setTableData(deleteRow);
+    setOpen(false);
+  };
+  const handleClose = (value: string) => {
+    setOpen(false);
   };
 
   const handleDeleteRows = (selected) => {
-    const deleteRows = tableData.filter((row) => !selected.includes(row.id));
-    setSelected([]);
-    setTableData(deleteRows);
+    // const deleteRows = tableData.filter((row) => !selected.includes(row.id));
+    // setSelected([]);
+    // setTableData(deleteRows);
   };
 
-  const handleEditRow = (id) => {
-    navigate(PATH_DASHBOARD.user.edit(paramCase(id)));
+  const handleEditRow = (username) => {
+    navigate(PATH_DASHBOARD.user.edit(paramCase(username)));
   };
 
   const dataFiltered = applySortFilter({
@@ -227,8 +257,8 @@ export default function PracticeStaff() {
                       row={row}
                       selected={selected.includes(row.id)}
                       onSelectRow={() => onSelectRow(row.id)}
-                      onDeleteRow={() => handleDeleteRow(row.id)}
-                      onEditRow={() => handleEditRow(row.name)}
+                      onDeleteRow={() => openDialog(row.id)}
+                      onEditRow={() => handleEditRow(row.username)}
                     />
                   ))}
 
@@ -258,13 +288,22 @@ export default function PracticeStaff() {
             />
           </Box>
         </Card>
+        <DialogAnimate maxWidth={false}  open={open} onClose={handleClose} sx={{maxWidth: 860}}>
+        <DialogActions sx={{ py: 2, px: 3 }}>
+          <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+            You are deleting the user. Once deleted you can't retrieve.
+            Please confirm.
+          </Typography>
+          <Button onClick={handleDeleteRow} variant="contained">Confirm</Button>
+          <Button onClick={handleClose}>Cancel</Button>
+        </DialogActions>          
+        </DialogAnimate>
       </Container>
     </Page>
   );
 }
 
 // ----------------------------------------------------------------------
-
 function applySortFilter({ tableData, comparator, filterName, filterStatus, filterRole }) {
   const stabilizedThis = tableData.map((el, index) => [el, index]);
 
@@ -277,15 +316,28 @@ function applySortFilter({ tableData, comparator, filterName, filterStatus, filt
   tableData = stabilizedThis.map((el) => el[0]);
 
   if (filterName) {
-    tableData = tableData.filter((item) => item.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
+    tableData = tableData.filter((item) => (`${item.firstName} ${item.lastName}`).toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
   }
 
   if (filterStatus !== 'all') {
-    tableData = tableData.filter((item) => item.status === filterStatus);
+    tableData = filterStatus === 'active' ? tableData.filter((item) => item.isActive) : tableData.filter((item) => !item.isActive);
   }
 
   if (filterRole !== 'all') {
-    tableData = tableData.filter((item) => item.role === filterRole);
+    switch(filterRole){
+      case 'front office':
+        tableData = tableData.filter((item) => item.isFrontOffice);
+        break;
+      case 'back office':
+        tableData = tableData.filter((item) => item.isBackOffice);
+        break;
+      case 'doctor':
+        tableData = tableData.filter((item) => item.isStaff);
+        break;
+      default:
+        tableData = tableData.filter((item) => item.isSuperuser);
+        break
+    }
   }
 
   return tableData;
