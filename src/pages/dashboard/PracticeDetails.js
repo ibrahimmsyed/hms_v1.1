@@ -1,10 +1,12 @@
 import { paramCase, capitalCase } from 'change-case';
 import { useParams, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 // @mui
 import { Container } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
+import useUsers from '../../hooks/useUsers';
 import useSettings from '../../hooks/useSettings';
 // _mock_
 import { _userList } from '../../_mock';
@@ -17,15 +19,21 @@ import PracticeNewEditForm from '../../sections/@dashboard/user/PracticeNewEditF
 // ----------------------------------------------------------------------
 
 export default function PracticeDetails() {
+  const { practicedetails:_userList } = useUsers();
+
   const { themeStretch } = useSettings();
 
   const { pathname } = useLocation();
 
   const { name = '' } = useParams();
 
-  const isEdit = pathname.includes('edit');
+  const [currentUser, setCurrentUser] = useState(false);
 
-  const currentUser = _userList.find((user) => paramCase(user.name) === name);
+  const isEdit = true;
+
+  useEffect(() => {
+    if(_userList) {setCurrentUser(_userList)}
+  }, [_userList])
 
   return (
     <Page title="Practice Details">

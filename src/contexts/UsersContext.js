@@ -32,7 +32,14 @@ const handlers = {
       user,
     };
   },
-  
+  PRACTICEDETAILS: (state, action) => {
+    const { practicedetails } = action.payload;
+
+    return {
+      ...state,
+      practicedetails,
+    };
+  }
 };
 
 const reducer = (state, action) => (handlers[action.type] ? handlers[action.type](state, action) : state);
@@ -41,6 +48,7 @@ const UsersContext = createContext({
   ...initialState,
   userDetails: () => Promise.resolve(),
   setUserDetails: () => Promise.resolve(),
+  practiceDetails: () => Promise.resolve(),
 });
 
 // ----------------------------------------------------------------------
@@ -69,14 +77,24 @@ function UsersProvider({ children }) {
     });
   };
 
+  const practiceDetails = async () => {
+    const accessToken = window.localStorage.getItem('accessToken');
+    const pdetails = await axios.get('http://localhost:8000/auth/practicedetails/2/', {
+      headers: {
+        Authorization: `JWT ${accessToken}`
+      }
+    })
+    const practicedetails = pdetails.data
+    dispatch({
+      type: 'PRACTICEDETAILS',
+      payload: {
+        practicedetails,
+      },
+    });
+  };
+
   const setUserDetails = async (updatedUser) => {
     state.user.push(updatedUser)
-    /* dispatch({
-      type: 'USERDETAILS',
-      payload: {
-        userdetail,
-      },
-    }); */
     console.log('setUserDetails')
   };
 
@@ -85,7 +103,8 @@ function UsersProvider({ children }) {
       value={{
         ...state,
         userDetails,
-        setUserDetails
+        setUserDetails,
+        practiceDetails
       }}
     >
       {children}

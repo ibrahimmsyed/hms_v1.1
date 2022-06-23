@@ -18,7 +18,7 @@ import { countries } from '../../../_mock';
 // components
 import Label from '../../../components/Label';
 import { FormProvider, RHFSelect, RHFSwitch, RHFTextField, RHFUploadAvatar } from '../../../components/hook-form';
-
+import PracticeDetailsApiService from '../../../services/PracticeDetails'
 // ----------------------------------------------------------------------
 
 UserNewEditForm.propTypes = {
@@ -28,20 +28,23 @@ UserNewEditForm.propTypes = {
 
 export default function UserNewEditForm({ isEdit, currentUser }) {
   const navigate = useNavigate();
-
+  const practiceDetailsApiService = new PracticeDetailsApiService();
   const { enqueueSnackbar } = useSnackbar();
 
   const NewUserSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
+    tag: Yup.string().required('Tag is required'),
     email: Yup.string().required('Email is required').email(),
     phoneNumber: Yup.string().required('Phone number is required'),
     address: Yup.string().required('Address is required'),
     country: Yup.string().required('country is required'),
-    company: Yup.string().required('Company is required'),
     state: Yup.string().required('State is required'),
+    locality: Yup.string().required('Locality is required'),
     city: Yup.string().required('City is required'),
-    role: Yup.string().required('Role Number is required'),
-    avatarUrl: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
+    zipcode: Yup.string().required('Zipcode is required'),
+    gstin: Yup.string().required('GSTIN is required'),
+    website: Yup.string().required('website Number is required'),
+    logo: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
   });
 
   const defaultValues = useMemo(
@@ -53,12 +56,12 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
       country: currentUser?.country || '',
       state: currentUser?.state || '',
       city: currentUser?.city || '',
-      zipCode: currentUser?.zipCode || '',
-      avatarUrl: currentUser?.avatarUrl || '',
-      isVerified: currentUser?.isVerified || true,
-      status: currentUser?.status,
-      company: currentUser?.company || '',
-      role: currentUser?.role || '',
+      zipcode: currentUser?.zipcode || '',
+      logo: currentUser?.logo || '',
+      locality: currentUser?.locality || '',
+      tag: currentUser?.tag,
+      website: currentUser?.website || '',
+      gstin: currentUser?.gstin || '',
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentUser]
@@ -90,12 +93,10 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, currentUser]);
 
-  const onSubmit = async () => {
+  const onSubmit = async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
-      enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
-      navigate(PATH_DASHBOARD.user.list);
+      const response = await practiceDetailsApiService.updatePracticeDetails(data, currentUser.id)
+      enqueueSnackbar('Update success!');
     } catch (error) {
       console.error(error);
     }
@@ -107,7 +108,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
 
       if (file) {
         setValue(
-          'avatarUrl',
+          'logo',
           Object.assign(file, {
             preview: URL.createObjectURL(file),
           })
@@ -130,8 +131,8 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
                 gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
               }}
             >
-              <RHFTextField name="practicename" label="Practice Name" />
-              <RHFTextField name="practicetag" label="Practice Tag" />
+              <RHFTextField name="name" label="Practice Name" />
+              <RHFTextField name="tag" label="Practice Tag" />
               <RHFTextField name="address" label="Address" />
               <RHFTextField name="locality" label="Locality" />
               <RHFTextField name="city" label="City" />
@@ -144,8 +145,8 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
                   </option>
                 ))}
               </RHFSelect>
-              <RHFTextField name="zipCode" label="Zip/Code" />
-              <RHFTextField name="phonenumber" label="Phone Number" />
+              <RHFTextField name="zipcode" label="Zip/Code" />
+              <RHFTextField name="phoneNumber" label="Phone Number" />
               <RHFTextField name="email" label="Email Address" />
               <RHFTextField name="website" label="Website" />
               <RHFTextField name="gstin" label="GSTIN" />
@@ -171,7 +172,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
 
             <Box sx={{ mb: 5 }}>
               <RHFUploadAvatar
-                name="avatarUrl"
+                name="logo"
                 accept="image/*"
                 maxSize={3145728}
                 onDrop={handleDrop}
@@ -192,36 +193,6 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
                 }
               />
             </Box>
-
-            {isEdit && (
-              <FormControlLabel
-                labelPlacement="start"
-                control={
-                  <Controller
-                    name="status"
-                    control={control}
-                    render={({ field }) => (
-                      <Switch
-                        {...field}
-                        checked={field.value !== 'active'}
-                        onChange={(event) => field.onChange(event.target.checked ? 'banned' : 'active')}
-                      />
-                    )}
-                  />
-                }
-                label={
-                  <>
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                      Banned
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Apply disable account
-                    </Typography>
-                  </>
-                }
-                sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
-              />
-            )}
           </Card>
         </Grid>
       </Grid>
