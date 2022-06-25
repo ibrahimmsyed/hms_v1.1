@@ -48,26 +48,8 @@ class InventoryApiService extends EventEmitter {
                 Authorization: `JWT ${accessToken}`
                 }
             });
-            const item = response.data;
-            return item
-        }catch (error) {
-            console.log(error); // this is the main part. Use the response property from the error object
-        
-            return error;
-        }
-    };
-
-    getAllInventory = async () => {
-        try {
-            this.accessToken = window.localStorage.getItem('accessToken');
-            let message;
-            const response = await axios.get('http://localhost:8000/auth/users/', 
-            {
-                headers: {
-                Authorization: `JWT ${this.accessToken}`
-                }
-            });
-            return response
+            const items = response.data;
+            return items
         }catch (error) {
             console.log(error); // this is the main part. Use the response property from the error object
         
@@ -79,7 +61,7 @@ class InventoryApiService extends EventEmitter {
         try {
             this.accessToken = window.localStorage.getItem('accessToken');
             let message;
-            const response = await axios.delete(`http://localhost:8000/auth/delete-user/${id}/`, 
+            const response = await axios.delete(`http://localhost:8000/auth/inventorydetails/${id}/`, 
             {
                 headers: {
                 Authorization: `JWT ${this.accessToken}`

@@ -15,7 +15,11 @@ import {
   TableContainer,
   TablePagination,
   FormControlLabel,
+  DialogTitle,
+  DialogActions,
+  Typography
 } from '@mui/material';
+import { useSnackbar } from 'notistack';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
 import { getProducts } from '../../redux/slices/product';
@@ -37,8 +41,11 @@ import {
   TableHeadCustom,
   TableSelectedActions,
 } from '../../components/table';
+import { DialogAnimate } from '../../components/animate';
 // sections
 import { ProductTableRow, ProductTableToolbar } from '../../sections/@dashboard/e-commerce/product-list';
+import InventoryApiService from '../../services/Inventory'
+
 
 // ----------------------------------------------------------------------
 
@@ -57,7 +64,8 @@ const TABLE_HEAD = [
 
 export default function Inventory() {
   const { inventorydetails: products } = useUsers();
-
+  const inventoryApiService = new InventoryApiService();
+  const { enqueueSnackbar } = useSnackbar();
   const {
     dense,
     page,
@@ -85,7 +93,9 @@ export default function Inventory() {
 
   const dispatch = useDispatch();
 
-  // const { products, isLoading } = useSelector((state) => state.product);
+  const [id, setDeleteId] = useState(false);
+
+  const [open, setOpen] = useState(false);
 
   const [tableData, setTableData] = useState([]);
 
@@ -97,15 +107,28 @@ export default function Inventory() {
     }
   }, [products]);
 
+  const openDialog = (id) => {
+    setOpen(true);
+    setDeleteId(id)
+  };
+
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
     setPage(0);
   };
 
-  const handleDeleteRow = (id) => {
+  const handleDeleteRow = () => {
+    console.log(id)
+    const response = inventoryApiService.deleteInventory(id)
+    enqueueSnackbar('Deleted successfully');
     const deleteRow = tableData.filter((row) => row.id !== id);
     setSelected([]);
     setTableData(deleteRow);
+    setOpen(false);
+  };
+
+  const handleClose = (value: string) => {
+    setOpen(false);
   };
 
   const handleDeleteRows = (selected) => {
@@ -203,7 +226,7 @@ export default function Inventory() {
                           row={row}
                           selected={selected.includes(row.id)}
                           onSelectRow={() => onSelectRow(row.id)}
-                          onDeleteRow={() => handleDeleteRow(row.id)}
+                          onDeleteRow={() => openDialog(row.id)}
                           onEditRow={() => handleEditRow(row.itemName)}
                         />
                       ) : (
@@ -237,6 +260,16 @@ export default function Inventory() {
             />
           </Box>
         </Card>
+        <DialogAnimate maxWidth={false}  open={open} onClose={handleClose} sx={{maxWidth: 860}}>
+        <DialogActions sx={{ py: 2, px: 3 }}>
+          <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+            You are deleting the item. Once deleted you can't retrieve.
+            Please confirm.
+          </Typography>
+          <Button onClick={handleDeleteRow} variant="contained">Confirm</Button>
+          <Button onClick={handleClose}>Cancel</Button>
+        </DialogActions>          
+        </DialogAnimate>
       </Container>
     </Page>
   );

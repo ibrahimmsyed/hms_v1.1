@@ -13,6 +13,8 @@ const initialState = {
   isAuthenticated: false,
   isInitialized: false,
   user: [],
+  practicedetails: [],
+  inventorydetails: []
 };
 
 const handlers = {
@@ -104,7 +106,8 @@ function UsersProvider({ children }) {
   };
 
   const setUserDetails = async (updatedUser) => {
-    state.user.push(updatedUser)
+    const index = state.user.findIndex(item => item.id === updatedUser.id)
+    if(index > -1){ state.user[index] = updatedUser }else{ state.user.push(updatedUser) }
     console.log('setUserDetails')
   };
 
@@ -125,7 +128,8 @@ function UsersProvider({ children }) {
   };
 
   const setInventoryDetails = async (updatedInventory) => {
-    state.inventorydetails.push(updatedInventory)
+    const index = state.inventorydetails.findIndex(item => item.id === updatedInventory.id)
+    if(index > -1){ state.inventorydetails[index] = updatedInventory }else{ state.inventorydetails.push(updatedInventory) }
     console.log('setInventoryDetails')
   };
 

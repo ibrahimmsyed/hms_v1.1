@@ -137,7 +137,7 @@ export default function InventoryNewEditForm({ isEdit, currentItem }) {
     try {
       console.log(data)
       const response = isEdit ? await inventoryApiService.updateInventory(data, currentItem.id) : await inventoryApiService.createInventory(data)
-      if(!isEdit){setInventoryDetails(response)}
+      setInventoryDetails(response)
       reset();
       enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
       navigate(PATH_DASHBOARD.settings.inventory);
