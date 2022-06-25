@@ -5,10 +5,10 @@ import { useParams, useLocation } from 'react-router-dom';
 import { Container } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
-import { getProducts } from '../../redux/slices/product';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
+import useUsers from '../../hooks/useUsers';
 import useSettings from '../../hooks/useSettings';
 // components
 import Page from '../../components/Page';
@@ -18,17 +18,13 @@ import InventoryNewEditForm from '../../sections/@dashboard/e-commerce/Inventory
 // ----------------------------------------------------------------------
 
 export default function InventoryCreate() {
+  const { inventorydetails: items } = useUsers();
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const { name } = useParams();
-  const { products } = useSelector((state) => state.product);
   const isEdit = pathname.includes('edit');
-  const currentProduct = products.find((product) => paramCase(product.name) === name);
-
-  useEffect(() => {
-    dispatch(getProducts());
-  }, [dispatch]);
+  const currentItem = items.find((item) => paramCase(item.itemName) === name);
 
   return (
     <Page title="Inventory: Create a new product">
@@ -41,11 +37,11 @@ export default function InventoryCreate() {
               name: 'Inventory',
               href: PATH_DASHBOARD.eCommerce.root,
             },
-            { name: !isEdit ? 'New product' : name },
+            { name: !isEdit ? 'New Item' : name },
           ]}
         />
 
-        <InventoryNewEditForm isEdit={isEdit} currentProduct={currentProduct} />
+        <InventoryNewEditForm isEdit={isEdit} currentItem={currentItem} />
       </Container>
     </Page>
   );

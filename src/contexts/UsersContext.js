@@ -39,6 +39,14 @@ const handlers = {
       ...state,
       practicedetails,
     };
+  },
+  INVENTORYDETAILS: (state, action) => {
+    const { inventorydetails } = action.payload;
+
+    return {
+      ...state,
+      inventorydetails,
+    };
   }
 };
 
@@ -49,6 +57,8 @@ const UsersContext = createContext({
   userDetails: () => Promise.resolve(),
   setUserDetails: () => Promise.resolve(),
   practiceDetails: () => Promise.resolve(),
+  inventoryDetails: () => Promise.resolve(),
+  setInventoryDetails: () => Promise.resolve(),
 });
 
 // ----------------------------------------------------------------------
@@ -98,13 +108,36 @@ function UsersProvider({ children }) {
     console.log('setUserDetails')
   };
 
+  const inventoryDetails = async () => {
+    const accessToken = window.localStorage.getItem('accessToken');
+    const idetails = await axios.get('http://localhost:8000/auth/inventorydetails/', {
+      headers: {
+        Authorization: `JWT ${accessToken}`
+      }
+    })
+    const inventorydetails = idetails.data
+    dispatch({
+      type: 'INVENTORYDETAILS',
+      payload: {
+        inventorydetails,
+      },
+    });
+  };
+
+  const setInventoryDetails = async (updatedInventory) => {
+    state.inventorydetails.push(updatedInventory)
+    console.log('setInventoryDetails')
+  };
+
   return (
     <UsersContext.Provider
       value={{
         ...state,
         userDetails,
         setUserDetails,
-        practiceDetails
+        practiceDetails,
+        inventoryDetails,
+        setInventoryDetails
       }}
     >
       {children}
