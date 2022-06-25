@@ -152,6 +152,21 @@ export default function AppointmentForm({ event, range, onCancel }) {
     'Snatch',
     '3 Idiots',
   ];
+  const TIME_OPTION = [
+    { code: '20', label: '20 minutes' },
+    { code: '30', label: '30 minutes' },
+    { code: '45', label: '45 minutes' },
+    { code: '1', label: '1 hour' },
+    { code: '1.30', label: '1 hour 30 minutes' },
+  ];
+  const DOC_OPTIONS = [
+    { code: '1', label: 'Dr. L.P. Mohan' },
+    { code: '2', label: 'Dr. Dinesh Babu' },
+    { code: '3', label: 'Dr. Suresh' },
+    { code: '4', label: 'Dr. Sreenivasan' },
+    { code: '5', label: 'Dr. Keerthana' },
+    { code: '6', label: 'Dr. Aarthi' },
+  ]
 
   return (
     <Container>
@@ -181,7 +196,7 @@ export default function AppointmentForm({ event, range, onCancel }) {
 
                   <RHFSelect name="doctor" label="Doctor" placeholder="Doctor">
                     <option value="" />
-                    {countries.map((option) => (
+                    {DOC_OPTIONS.map((option) => (
                       <option key={option.code} value={option.label}>
                         {option.label}
                       </option>
@@ -234,7 +249,7 @@ export default function AppointmentForm({ event, range, onCancel }) {
                   <RHFTextField name="email" label="Email Id"/>
                   <RHFSelect name="category" label="Category" placeholder="Category">
                     <option value="" />
-                    {countries.map((option) => (
+                    {TIME_OPTION.map((option) => (
                       <option key={option.code} value={option.label}>
                         {option.label}
                       </option>
@@ -399,9 +414,9 @@ export default function AppointmentForm({ event, range, onCancel }) {
                       />
                     )}
                   />
-                  <LabelStyle>Select the block type.</LabelStyle>
+                  {/* <LabelStyle>Select the block type.</LabelStyle>
                   <RHFCheckbox name="video" label="Block Video Appointments" sx={{ mt: 3 }} />
-                  <RHFCheckbox name="inclinic" label="Block In-Clinic Appointments" sx={{ mt: 3 }} />
+                  <RHFCheckbox name="inclinic" label="Block In-Clinic Appointments" sx={{ mt: 3 }} /> */}
                 </Stack>
                 <Stack spacing={3} sx={{ p: 1 }}>
                   <RHFSelect name="doctor" label="Doctor" placeholder="Doctor">

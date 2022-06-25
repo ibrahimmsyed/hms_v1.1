@@ -122,20 +122,20 @@ export default function Settings() {
                     <SettingMode />
                   </Stack>
 
-                  <Stack spacing={1.5}>
+                  {/* <Stack spacing={1.5}>
                     <Typography variant="subtitle2">Direction</Typography>
                     <SettingDirection />
-                  </Stack>
+                  </Stack> */}
 
                   <Stack spacing={1.5}>
                     <Typography variant="subtitle2">Layout</Typography>
                     <SettingLayout />
                   </Stack>
 
-                  <Stack spacing={1.5}>
+                  {/* <Stack spacing={1.5}>
                     <Typography variant="subtitle2">Presets</Typography>
                     <SettingColorPresets />
-                  </Stack>
+                  </Stack> */}
 
                   <Stack spacing={1.5}>
                     <Typography variant="subtitle2">Stretch</Typography>
