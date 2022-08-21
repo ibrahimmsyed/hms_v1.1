@@ -7,18 +7,24 @@ import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
-import { LoadingButton, MobileDateTimePicker } from '@mui/lab';
-import { Box, Card, Grid, Stack, Switch, Typography, FormControlLabel, TextField, TableContainer, Table, TableBody } from '@mui/material';
+import { LoadingButton, DesktopDatePicker } from '@mui/lab';
+import { IconButton, TableRow, Checkbox, TableCell, MenuItem, Box, Card, Grid, Stack, Switch, Typography, FormControlLabel, TextField, TableContainer, Table, TableBody, InputAdornment, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 // utils
+import moment from 'moment'
 import { fData } from '../../../utils/formatNumber';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // _mock
 import { countries } from '../../../_mock';
+// hooks
+import useUsers from '../../../hooks/useUsers';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
 import { getProducts } from '../../../redux/slices/product';
+import { getMedicalHistory, addMedicalHistory, deleteMedicalHistory } from '../../../redux/slices/patient';
+// Service
+import PatientApiService from '../../../services/Patient'
 // components
 import Scrollbar from '../../../components/Scrollbar';
 import {
@@ -29,28 +35,62 @@ import {
   TableSelectedActions,
 } from '../../../components/table';
 import Label from '../../../components/Label';
+import Iconify from '../../../components/Iconify';
 import { FormProvider, RHFSelect, RHFSwitch, RHFTextField, RHFUploadAvatar, RHFRadioGroup } from '../../../components/hook-form';
 import useTable, { getComparator, emptyRows } from '../../../hooks/useTable';
 import { ProductTableRow, ProductTableToolbar } from '../e-commerce/product-list';
+
 // ----------------------------------------------------------------------
 
 PatientNewEditForm.propTypes = {
   isEdit: PropTypes.bool,
-  currentUser: PropTypes.object,
+  currentPatient: PropTypes.object,
 };
 
-export default function PatientNewEditForm({ isEdit, currentUser }) {
+export default function PatientNewEditForm({ isEdit, currentPatient }) {
   const navigate = useNavigate();
-
+  const { setPatientDetails } = useUsers();
+  const patientApiService = new PatientApiService();
+  const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
   const GENDER_OPTION = ['Men', 'Women', 'Kids'];
+  const LANGUAGES_OPTION = [
+    "Asami",
+    "Bengali",
+    "Gujarati",
+    "Hindi",
+    "Kannada",
+    "Malayalam",
+    "Marathi",
+    "Odia",
+    "Punjabi",
+    "Tamil",
+    "Telugu",
+    "Urdu",
+    "Sanskrit",
+    "English",
+    "Konkani",
+    "Nepali",
+    "Bodo",
+    "Kashmiri",
+    "Maithili",
+    "Santali",
+    "Sindhi"
+  ]
+  const RELATION_OPTION = ['Father', 'Mother', 'Son', 'Daughter', 'Husband', 'Wife', 'Brother', 'Sister', 'Niece', 'Nephew', 'Uncle', 'Aunt', 'Grand Father', 'Grand Mother'];
+  const BLOODGROUP_OPTION = ['A+', 'A-', 'B-', 'O+', 'O-', 'AB+', 'AB-', 'B+']
   const LabelStyle = styled(Typography)(({ theme }) => ({
     ...theme.typography.subtitle2,
     color: theme.palette.text.secondary,
     marginBottom: theme.spacing(1),
   }));
-  const { products, isLoading } = useSelector((state) => state.product);
+
+  const { patientHistory, isLoading } = useSelector((state) => state.patient);
+  useEffect(() => {
+    setTableData(patientHistory)
+  }, [patientHistory]);
+
   const TABLE_HEAD = [
     { id: 'name', label: 'History', align: 'left' },
     { id: '' }
@@ -74,38 +114,59 @@ export default function PatientNewEditForm({ isEdit, currentUser }) {
     onChangeRowsPerPage,
   } = useTable({
     defaultOrderBy: 'createdAt',
+    defaultRowsPerPage: patientHistory?.length
   });
-  const [tableData, setTableData] = useState([]);
+  const [medicalHistoryTableData, setTableData] = useState([]);
+  const [newHistory, setNewHistory] = useState('');
   const NewUserSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().required('Email is required').email(),
-    phoneNumber: Yup.string().required('Phone number is required'),
-    address: Yup.string().required('Address is required'),
-    country: Yup.string().required('country is required'),
-    company: Yup.string().required('Company is required'),
-    state: Yup.string().required('State is required'),
+    patientName: Yup.string().required('patientName is required'),
+    patientId: Yup.string().required('patientId is required'),
+    aadharId: Yup.string().required('AadharId is required'),
+    gender: Yup.string().required('Gender is required'),
+    dob: Yup.string().required('date of birth is required'),
+    anniversary: Yup.string().required('Anniversary is required'),
+    bloodGroup: Yup.string().required('Blood group is required'),
+    email: Yup.string().required('Email is required'),
+    primaryMobNo: Yup.string().required('Primary Moile No is required'),
+    secondaryMobNo: Yup.string().required('Secondary Moile No is required'),
+    landlineNo: Yup.string().required('Landline No is required'),
+    relationType:Yup.string().required('Relation Type is required'),
+    relationName:Yup.string().required('Relation Name is required'),
+    languagePref:Yup.string().required('Language Preference is required'),
+    street: Yup.string().required('Street is required'),
     city: Yup.string().required('City is required'),
-    role: Yup.string().required('Role Number is required'),
-    avatarUrl: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
+    pinCode: Yup.string().required('Pincode is required'),
+    dop: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
+    locality: Yup.string().required('Locality is required'),
+    // otherHistory: Yup.string().required('Other History is required'),
+    // medicalHistory: Yup.string().required('Medical History is required'),
   });
   const defaultValues = useMemo(
     () => ({
-      name: currentUser?.name || '',
-      email: currentUser?.email || '',
-      phoneNumber: currentUser?.phoneNumber || '',
-      address: currentUser?.address || '',
-      country: currentUser?.country || '',
-      state: currentUser?.state || '',
-      city: currentUser?.city || '',
-      zipCode: currentUser?.zipCode || '',
-      avatarUrl: currentUser?.avatarUrl || '',
-      isVerified: currentUser?.isVerified || true,
-      status: currentUser?.status,
-      company: currentUser?.company || '',
-      role: currentUser?.role || '',
-    }),
+      patientName: currentPatient?.patientName || '',
+      patientId: currentPatient?.patientId || '',
+      aadharId: currentPatient?.aadharId || '',
+      gender: currentPatient?.gender || '',
+      dob: currentPatient?.dob || new Date(),
+      anniversary: currentPatient?.anniversary || new Date(),
+      bloodGroup: currentPatient?.bloodGroup || '',
+      email: currentPatient?.email || '',
+      primaryMobNo: currentPatient?.primaryMobNo || '',
+      secondaryMobNo: currentPatient?.secondaryMobNo || '',
+      landlineNo: currentPatient?.landlineNo || '',
+      relationType: currentPatient?.relationType || '',
+      relationName: currentPatient?.relationName || '',
+      languagePref: currentPatient?.languagePref || '',
+      street: currentPatient?.street || '',
+      city: currentPatient?.city || '',
+      pinCode: currentPatient?.pinCode || '',
+      dop: currentPatient?.dop || '',
+      locality: currentPatient?.locality || '',
+      // otherHistory: currentPatient?.otherHistory,
+      medicalHistory: currentPatient?.medicalHistory || '',
+     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentUser]
+    [currentPatient]
   );
 
   const methods = useForm({
@@ -124,26 +185,70 @@ export default function PatientNewEditForm({ isEdit, currentUser }) {
 
   const values = watch();
 
+  
+
+
   useEffect(() => {
-    if (isEdit && currentUser) {
+    if (isEdit && currentPatient) {
       reset(defaultValues);
+      const selectedHistory = currentPatient?.medicalHistory?.split(",").map(Number);
+      setSelected(selectedHistory)
     }
     if (!isEdit) {
       reset(defaultValues);
     }
+    dispatch(getMedicalHistory());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, currentUser]);
+  }, [isEdit, currentPatient, dispatch]);
 
-  const onSubmit = async () => {
+
+  /* const getMedicalHistory = async () => {
+    const mHistory = await patientApiService.getMedicalHistory()
+    
+    setTableData(mHistory)
+  }; */
+  
+
+  const onSubmit = async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      console.log(data)
+      data.dob = moment(data.dob).format('YYYY-MM-DD');
+      data.anniversary = moment(data.anniversary).format('YYYY-MM-DD');
+      data.dop = data?.dop?.path;
+      data.medicalHistory = selected.toString();
+      const response = isEdit ? await patientApiService.updatePatient(data, currentPatient.id) : await patientApiService.createPatient(data)
+      setPatientDetails(response)
       reset();
       enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
-      navigate(PATH_DASHBOARD.user.list);
+      navigate(PATH_DASHBOARD.patient.profile);
+
+      /* await new Promise((resolve) => setTimeout(resolve, 500));
+      reset();
+      enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
+      navigate(PATH_DASHBOARD.user.list); */
     } catch (error) {
       console.error(error);
     }
   };
+
+  const onAddNew = async () => {
+    const data = {
+      name: newHistory
+    }
+    dispatch(addMedicalHistory(data));
+    enqueueSnackbar('Create success!');
+    console.log(newHistory)
+  }
+
+  const handleNewHistoryChange = (e) => {
+    setNewHistory(e.target.value)
+  }
+
+  const onDeleteRow = async (id) => {
+    console.log(id)
+    dispatch(deleteMedicalHistory(id));
+    enqueueSnackbar('delete success!');
+  }
 
   const handleDrop = useCallback(
     (acceptedFiles) => {
@@ -151,7 +256,7 @@ export default function PatientNewEditForm({ isEdit, currentUser }) {
 
       if (file) {
         setValue(
-          'avatarUrl',
+          'dop',
           Object.assign(file, {
             preview: URL.createObjectURL(file),
           })
@@ -163,7 +268,7 @@ export default function PatientNewEditForm({ isEdit, currentUser }) {
   const denseHeight = dense ? 60 : 80;
   const [filterName, setFilterName] = useState('');
   const dataFiltered = applySortFilter({
-    tableData,
+    medicalHistoryTableData,
     comparator: getComparator(order, orderBy),
     filterName,
   });
@@ -181,9 +286,9 @@ export default function PatientNewEditForm({ isEdit, currentUser }) {
                 gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(1, 1fr)' },
               }}
             >
-              <RHFTextField name="name" label="Patient Name" />
-              <RHFTextField name="id" label="Patient Id" />
-              <RHFTextField name="aid" label="Aadhaar Id" />
+              <RHFTextField name="patientName" label="Patient Name" />
+              <RHFTextField name="patientId" label="Patient Id" />
+              <RHFTextField name="aadharId" label="Aadhaar Id" />
               <div>
                 <LabelStyle>Gender</LabelStyle>
                 <RHFRadioGroup
@@ -198,11 +303,11 @@ export default function PatientNewEditForm({ isEdit, currentUser }) {
                 name="dob"
                 control={control}
                 render={({ field }) => (
-                  <MobileDateTimePicker
+                  <DesktopDatePicker
                     {...field}
                     label="Date of Birth"
-                    inputFormat="dd/MM/yyyy"
-                    renderInput={(params) => <TextField {...params} fullWidth />}
+                    inputFormat="MM/dd/yyyy"
+                    renderInput={(params) => <TextField {...params} />}
                   />
                 )}
               />
@@ -210,19 +315,19 @@ export default function PatientNewEditForm({ isEdit, currentUser }) {
                 name="anniversary"
                 control={control}
                 render={({ field }) => (
-                  <MobileDateTimePicker
+                  <DesktopDatePicker
                     {...field}
                     label="Anniversary"
-                    inputFormat="dd/MM/yyyy"
-                    renderInput={(params) => <TextField {...params} fullWidth />}
+                    inputFormat="MM/dd/yyyy"
+                    renderInput={(params) => <TextField {...params} />}
                   />
                 )}
               />
-              <RHFSelect name="bloodgroup" label="Blood Group" placeholder="Blood Group">
+              <RHFSelect name="bloodGroup" label="Blood Group" placeholder="Blood Group">
                 <option value="" />
-                {countries.map((option) => (
-                  <option key={option.code} value={option.label}>
-                    {option.label}
+                {BLOODGROUP_OPTION.map((option, index) => (
+                  <option key={index} value={option}>
+                    {option}
                   </option>
                 ))}
               </RHFSelect>
@@ -234,15 +339,15 @@ export default function PatientNewEditForm({ isEdit, currentUser }) {
                   gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
                 }}
               >
-                <RHFSelect name="relation" label="Relation" placeholder="Relation">
+                <RHFSelect name="relationType" label="Relation" placeholder="Relation">
                   <option value="" />
-                  {countries.map((option) => (
-                    <option key={option.code} value={option.label}>
-                      {option.label}
+                  {RELATION_OPTION.map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
                     </option>
                   ))}
                 </RHFSelect>
-                <RHFTextField name="name" label="Name" />
+                <RHFTextField name="relationName" label="Name" />
               </Box>
             </Box>
             <Box
@@ -253,22 +358,22 @@ export default function PatientNewEditForm({ isEdit, currentUser }) {
                 gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(1, 1fr)' },
               }}
             >
-              <RHFTextField name="primaryPhoneNumber" label="Primary Mobile No." />
-              <RHFTextField name="secondaryPhoneNumber" label="Secondary Mobile No." />
-              <RHFSelect name="languagePreference" label="Language Preference" placeholder="Language Preference">
+              <RHFTextField name="primaryMobNo" label="Primary Mobile No." />
+              <RHFTextField name="secondaryMobNo" label="Secondary Mobile No." />
+              <RHFSelect name="languagePref" label="Language Preference" placeholder="Language Preference">
                 <option value="" />
-                {countries.map((option) => (
-                  <option key={option.code} value={option.label}>
-                    {option.label}
+                {LANGUAGES_OPTION.map((option, index) => (
+                  <option key={index} value={option}>
+                    {option}
                   </option>
                 ))}
               </RHFSelect>
-              <RHFTextField name="slandLineNumber" label="Land Line Nos." />
+              <RHFTextField name="landlineNo" label="Land Line Nos." />
               <RHFTextField name="email" label="Email Address" />
-              <RHFTextField name="streetaddress" label="Street Address" />
+              <RHFTextField name="street" label="Street Address" />
               <RHFTextField name="locality" label="Locality" />
               <RHFTextField name="city" label="City" />
-              <RHFTextField name="zipCode" label="Pincode" />
+              <RHFTextField name="pinCode" label="Pincode" />
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
@@ -291,7 +396,7 @@ export default function PatientNewEditForm({ isEdit, currentUser }) {
 
             <Box sx={{ mb: 5 }}>
               <RHFUploadAvatar
-                name="avatarUrl"
+                name="dop"
                 accept="image/*"
                 maxSize={3145728}
                 onDrop={handleDrop}
@@ -315,59 +420,57 @@ export default function PatientNewEditForm({ isEdit, currentUser }) {
           </Card>
           <Card sx={{ py: 10, px: 3, display: 'grid', rowGap: 2,  marginBottom: 3 }}>
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              {/* <LoadingButton sx={{ mb: 5 }} type="submit" variant="contained" loading={isSubmitting}>
                 {!isEdit ? 'Add New' : 'Add New'}
-              </LoadingButton>
+              </LoadingButton> */}
+              <TextField
+                fullWidth
+                placeholder="Add New History"
+                name="newHistory"
+                onChange={handleNewHistoryChange}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Button onClick={onAddNew} sx={{ mr: -0.5 }}>
+                        Add
+                      </Button>
+                    </InputAdornment>
+                  ),
+                }}
+              />
             </Stack>
-            <Scrollbar>
+            <Scrollbar
+              sx={{
+                mb: 2,
+                display: "flex",
+                flexDirection: "column",
+                height: 350,
+              }}>
               <TableContainer sx={{ minWidth: 0 }}>
-                {selected.length > 0 && (
-                  <TableSelectedActions
-                    dense={dense}
-                    numSelected={selected.length}
-                    rowCount={tableData.length}
-                    onSelectAllRows={(checked) =>
-                      onSelectAllRows(
-                        checked,
-                        tableData.map((row) => row.id)
-                      )
-                    }
-                  />
-                )}
-
                 <Table size={dense ? 'small' : 'medium'}>
-                  <TableHeadCustom
-                    order={order}
-                    orderBy={orderBy}
-                    headLabel={TABLE_HEAD}
-                    rowCount={tableData.length}
-                    numSelected={selected.length}
-                    onSort={onSort}
-                    onSelectAllRows={(checked) =>
-                      onSelectAllRows(
-                        checked,
-                        tableData.map((row) => row.id)
-                      )
-                    }
-                  />
-
                   <TableBody>
                     {(isLoading ? [...Array(rowsPerPage)] : dataFiltered)
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row, index) =>
                         row ? (
-                          <ProductTableRow
-                            key={row.id}
-                            row={row}
-                            selected={selected.includes(row.id)}
-                            onSelectRow={() => onSelectRow(row.id)}
-                          />
+                          <TableRow hover key={row.id} selected={selected.includes(row.id)}>
+                            <TableCell padding="checkbox">
+                              <Checkbox checked={selected.includes(row.id)} onClick={() => onSelectRow(row.id)} />
+                            </TableCell>
+                            <TableCell>{row.name}</TableCell>
+                            <TableCell>
+                            <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => onDeleteRow(row.id)}>
+                              <Iconify icon={'eva:trash-2-outline'} />
+                            </IconButton>
+                            </TableCell>
+                          </TableRow>
+                          
                         ) : (
                           !isNotFound && <TableSkeleton key={index} sx={{ height: denseHeight }} />
                         )
                       )}
 
-                    <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
+                    <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, medicalHistoryTableData.length)} />
 
                     <TableNoData isNotFound={isNotFound} />
                   </TableBody>
@@ -375,7 +478,7 @@ export default function PatientNewEditForm({ isEdit, currentUser }) {
               </TableContainer>
             </Scrollbar>
           </Card>
-          <Card sx={{ py: 10, px: 3, display: 'grid', rowGap: 2,  marginBottom: 3 }}>
+          {/* <Card sx={{ py: 10, px: 3, display: 'grid', rowGap: 2,  marginBottom: 3 }}>
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                 {!isEdit ? 'Add New' : 'Add New'}
@@ -387,11 +490,11 @@ export default function PatientNewEditForm({ isEdit, currentUser }) {
                   <TableSelectedActions
                     dense={dense}
                     numSelected={selected.length}
-                    rowCount={tableData.length}
+                    rowCount={medicalHistoryTableData.length}
                     onSelectAllRows={(checked) =>
                       onSelectAllRows(
                         checked,
-                        tableData.map((row) => row.id)
+                        medicalHistoryTableData.map((row) => row.id)
                       )
                     }
                   />
@@ -402,13 +505,13 @@ export default function PatientNewEditForm({ isEdit, currentUser }) {
                     order={order}
                     orderBy={orderBy}
                     headLabel={TABLE_HEAD}
-                    rowCount={tableData.length}
+                    rowCount={medicalHistoryTableData.length}
                     numSelected={selected.length}
                     onSort={onSort}
                     onSelectAllRows={(checked) =>
                       onSelectAllRows(
                         checked,
-                        tableData.map((row) => row.id)
+                        medicalHistoryTableData.map((row) => row.id)
                       )
                     }
                   />
@@ -429,14 +532,14 @@ export default function PatientNewEditForm({ isEdit, currentUser }) {
                         )
                       )}
 
-                    <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
+                    <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, medicalHistoryTableData.length)} />
 
                     <TableNoData isNotFound={isNotFound} />
                   </TableBody>
                 </Table>
               </TableContainer>
             </Scrollbar>
-          </Card>
+          </Card> */}
         </Grid>
       </Grid>
     </FormProvider>
@@ -444,8 +547,8 @@ export default function PatientNewEditForm({ isEdit, currentUser }) {
 }
 // ----------------------------------------------------------------------
 
-function applySortFilter({ tableData, comparator, filterName }) {
-  const stabilizedThis = tableData.map((el, index) => [el, index]);
+function applySortFilter({ medicalHistoryTableData, comparator, filterName }) {
+  const stabilizedThis = medicalHistoryTableData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
@@ -453,11 +556,11 @@ function applySortFilter({ tableData, comparator, filterName }) {
     return a[1] - b[1];
   });
 
-  tableData = stabilizedThis.map((el) => el[0]);
+  medicalHistoryTableData = stabilizedThis.map((el) => el[0]);
 
   if (filterName) {
-    tableData = tableData.filter((item) => item.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
+    medicalHistoryTableData = medicalHistoryTableData.filter((item) => item.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
   }
 
-  return tableData;
+  return medicalHistoryTableData;
 }

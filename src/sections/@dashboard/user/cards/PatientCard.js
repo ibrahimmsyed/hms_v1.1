@@ -30,11 +30,11 @@ const OverlayStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 UserCard.propTypes = {
-  user: PropTypes.object.isRequired,
+  patient: PropTypes.object.isRequired,
 };
 
-export default function UserCard({ user }) {
-  const { name, cover, position, follower, totalPost, avatarUrl, following } = user;
+export default function UserCard({ patient }) {
+  const { id, patientName, gender, primaryMobNo, dop } = patient;
 
   return (
     <Card sx={{ textAlign: 'center' }}>
@@ -54,8 +54,8 @@ export default function UserCard({ user }) {
           }}
         />
         <Avatar
-          alt={name}
-          src={avatarUrl}
+          alt={patientName}
+          src={dop}
           sx={{
             width: 64,
             height: 64,
@@ -68,16 +68,16 @@ export default function UserCard({ user }) {
           }}
         />
         <OverlayStyle />
-        <Image src={cover} alt={cover} ratio="16/9" />
+        <Image src="https://minimal-assets-api.vercel.app/assets/images/covers/cover_1.jpg" alt="" ratio="16/9" />
       </Box>
-      <Link to={`${PATH_DASHBOARD.patient.edit(name)}`} color="inherit" component={RouterLink}>
+      <Link to={`${PATH_DASHBOARD.patient.edit(id)}`} color="inherit" component={RouterLink}>
         <Typography variant="subtitle1" sx={{ mt: 6 }}>
-          {name}
+          {patientName}
         </Typography>
       </Link>
 
       <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-        {position}
+        {}
       </Typography>
 
       <Box sx={{ py: 3, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
@@ -85,14 +85,14 @@ export default function UserCard({ user }) {
           <Typography variant="caption" component="div" sx={{ mb: 0.75, color: 'text.disabled' }}>
             Gender
           </Typography>
-          <Typography variant="subtitle1">{fShortenNumber(follower)}</Typography>
+          <Typography variant="subtitle1">{gender}</Typography>
         </div>
 
         <div>
           <Typography variant="caption" component="div" sx={{ mb: 0.75, color: 'text.disabled' }}>
             Contact No.
           </Typography>
-          <Typography variant="subtitle1">{fShortenNumber(totalPost)}</Typography>
+          <Typography variant="subtitle1">{primaryMobNo}</Typography>
         </div>
       </Box>
     </Card>

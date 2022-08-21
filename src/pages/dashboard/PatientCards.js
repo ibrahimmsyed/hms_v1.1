@@ -5,6 +5,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
 import useSettings from '../../hooks/useSettings';
+import useUsers from '../../hooks/useUsers';
 // _mock_
 import { _userCards } from '../../_mock';
 // components
@@ -17,6 +18,7 @@ import { PatientCard } from '../../sections/@dashboard/user/cards';
 // ----------------------------------------------------------------------
 
 export default function UserCards() {
+  const { patientdetails: _patients } = useUsers();
   const { themeStretch } = useSettings();
 
   return (
@@ -51,8 +53,8 @@ export default function UserCards() {
             },
           }}
         >
-          {_userCards.map((user) => (
-            <PatientCard key={user.id} user={user} />
+          {_patients.map((patient) => (
+            <PatientCard key={patient.id} patient={patient} />
           ))}
         </Box>
       </Container>

@@ -49,6 +49,14 @@ const handlers = {
       ...state,
       inventorydetails,
     };
+  },
+  PATIENTDETAILS: (state, action) => {
+    const { patientdetails } = action.payload;
+
+    return {
+      ...state,
+      patientdetails,
+    };
   }
 };
 
@@ -61,6 +69,8 @@ const UsersContext = createContext({
   practiceDetails: () => Promise.resolve(),
   inventoryDetails: () => Promise.resolve(),
   setInventoryDetails: () => Promise.resolve(),
+  patientDetails: () => Promise.resolve(),
+  setPatientDetails: () => Promise.resolve(),
 });
 
 // ----------------------------------------------------------------------
@@ -133,6 +143,28 @@ function UsersProvider({ children }) {
     console.log('setInventoryDetails')
   };
 
+  const patientDetails = async () => {
+    const accessToken = window.localStorage.getItem('accessToken');
+    const idetails = await axios.get('http://localhost:8000/auth/patientdetails/', {
+      headers: {
+        Authorization: `JWT ${accessToken}`
+      }
+    })
+    const patientdetails = idetails.data
+    dispatch({
+      type: 'PATIENTDETAILS',
+      payload: {
+        patientdetails,
+      },
+    });
+  };
+
+  const setPatientDetails = async (updatedPatient) => {
+    const index = state.patientdetails.findIndex(item => item.id === updatedPatient.id)
+    if(index > -1){ state.patientdetails[index] = updatedPatient }else{ state.patientdetails.push(updatedPatient) }
+    console.log('setPatientDetails')
+  };
+
   return (
     <UsersContext.Provider
       value={{
@@ -141,7 +173,9 @@ function UsersProvider({ children }) {
         setUserDetails,
         practiceDetails,
         inventoryDetails,
-        setInventoryDetails
+        setInventoryDetails,
+        patientDetails,
+        setPatientDetails
       }}
     >
       {children}
