@@ -22,7 +22,7 @@ import useUsers from '../../../hooks/useUsers';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
 import { getProducts } from '../../../redux/slices/product';
-import { getMedicalHistory, addMedicalHistory, deleteMedicalHistory } from '../../../redux/slices/patient';
+import { getMedicalHistory, addMedicalHistory, deleteMedicalHistory, addPatientsDetail } from '../../../redux/slices/patient';
 // Service
 import PatientApiService from '../../../services/Patient'
 // components
@@ -202,13 +202,6 @@ export default function PatientNewEditForm({ isEdit, currentPatient }) {
   }, [isEdit, currentPatient, dispatch]);
 
 
-  /* const getMedicalHistory = async () => {
-    const mHistory = await patientApiService.getMedicalHistory()
-    
-    setTableData(mHistory)
-  }; */
-  
-
   const onSubmit = async (data) => {
     try {
       console.log(data)
@@ -216,16 +209,11 @@ export default function PatientNewEditForm({ isEdit, currentPatient }) {
       data.anniversary = moment(data.anniversary).format('YYYY-MM-DD');
       data.dop = data?.dop?.path;
       data.medicalHistory = selected.toString();
-      const response = isEdit ? await patientApiService.updatePatient(data, currentPatient.id) : await patientApiService.createPatient(data)
+      const response = isEdit ? await patientApiService.updatePatient(data, currentPatient.id) : dispatch(addPatientsDetail(data))
       setPatientDetails(response)
       reset();
       enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
       navigate(PATH_DASHBOARD.patient.profile);
-
-      /* await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
-      enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
-      navigate(PATH_DASHBOARD.user.list); */
     } catch (error) {
       console.error(error);
     }
@@ -453,9 +441,9 @@ export default function PatientNewEditForm({ isEdit, currentPatient }) {
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row, index) =>
                         row ? (
-                          <TableRow hover key={row.id} selected={selected.includes(row.id)}>
+                          <TableRow hover key={row.id} selected={selected?.includes(row.id)}>
                             <TableCell padding="checkbox">
-                              <Checkbox checked={selected.includes(row.id)} onClick={() => onSelectRow(row.id)} />
+                              <Checkbox checked={selected?.includes(row.id)} onClick={() => onSelectRow(row.id)} />
                             </TableCell>
                             <TableCell>{row.name}</TableCell>
                             <TableCell>

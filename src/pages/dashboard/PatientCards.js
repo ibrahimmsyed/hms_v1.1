@@ -1,11 +1,16 @@
 // @mui
 import { Container, Box, Button } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
+// react
+import { useEffect } from 'react';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
 import useSettings from '../../hooks/useSettings';
 import useUsers from '../../hooks/useUsers';
+// redux
+import { useDispatch, useSelector } from '../../redux/store';
+import { getPatientsDetails } from '../../redux/slices/patient';
 // _mock_
 import { _userCards } from '../../_mock';
 // components
@@ -18,8 +23,12 @@ import { PatientCard } from '../../sections/@dashboard/user/cards';
 // ----------------------------------------------------------------------
 
 export default function UserCards() {
-  const { patientdetails: _patients } = useUsers();
   const { themeStretch } = useSettings();
+  const dispatch = useDispatch();
+  const { patients:_patients, isLoading } = useSelector((state) => state.patient);
+  useEffect(() => {
+    dispatch(getPatientsDetails());
+  },[dispatch])
 
   return (
     <Page title="User: Cards">

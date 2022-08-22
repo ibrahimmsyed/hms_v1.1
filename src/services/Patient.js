@@ -60,47 +60,6 @@ class PatientApiService {
         }
     };
 
-    getMedicalHistory = async() => {
-        const accessToken = window.localStorage.getItem('accessToken');
-        const mhistory = await axios.get('http://localhost:8000/auth/medicalhistory/', {
-        headers: {
-            Authorization: `JWT ${accessToken}`
-        }
-        })
-        this.medicalHistory = mhistory.data
-        return this.medicalHistory
-    }
-
-    addMedicalHistory = async(history) => {
-        try {
-            this.history = history
-            const accessToken = window.localStorage.getItem('accessToken');
-            const response = await axios.post('http://localhost:8000/auth/medicalhistory/', this.history,{
-                headers: {
-                Authorization: `JWT ${accessToken}`
-                }
-            });
-            return response
-        }catch (error) {
-            console.log(error);
-            return error;
-        }
-    }
-
-    deleteHistory = async (id) => {
-        try {
-            this.accessToken = window.localStorage.getItem('accessToken');
-            let message;
-            const response = await axios.delete(`http://localhost:8000/auth/medicalhistory/${id}/`, 
-            {
-                headers: {
-                Authorization: `JWT ${this.accessToken}`
-                }
-            });
-            return response
-        }catch (error) {
-            return error;
-        }
-    };
+    
 }
 export default PatientApiService;

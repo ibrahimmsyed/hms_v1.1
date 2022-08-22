@@ -15,8 +15,8 @@ import { dispatch } from '../store';
 const initialState = {
   isLoading: false,
   error: null,
-  users: [],
-  currentUser: {},
+  patients: [],
+  currentPatient: {},
   patientHistory: []
 };
 
@@ -36,14 +36,22 @@ const slice = createSlice({
     },
 
     // GET USERS
-    getUsersSuccess(state, action) {
+    getPatientsSuccess(state, action) {
       state.isLoading = false;
-      state.users = action.payload;
+      state.patients = action.payload;
     },
-    setCurrentUser(state, action) {
-        state.isLoading = false;
-        state.currentUser = action.payload;
+    setPatientDetails(state, action) {
+      state.isLoading = false;
+      state.currentPatient = action.payload
     },
+    updatePatientDetails(state, action) {
+      state.isLoading = false;
+      state.currentPatient = [...state.currentPatient, action.payload]
+    },
+    removePatientDetail(state, action) {
+      state.isLoading = false;
+      state.patients = state.patients.filter(patient => patient.id !== action.payload)
+  },
     setPatientHistory(state, action) {
       state.isLoading = false;
       state.patientHistory = action.payload;
@@ -64,15 +72,18 @@ export default slice.reducer;
 
 // Actions
 export const {
-    getUsersSuccess,
+    getPatientsSuccess,
     setPatientHistory,
-    setCurrentUser,
-    updatePatientHistory
+    setPatientDetails,
+    updatePatientHistory,
+    updatePatientDetails,
+    deletePatientHistory,
+    removePatientDetail
 } = slice.actions;
 
 // ----------------------------------------------------------------------
 
-export function getUsersDetails() {
+export function getPatientsDetails() {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
@@ -82,15 +93,33 @@ export function getUsersDetails() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const res = await axios.get('http://localhost:8000/auth/users/', headers);
-      const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
-      dispatch(slice.actions.getUsersSuccess(response));
+      const res = await axios.get('http://localhost:8000/auth/patientdetails/', headers);
+      // const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
+      dispatch(slice.actions.getPatientsSuccess(res.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
   };
 }
-export function getCurrentUser() {
+export function getCurrentPatientsDetails(id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const res = await axios.get(`http://localhost:8000/auth/patientdetails/${id}/`, headers);
+      // const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
+      dispatch(slice.actions.setPatientDetails(res.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function addPatientsDetail(data) {
     return async () => {
       dispatch(slice.actions.startLoading());
       try {
@@ -100,12 +129,46 @@ export function getCurrentUser() {
               Authorization: `JWT ${accessToken}`
               }
           }
-        const response = await axios.get('http://localhost:8000/auth/users/me/', headers);
-        dispatch(slice.actions.setCurrentUser(response));
+        const response = await axios.post('http://localhost:8000/auth/patientdetails/', data, headers);
+        dispatch(slice.actions.updatePatientDetails(response.data));
       } catch (error) {
         dispatch(slice.actions.hasError(error));
       }
     };
+}
+export function updatePatientsDetail(data, id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.put(`http://localhost:8000/auth/patientdetails/${id}/`, data, headers);
+      dispatch(slice.actions.setPatientDetails(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function deletePatientsDetail(data, id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.delete(`http://localhost:8000/auth/patientdetails/${id}/`, data, headers);
+      dispatch(slice.actions.removePatientDetail(id));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
 }
 
 export function getMedicalHistory() {
