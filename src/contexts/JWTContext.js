@@ -84,7 +84,7 @@ function AuthProvider({ children }) {
           await useUsers.userDetails()
           await useUsers.practiceDetails()
           await useUsers.inventoryDetails()
-          await useUsers.patientDetails()
+          // await useUsers.patientDetails()
           const { data:user } = response;
 
           dispatch({

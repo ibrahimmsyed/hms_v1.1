@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 import merge from 'lodash/merge';
 import { isBefore } from 'date-fns';
 import { useSnackbar } from 'notistack';
-import { useState, SyntheticEvent } from 'react';
+import { useState, SyntheticEvent, useMemo, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 // form
 import { useForm, Controller } from 'react-hook-form';
@@ -35,17 +35,21 @@ const COLOR_OPTIONS = [
   '#7A0C2E', // theme.palette.error.darker
 ];
 
-const getInitialValues = (event, range) => {
+const getInitialValues = (event, currentAppointment) => {
   const _event = {
     title: '',
     description: '',
     textColor: '#1890FF',
     allDay: false,
-    start: range ? new Date(range.start) : new Date(),
-    end: range ? new Date(range.end) : new Date(),
+    start: currentAppointment ? new Date(currentAppointment.start) : new Date(),
+    end: currentAppointment ? new Date(currentAppointment.end) : new Date(),
+    patientName: currentAppointment?.patientName || '',
+    patientId: currentAppointment?.patientId || '1111',
+    email: currentAppointment?.email || '',
+    mobileNo: currentAppointment?.mobileNo || '',
   };
 
-  if (event || range) {
+  if (event || currentAppointment) {
     return merge({}, _event, event);
   }
 
@@ -65,16 +69,29 @@ export default function AppointmentForm({ event, range, onCancel }) {
 
   const dispatch = useDispatch();
 
+  const [currentAppointment, setCurrentAppointment] = useState({})
+
   const isCreating = Object.keys(event).length === 0;
 
+  const defaultValues = useMemo(
+    () => ({
+      patientName: currentAppointment?.patientName || '',
+      patientId: currentAppointment?.patientId || '1111',
+      email: currentAppointment?.email || '',
+      mobileNo: currentAppointment?.mobileNo || '',
+     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentAppointment]
+  );
+
   const EventSchema = Yup.object().shape({
-    title: Yup.string().max(255).required('Title is required'),
-    description: Yup.string().max(5000),
+    // title: Yup.string().max(255).required('Title is required'),
+    // description: Yup.string().max(5000),
   });
 
   const methods = useForm({
     resolver: yupResolver(EventSchema),
-    defaultValues: getInitialValues(event, range),
+    defaultValues
   });
   const [value, setValue] = useState('1');
 
@@ -89,6 +106,8 @@ export default function AppointmentForm({ event, range, onCancel }) {
     color: theme.palette.text.secondary,
     marginBottom: theme.spacing(1),
   }));
+
+  
 
   const {
     reset,
@@ -152,6 +171,24 @@ export default function AppointmentForm({ event, range, onCancel }) {
     'Snatch',
     '3 Idiots',
   ];
+  const [patient, setSelectedPatient] = useState({});
+  const selectedPatient = (selected) => { 
+    const selectedPatient = {
+      patientName : selected.patientName,
+      patientId : selected.patientId,
+      email : selected.email,
+      mobileNo : selected.primaryMobNo
+    }
+    setCurrentAppointment(selectedPatient)
+    setSelectedPatient(selected)
+    console.log(selected);
+  };
+
+  useEffect(() => {
+      // getInitialValues(event, currentAppointment)
+      reset(defaultValues);
+      // reset(currentAppointment);
+  }, [currentAppointment]);
 
   return (
     <Container>
@@ -175,9 +212,9 @@ export default function AppointmentForm({ event, range, onCancel }) {
                 }}
               >
                 <Stack spacing={3} sx={{ p: 1 }}>
-                  <PatientSearch />
+                  <PatientSearch selectedPatient={selectedPatient}/>
 
-                  <RHFTextField name="mnumber" label="Mobile Number" />
+                  <RHFTextField name="mobileNo" label="Mobile Number" />
 
                   <RHFSelect name="doctor" label="Doctor" placeholder="Doctor">
                     <option value="" />
@@ -197,7 +234,7 @@ export default function AppointmentForm({ event, range, onCancel }) {
                   />
 
                   <Controller
-                    name="start"
+                    name="startTime"
                     control={control}
                     render={({ field }) => (
                       <MobileDateTimePicker
@@ -210,7 +247,7 @@ export default function AppointmentForm({ event, range, onCancel }) {
                   />
 
                   <Controller
-                    name="end"
+                    name="endTime"
                     control={control}
                     render={({ field }) => (
                       <MobileDateTimePicker
@@ -230,7 +267,7 @@ export default function AppointmentForm({ event, range, onCancel }) {
                   />
                 </Stack>
                 <Stack spacing={3} sx={{ p: 1 }}>
-                  <RHFTextField name="id" label="Patient Id" disabled />
+                  <RHFTextField name="patientId" label="Patient Id" disabled />
                   <RHFTextField name="email" label="Email Id"/>
                   <RHFSelect name="category" label="Category" placeholder="Category">
                     <option value="" />
@@ -309,11 +346,11 @@ export default function AppointmentForm({ event, range, onCancel }) {
                 }}
               >
                 <Stack spacing={3} sx={{ p: 1 }}>
-                  <RHFTextField name="rtitle" label="Reminder Title" />
+                  <RHFTextField name="reminderTitle" label="Reminder Title" />
                   <div>
                     <LabelStyle>Duration</LabelStyle>
                     <RHFRadioGroup
-                      name="gender"
+                      name="duration"
                       options={DURATION}
                       sx={{
                         '& .MuiFormControlLabel-root': { mr: 4 },
@@ -321,7 +358,7 @@ export default function AppointmentForm({ event, range, onCancel }) {
                     />
                   </div>
                   <Controller
-                    name="start"
+                    name="startTime"
                     control={control}
                     render={({ field }) => (
                       <MobileDateTimePicker
@@ -376,11 +413,11 @@ export default function AppointmentForm({ event, range, onCancel }) {
                 }}
               >
                 <Stack spacing={3} sx={{ p: 1 }}>
-                  <RHFTextField name="leave" label="Leave Details" />
+                  <RHFTextField name="leaveDetails" label="Leave Details" />
                   <div>
                     <LabelStyle>Duration</LabelStyle>
                     <RHFRadioGroup
-                      name="gender"
+                      name="duration"
                       options={DURATION}
                       sx={{
                         '& .MuiFormControlLabel-root': { mr: 4 },
@@ -388,7 +425,7 @@ export default function AppointmentForm({ event, range, onCancel }) {
                     />
                   </div>
                   <Controller
-                    name="start"
+                    name="startTime"
                     control={control}
                     render={({ field }) => (
                       <MobileDateTimePicker
@@ -399,9 +436,10 @@ export default function AppointmentForm({ event, range, onCancel }) {
                       />
                     )}
                   />
-                  <LabelStyle>Select the block type.</LabelStyle>
+                {/*   <LabelStyle>Select the block type.</LabelStyle>
                   <RHFCheckbox name="video" label="Block Video Appointments" sx={{ mt: 3 }} />
                   <RHFCheckbox name="inclinic" label="Block In-Clinic Appointments" sx={{ mt: 3 }} />
+                 */}
                 </Stack>
                 <Stack spacing={3} sx={{ p: 1 }}>
                   <RHFSelect name="doctor" label="Doctor" placeholder="Doctor">

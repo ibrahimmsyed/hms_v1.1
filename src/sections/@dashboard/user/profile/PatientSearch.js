@@ -5,7 +5,7 @@ import match from 'autosuggest-highlight/match';
 import { useNavigate } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
-import { Link, Typography, Autocomplete, InputAdornment, Popper, TextField, Stack  } from '@mui/material';
+import { Link, Typography, Autocomplete, InputAdornment, Popper, TextField, Stack, Box  } from '@mui/material';
 // hooks
 import useIsMountedRef from '../../../../hooks/useIsMountedRef';
 // utils
@@ -26,7 +26,7 @@ const PopperStyle = styled((props) => <Popper placement="bottom-start" {...props
 
 // ----------------------------------------------------------------------
 
-export default function PatientSearch() {
+export default function PatientSearch({selectedPatient}) {
   const navigate = useNavigate();
 
   const isMountedRef = useIsMountedRef();
@@ -39,12 +39,17 @@ export default function PatientSearch() {
     try {
       setSearchQuery(value);
       if (value) {
-        const response = await axios.get('https://minimal-assets-api.vercel.app/api/products/search', {
-          params: { query: value },
-        });
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            },
+            params: { search: value }
+        }
+        const response = await axios.get('http://localhost:8000/auth/patientdetails/', headers);
 
         if (isMountedRef.current) {
-          setSearchResults(response.data.results);
+          setSearchResults(response.data);
         }
       }
     } catch (error) {
@@ -67,8 +72,16 @@ export default function PatientSearch() {
       <Autocomplete
         freeSolo
         id="free-solo-2-demo"
+        onInputChange={(event, value) => handleChangeSearch(value)}
         disableClearable
-        options={top100Films.map((option) => option.title)}
+        // options={searchResults.map((option) => option.patientName)}
+        getOptionLabel={(option) => option.patientName}
+        options={searchResults}
+        renderOption={(props, option) => (
+          <Box component="li" {...props} key={option.id}>
+            {option.patientName}
+          </Box>
+        )}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -79,6 +92,10 @@ export default function PatientSearch() {
             }}
           />
         )}
+        onChange={(event, newValue) => {
+          selectedPatient(newValue)
+          console.log(JSON.stringify(newValue, null, ' '));
+        }}
       />
     </Stack>
   );

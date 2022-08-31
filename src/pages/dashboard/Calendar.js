@@ -11,6 +11,7 @@ import { Card, Button, Container, DialogTitle } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
 import { getEvents, openModal, closeModal, updateEvent, selectEvent, selectRange } from '../../redux/slices/calendar';
+import { getPatientsDetails } from '../../redux/slices/patient';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -52,9 +53,11 @@ export default function Calendar() {
   const selectedEvent = useSelector(selectedEventSelector);
 
   const { events, isOpenModal, selectedRange } = useSelector((state) => state.calendar);
+  const { patients } = useSelector((state) => state.patient);
 
   useEffect(() => {
     dispatch(getEvents());
+    dispatch(getPatientsDetails());
   }, [dispatch]);
 
   useEffect(() => {
@@ -206,7 +209,6 @@ export default function Calendar() {
 
         <DialogAnimate maxWidth={false}  open={isOpenModal} onClose={handleCloseModal} sx={{maxWidth: 860}}>
           <DialogTitle>{selectedEvent ? 'Edit Event' : 'Add Event'}</DialogTitle>
-
           <AppointmentForm event={selectedEvent || {}} range={selectedRange} onCancel={handleCloseModal} />
         </DialogAnimate>
       </Container>
