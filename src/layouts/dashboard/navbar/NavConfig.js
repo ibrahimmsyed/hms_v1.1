@@ -3,6 +3,7 @@ import { PATH_DASHBOARD } from '../../../routes/paths';
 // components
 import Label from '../../../components/Label';
 import SvgIconStyle from '../../../components/SvgIconStyle';
+import Iconify from '../../../components/Iconify';
 
 // ----------------------------------------------------------------------
 
@@ -22,6 +23,7 @@ const ICONS = {
   ecommerce: getIcon('ic_ecommerce'),
   analytics: getIcon('ic_analytics'),
   dashboard: getIcon('ic_dashboard'),
+  labs: getIcon('ic_outline-biotech'),
 };
 
 const navConfig = [
@@ -38,6 +40,14 @@ const navConfig = [
         icon: ICONS.user,
         children: [
           { title: 'Profile', path: PATH_DASHBOARD.patient.profile },
+        ],
+      },
+      {
+        title: 'Labs',
+        path: PATH_DASHBOARD.user.root,
+        icon: <Iconify icon={'ic:outline-biotech'} width={24} height={24} />,
+        children: [
+          { title: 'Orders', path: PATH_DASHBOARD.labs.orders },
         ],
       },
       {

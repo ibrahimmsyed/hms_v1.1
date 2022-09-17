@@ -108,6 +108,15 @@ export default function Router() {
           ],
         },
         {
+          path: 'labs',
+          children: [
+            { element: <Navigate to="/dashboard/labs/orders" replace />, index: true },
+            { path: 'orders', element: <LabOrders /> },
+            { path: 'new', element: <LabsCreate /> },
+            { path: ':id/new', element: <LabsCreate /> },
+          ],
+        },
+        {
           path: 'settings',
           children: [
             { element: <Navigate to="/dashboard/settings/practicedetails" replace />, index: true },
@@ -238,6 +247,8 @@ const PatientCreate = Loadable(lazy(() => import('../pages/dashboard/PatientCrea
 //
 const PracticeDetails = Loadable(lazy(() => import('../pages/dashboard/PracticeDetails')));
 const PracticeStaff = Loadable(lazy(() => import('../pages/dashboard/PracticeStaff')));
+const LabOrders = Loadable(lazy(() => import('../pages/dashboard/LabOrders')));
+const LabsCreate = Loadable(lazy(() => import('../pages/dashboard/LabsCreate')));
 const Inventory = Loadable(lazy(() => import('../pages/dashboard/Inventory')));
 const InventoryCreate = Loadable(lazy(() => import('../pages/dashboard/InventoryCreate')));
 // APP

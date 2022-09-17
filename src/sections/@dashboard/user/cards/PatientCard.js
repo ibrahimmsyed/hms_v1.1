@@ -31,11 +31,12 @@ const OverlayStyle = styled('div')(({ theme }) => ({
 
 UserCard.propTypes = {
   user: PropTypes.object.isRequired,
+  isSearch: PropTypes.bool
 };
 
-export default function UserCard({ user }) {
+export default function UserCard({ user, isSearch }) {
   const { name, cover, position, follower, totalPost, avatarUrl, following } = user;
-
+  const redirectLink = isSearch ? `${PATH_DASHBOARD.labs.new(name)}` : `${PATH_DASHBOARD.patient.edit(name)}`
   return (
     <Card sx={{ textAlign: 'center' }}>
       <Box sx={{ position: 'relative' }}>
@@ -70,7 +71,7 @@ export default function UserCard({ user }) {
         <OverlayStyle />
         <Image src={cover} alt={cover} ratio="16/9" />
       </Box>
-      <Link to={`${PATH_DASHBOARD.patient.edit(name)}`} color="inherit" component={RouterLink}>
+      <Link to={redirectLink} color="inherit" component={RouterLink}>
         <Typography variant="subtitle1" sx={{ mt: 6 }}>
           {name}
         </Typography>
