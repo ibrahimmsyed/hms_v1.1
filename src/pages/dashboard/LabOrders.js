@@ -125,7 +125,7 @@ export default function LabOrders() {
   };
 
   const handleEditRow = (id) => {
-    navigate(PATH_DASHBOARD.user.edit(paramCase(id)));
+    navigate(PATH_DASHBOARD.labs.edit(paramCase(id)));
   };
 
   const handleAddNew = () => {

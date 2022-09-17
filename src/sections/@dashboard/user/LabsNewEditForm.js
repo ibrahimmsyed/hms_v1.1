@@ -196,7 +196,7 @@ export default function LabsNewEditForm({ isEdit, currentUser }) {
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={9}>
           <Card sx={{ p: 3, display: 'grid', rowGap: 3, }}>
             <Box
               sx={{
@@ -305,7 +305,7 @@ export default function LabsNewEditForm({ isEdit, currentUser }) {
             </Stack>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <Card sx={{ py: 5, px: 3, display: 'grid', rowGap: 2,  marginBottom: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Avatar alt='' src='' sx={{ mr: 2 }} />

@@ -114,6 +114,7 @@ export default function Router() {
             { path: 'orders', element: <LabOrders /> },
             { path: 'new', element: <LabsCreate /> },
             { path: ':id/new', element: <LabsCreate /> },
+            { path: ':id/edit', element: <LabsCreate /> },
           ],
         },
         {
