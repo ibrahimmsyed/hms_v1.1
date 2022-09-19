@@ -65,9 +65,13 @@ export const PATH_DASHBOARD = {
   patient: {
     root: path(ROOTS_DASHBOARD, '/patient'),
     new: path(ROOTS_DASHBOARD, '/patient/new'),
-    list: path(ROOTS_DASHBOARD, '/patient/list'),
-    cards: path(ROOTS_DASHBOARD, '/patient/cards'),
     profile: path(ROOTS_DASHBOARD, '/patient/profile'),
+    appointments: path(ROOTS_DASHBOARD, '/patient/appointments'),
+    plans: path(ROOTS_DASHBOARD, '/patient/plans'),
+    files: path(ROOTS_DASHBOARD, '/patient/files'),
+    payments: path(ROOTS_DASHBOARD, '/patient/payments'),
+    communication: path(ROOTS_DASHBOARD, '/patient/communication'),
+    
     account: path(ROOTS_DASHBOARD, '/patient/account'),
     edit: (name) => path(ROOTS_DASHBOARD, `/patient/${name}/edit`),
     demoEdit: path(ROOTS_DASHBOARD, `/patient/reece-chung/edit`),
