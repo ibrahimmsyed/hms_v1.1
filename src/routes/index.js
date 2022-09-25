@@ -104,8 +104,8 @@ export default function Router() {
             { path: 'appointments/new', element: <UserCards /> },
             { path: 'appointments/:id/edit', element: <UserCards /> },
             { path: 'plans', element: <UserList /> },
-            { path: 'plans/new', element: <UserCards /> },
-            { path: 'plans/:id/edit', element: <UserCards /> },
+            { path: 'plans/new', element: <TreatmentPlanCart /> },
+            { path: 'plans/:id/edit', element: <TreatmentPlanCart /> },
             { path: 'files', element: <UserList /> },
             { path: 'payments', element: <UserList /> },
             { path: 'communication', element: <UserList /> },
@@ -257,6 +257,7 @@ const PracticeDetails = Loadable(lazy(() => import('../pages/dashboard/PracticeD
 const PracticeStaff = Loadable(lazy(() => import('../pages/dashboard/PracticeStaff')));
 const LabOrders = Loadable(lazy(() => import('../pages/dashboard/LabOrders')));
 const LabsCreate = Loadable(lazy(() => import('../pages/dashboard/LabsCreate')));
+const TreatmentPlanCart = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/checkout/TreatmentPlanCart')));
 const Inventory = Loadable(lazy(() => import('../pages/dashboard/Inventory')));
 const InventoryCreate = Loadable(lazy(() => import('../pages/dashboard/InventoryCreate')));
 // APP

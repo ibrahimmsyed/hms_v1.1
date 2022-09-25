@@ -1,5 +1,5 @@
 // @mui
-import { Container, Box, Button, Tabs, Tab, InputAdornment, Typography } from '@mui/material';
+import { Container, Box, Button, Tabs, Tab, InputAdornment, Typography, Stack } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import {useState, SyntheticEvent, ReactNode} from 'react';
 import { sub } from 'date-fns';
@@ -23,6 +23,31 @@ import { AppointmentDetailsList } from '../../sections/@dashboard/e-commerce/pro
 export default function UserCards() {
   const { themeStretch } = useSettings();
   const [value, setValue] = useState(0);
+  const plans = [
+    {
+      id:1,
+      patient: {
+        id: 32974,
+        name: "Wilson",
+        age: "52 Years",
+        gender: "Male",
+        avatarUrl: ""
+      },
+      doctor: {
+        id: "1",
+        name: "Dr L.P Mohan"
+      },
+      procedure: {
+        id:1,
+        name: "CROWN",
+        cost: "1000",
+        discount: "10",
+        total: "900",
+        notes: "6RD Dr. Deepika",
+        estimatedAmount: "1000"
+      }
+    }
+  ]
   const appointments = [
     {
       id:1,
@@ -135,7 +160,20 @@ export default function UserCards() {
           <AppointmentDetailsList appointments={appointments}/>
         </TabPanel>
         <TabPanel value={value} index={2}>
-          Treatment Plans
+          <Stack
+            direction="row"
+            sx={{flexDirection: 'row-reverse'}}
+          >
+            <Button
+              variant="contained"
+              startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
+              component={RouterLink} to={PATH_DASHBOARD.patient.newplans}
+            >
+              Add Patient
+            </Button>
+          </Stack>
+            
+          <AppointmentDetailsList plans={plans}/>
         </TabPanel>
         <TabPanel value={value} index={3}>
           Files
