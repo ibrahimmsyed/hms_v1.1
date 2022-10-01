@@ -68,6 +68,7 @@ export const PATH_DASHBOARD = {
     profile: path(ROOTS_DASHBOARD, '/patient/profile'),
     appointments: path(ROOTS_DASHBOARD, '/patient/appointments'),
     newplans: path(ROOTS_DASHBOARD, '/patient/plans/new'),
+    newprescription: path(ROOTS_DASHBOARD, '/patient/prescriptions/new'),
     plans: path(ROOTS_DASHBOARD, '/patient/plans'),
     files: path(ROOTS_DASHBOARD, '/patient/files'),
     payments: path(ROOTS_DASHBOARD, '/patient/payments'),

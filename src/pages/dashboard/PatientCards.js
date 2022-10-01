@@ -15,6 +15,7 @@ import Iconify from '../../components/Iconify';
 import Page from '../../components/Page';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import InputStyle from '../../components/InputStyle';
+import PatientInvoiceList from './PatientInvoiceList'
 // sections
 import { PatientCard } from '../../sections/@dashboard/user/cards';
 import { AppointmentDetailsList } from '../../sections/@dashboard/e-commerce/product-details';
@@ -78,6 +79,54 @@ export default function UserCards() {
     }
   ]
 
+  const prescriptions = [
+    {
+      id:1,
+      patient: {
+        id: 32974,
+        name: "Wilson",
+        age: "52 Years",
+        gender: "Male",
+        avatarUrl: ""
+      },
+      instruction: {
+        id: 1,
+        description: "6RD Dr. Deepika"
+      },
+      doctor: {
+        id: "1",
+        name: "Dr L.P Mohan"
+      },
+      time: {
+        date: sub(new Date(), { days: 3, hours: 5 }),
+        startTime: "12:00 AM",
+        endTime: "12:45 AM"
+      },
+      drugs: [
+        {
+          id:1,
+          name: "COMB Tab",
+          strength: "100",
+          duration: 4,
+          morning: 4,
+          noon: 4,
+          night: 0,
+          intake:  "bf"
+        },
+        {
+          id:2,
+          name: "SESS Tab",
+          strength: "500",
+          duration: 3,
+          morning: 0,
+          noon: 1,
+          night: 0,
+          intake:  "af"
+        }
+      ]
+    }
+  ]
+
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     console.log(event, newValue)
     setValue(newValue);
@@ -134,8 +183,9 @@ export default function UserCards() {
             <Tab icon={<Iconify icon={'eva:people-outline'} width={20} height={20} />} label="Profile" />
             <Tab icon={<Iconify icon={'eva:calendar-outline'} width={20} height={20} />} label="Appointments" />
             <Tab icon={<Iconify icon={'eva:book-outline'} width={20} height={20} />} label="Treatment Plans" />
-            <Tab icon={<Iconify icon={'eva:file-text-outline'} width={20} height={20} />} label="Files" />
+            <Tab icon={<Iconify icon={'eva:clipboard-outline'} width={20} height={20} />} label="Prescription" />
             <Tab icon={<Iconify icon={'eva:credit-card-outline'} width={20} height={20} />} label="Payments" />
+            <Tab icon={<Iconify icon={'eva:file-text-outline'} width={20} height={20} />} label="Files" />
             <Tab icon={<Iconify icon={'eva:message-square-outline'} width={20} height={20} />} label="Communication" />
           </Tabs>
         </Box>
@@ -176,15 +226,42 @@ export default function UserCards() {
           <AppointmentDetailsList plans={plans}/>
         </TabPanel>
         <TabPanel value={value} index={3}>
-          Files
+          <Stack
+            direction="row"
+            sx={{flexDirection: 'row-reverse'}}
+          >
+            <Button
+              variant="contained"
+              startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
+              component={RouterLink} to={PATH_DASHBOARD.patient.newprescription}
+            >
+              Add Prescription
+            </Button>
+          </Stack>
+            
+          <AppointmentDetailsList prescriptions={prescriptions}/>
         </TabPanel>
         <TabPanel value={value} index={4}>
-          Payments
+          <Stack
+            direction="row"
+            sx={{flexDirection: 'row-reverse', mx: 3, mb:1}}
+          >
+            <Button
+              variant="contained"
+              startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
+              component={RouterLink} to={PATH_DASHBOARD.invoice.new}
+            >
+              Add Prescription
+            </Button>
+          </Stack>
+          <PatientInvoiceList/>
         </TabPanel>
         <TabPanel value={value} index={5}>
-          Communications
+          Files
         </TabPanel>
-        
+        <TabPanel value={value} index={6}>
+         Communications
+        </TabPanel>
       </Container>
     </Page>
   );

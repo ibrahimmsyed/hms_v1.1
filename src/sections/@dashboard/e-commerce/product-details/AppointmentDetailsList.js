@@ -21,7 +21,7 @@ AppointmentDetailsList.propTypes = {
   appointments: PropTypes.object,
 };
 
-export default function AppointmentDetailsList({ appointments, plans }) {
+export default function AppointmentDetailsList({ appointments, plans, prescriptions }) {
   
   return (
     <Box sx={{ pt: 3, px: 2, pb: 5 }}>
@@ -31,6 +31,9 @@ export default function AppointmentDetailsList({ appointments, plans }) {
         ))}
         {plans?.length > 0 && plans.map((plan) => (
           <TreatmentPlanItem key={plan.id} plan={plan}/>
+        ))}
+        {prescriptions?.length > 0 && prescriptions.map((prescription) => (
+          <PrescriptionPlanItem key={prescription.id} prescription={prescription}/>
         ))}
       </List>
     </Box>
@@ -262,6 +265,144 @@ function TreatmentPlanItem({ plan }) {
               {!isHelpful && (
                 <Typography variant="body2" sx={{ mr: 1 }}>
                   Planned by <b>{doctor.name}</b> at Estimated amount of <b>{procedure.estimatedAmount}</b>
+                </Typography>
+              )}
+            </Box>
+          </div>
+          <Box sx={{
+                ml: 'auto'
+              }}>
+            <TableMoreMenu
+              sx={{marginLeft: 'auto'}}
+              open={openMenu}
+              onOpen={handleOpenMenu}
+              onClose={handleCloseMenu}
+              actions={
+                <>
+                  <MenuItem
+                    onClick={() => {
+                      onEditRow();
+                      handleCloseMenu();
+                    }}
+                  >
+                    <Iconify icon={'eva:printer-fill'} />
+                    Print
+                  </MenuItem>
+                </>
+              }
+            />
+          </Box>
+        </ListItem>
+      </Item>
+    </>
+  );
+}
+
+//
+// -----------------------------------------------------------------------
+
+PrescriptionPlanItem.propTypes = {
+  plan: PropTypes.object,
+};
+
+function PrescriptionPlanItem({ prescription }) {
+  const [isHelpful, setHelpfuls] = useState(false);
+
+  const { patient, time, drugs, doctor, instruction } = prescription;
+  const [openMenu, setOpenMenuActions] = useState(null);
+
+  const handleOpenMenu = (event) => {
+    setOpenMenuActions(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setOpenMenuActions(null);
+  };
+
+  const onEditRow = () => {
+    
+  };
+  const TABLE_HEAD = [
+    { id: 'drug', label: 'Drug', align: 'left' },
+    { id: 'frequency', label: 'Frequency', align: 'left' },
+    { id: 'duration', label: 'Duration', align: 'left' },
+    { id: 'instruction', label: 'Instruction', align: 'center' },
+  ];
+
+  return (
+    <>
+      <Item key={4} elevation={4}>
+        <ListItem
+          disableGutters
+          sx={{
+            mb: 5,
+            display: 'flex',
+            alignItems: 'flex-start',
+            flexDirection: { xs: 'column', sm: 'row' },
+          }}
+        >
+          <Box
+            sx={{
+              mr: 2,
+              display: 'flex',
+              alignItems: 'center',
+              mb: { xs: 2, sm: 0 },
+              minWidth: { xs: 160, md: 240 },
+              textAlign: { sm: 'center' },
+              flexDirection: { sm: 'column' },
+            }}
+          >
+            <Avatar
+              src={patient.avatarUrl}
+              sx={{
+                mr: { xs: 2, sm: 0 },
+                mb: { sm: 2 },
+                width: { md: 64 },
+                height: { md: 64 },
+              }}
+            />
+            <div>
+              <Typography variant="subtitle2" noWrap>
+                {patient.name}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
+                
+                {patient.age} / {patient.gender}
+              </Typography>
+            </div>
+          </Box>
+
+          <div style={{width:'100%'}}>
+            <Table size={'medium'}>
+              <TableHeadCustom
+                headLabel={TABLE_HEAD}
+              />
+              <TableBody>
+                {drugs?.map((drug) => 
+                   <TableRow key={drug.id}>
+                    <TableCell align="left">{drug.name} <br/> {drug.duration * (drug.morning + drug.noon + drug.night)} Tablets</TableCell>
+  
+                    <TableCell align="left">{drug.morning} - {drug.noon} - {drug.night}</TableCell>
+  
+                    <TableCell align="center">{drug.duration} days(s)</TableCell>
+  
+                    <TableCell align="center">
+                    {instruction.description}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+            <Box
+              sx={{
+                mt: 1,
+                flexWrap: 'wrap',
+                alignItems: 'center',
+              }}
+            >
+              {!isHelpful && (
+                <Typography variant="body2" sx={{ mr: 1 }}>
+                  Prescribed  by <b>{doctor.name}</b>
                 </Typography>
               )}
             </Box>
