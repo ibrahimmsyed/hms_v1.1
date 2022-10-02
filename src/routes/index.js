@@ -108,6 +108,9 @@ export default function Router() {
             { path: 'plans/:id/edit', element: <TreatmentPlanCart /> },
             { path: 'prescriptions/new', element: <PrescriptionCart /> },
             { path: 'files', element: <UserList /> },
+            { path: 'mlc/new', element: <MLCNewEditForm /> }, 
+            { path: 'files/new', element: <FileNewEditForm /> },
+            { path: 'mlc/:id/edit', element: <MLCNewEditForm /> },
             { path: 'payments', element: <UserList /> },
             { path: 'communication', element: <UserList /> },
             { path: 'new', element: <PatientCreate /> },
@@ -260,6 +263,8 @@ const LabOrders = Loadable(lazy(() => import('../pages/dashboard/LabOrders')));
 const LabsCreate = Loadable(lazy(() => import('../pages/dashboard/LabsCreate')));
 const TreatmentPlanCart = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/checkout/TreatmentPlanCart')));
 const PrescriptionCart = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/checkout/PrescriptionCart')));
+const MLCNewEditForm = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/MLCNewEditForm')));
+const FileNewEditForm = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/FileNewEditForm')));
 const Inventory = Loadable(lazy(() => import('../pages/dashboard/Inventory')));
 const InventoryCreate = Loadable(lazy(() => import('../pages/dashboard/InventoryCreate')));
 // APP

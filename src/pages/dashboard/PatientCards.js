@@ -19,6 +19,7 @@ import PatientInvoiceList from './PatientInvoiceList'
 // sections
 import { PatientCard } from '../../sections/@dashboard/user/cards';
 import { AppointmentDetailsList } from '../../sections/@dashboard/e-commerce/product-details';
+import FilesDetails from '../../sections/@dashboard/e-commerce/FilesDetails';
 // ----------------------------------------------------------------------
 
 export default function UserCards() {
@@ -257,7 +258,27 @@ export default function UserCards() {
           <PatientInvoiceList/>
         </TabPanel>
         <TabPanel value={value} index={5}>
-          Files
+        <Stack
+            direction="row"
+            sx={{flexDirection: 'row-reverse', mx: 3, mb:1}}
+          >
+            <Button
+              variant="contained"
+              sx={{mx: 1}}
+              startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
+              component={RouterLink} to={PATH_DASHBOARD.patient.mlcfiles}
+            >
+              Add Medical Certificate
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
+              component={RouterLink} to={PATH_DASHBOARD.patient.newfiles}
+            >
+              Add Files
+            </Button>
+          </Stack>
+          <FilesDetails/>
         </TabPanel>
         <TabPanel value={value} index={6}>
          Communications

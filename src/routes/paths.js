@@ -71,6 +71,8 @@ export const PATH_DASHBOARD = {
     newprescription: path(ROOTS_DASHBOARD, '/patient/prescriptions/new'),
     plans: path(ROOTS_DASHBOARD, '/patient/plans'),
     files: path(ROOTS_DASHBOARD, '/patient/files'),
+    mlcfiles: path(ROOTS_DASHBOARD, '/patient/mlc/new'),
+    newfiles: path(ROOTS_DASHBOARD, '/patient/files/new'),
     payments: path(ROOTS_DASHBOARD, '/patient/payments'),
     communication: path(ROOTS_DASHBOARD, '/patient/communication'),
     
