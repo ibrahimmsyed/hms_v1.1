@@ -20,6 +20,7 @@ import PatientInvoiceList from './PatientInvoiceList'
 import { PatientCard } from '../../sections/@dashboard/user/cards';
 import { AppointmentDetailsList } from '../../sections/@dashboard/e-commerce/product-details';
 import FilesDetails from '../../sections/@dashboard/e-commerce/FilesDetails';
+import CommunicationDetails from '../../sections/@dashboard/e-commerce/CommunicationDetails';
 // ----------------------------------------------------------------------
 
 export default function UserCards() {
@@ -281,7 +282,7 @@ export default function UserCards() {
           <FilesDetails/>
         </TabPanel>
         <TabPanel value={value} index={6}>
-         Communications
+          <CommunicationDetails/>
         </TabPanel>
       </Container>
     </Page>
