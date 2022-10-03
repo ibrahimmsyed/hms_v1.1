@@ -36,16 +36,8 @@ const navConfig = [
       { title: 'calendar', path: PATH_DASHBOARD.calendar, icon: ICONS.calendar },
       {
         title: 'Patients',
-        path: PATH_DASHBOARD.user.root,
+        path: PATH_DASHBOARD.patient.profile,
         icon: ICONS.user,
-        children: [
-          { title: 'Profile', path: PATH_DASHBOARD.patient.profile },
-          { title: 'Appointments', path: PATH_DASHBOARD.patient.profile },
-          { title: 'Treatment Plans', path: PATH_DASHBOARD.patient.profile },
-          { title: 'Files', path: PATH_DASHBOARD.patient.profile },
-          { title: 'Payments', path: PATH_DASHBOARD.patient.profile },
-          { title: 'Communication', path: PATH_DASHBOARD.patient.profile }
-        ],
       },
       {
         title: 'Labs',
