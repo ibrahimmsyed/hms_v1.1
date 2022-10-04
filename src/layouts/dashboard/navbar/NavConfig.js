@@ -58,14 +58,14 @@ const navConfig = [
         ],
       },
       // INVOICE
-      {
+      /* {
         title: 'invoice',
         path: PATH_DASHBOARD.invoice.root,
         icon: ICONS.invoice,
         children: [
           { title: 'list', path: PATH_DASHBOARD.invoice.list },
         ],
-      }
+      } */
     ],
   }
   
