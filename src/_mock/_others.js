@@ -19,6 +19,81 @@ export const _carouselsMembers = [...Array(5)].map((_, index) => ({
 
 // ----------------------------------------------------------------------
 
+export const _labTreatments = [
+  {
+    id: 1,
+    name: 'Crown',
+    treatments: [
+      {
+        id:1,
+        name: 'Treatment 1'
+      },
+      {
+        id:2,
+        name: 'Treatment 2'
+      }
+    ]
+  },
+  {
+    id: 2,
+    name: 'Bridge',
+    treatments: [
+      {
+        id:1,
+        name: 'Treatment 1'
+      },
+      {
+        id:2,
+        name: 'Treatment 2'
+      }
+    ]
+  },
+  {
+    id: 3,
+    name: 'Implant',
+    treatments: [
+      {
+        id:1,
+        name: 'Treatment 1'
+      },
+      {
+        id:2,
+        name: 'Treatment 2'
+      }
+    ]
+  },
+  {
+    id: 4,
+    name: 'Dentures',
+    treatments: [
+      {
+        id:1,
+        name: 'Treatment 1'
+      },
+      {
+        id:2,
+        name: 'Treatment 2'
+      }
+    ]
+  },
+  {
+    id: 5,
+    name: 'Other',
+    treatments: [
+      {
+        id:1,
+        name: 'Treatment 1'
+      },
+      {
+        id:2,
+        name: 'Treatment 2'
+      }
+    ]
+  }
+]
+
+// ----------------------------------------------------------------------
+
 export const _faqs = [...Array(8)].map((_, index) => ({
   id: _mock.id(index),
   value: `panel${index + 1}`,

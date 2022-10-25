@@ -3,6 +3,7 @@ import { PATH_DASHBOARD } from '../../../routes/paths';
 // components
 import Label from '../../../components/Label';
 import SvgIconStyle from '../../../components/SvgIconStyle';
+import Iconify from '../../../components/Iconify';
 
 // ----------------------------------------------------------------------
 
@@ -41,6 +42,14 @@ const navConfig = [
         ],
       },
       {
+        title: 'Labs',
+        path: PATH_DASHBOARD.user.root,
+        icon: <Iconify icon={'ic:outline-biotech'} width={24} height={24} />,
+        children: [
+          { title: 'Orders', path: PATH_DASHBOARD.labs.orders },
+        ],
+      },
+      {
         title: 'Settings',
         path: PATH_DASHBOARD.user.root,
         icon: ICONS.dashboard,
@@ -48,6 +57,7 @@ const navConfig = [
           { title: 'Practice Details', path: PATH_DASHBOARD.settings.practicedetails },
           { title: 'Practice Staff', path: PATH_DASHBOARD.settings.practicestaff },
           { title: 'Inventory', path: PATH_DASHBOARD.settings.inventory },
+          { title: 'Lab Work', path: PATH_DASHBOARD.settings.labwork },
         ],
       },
       // INVOICE
