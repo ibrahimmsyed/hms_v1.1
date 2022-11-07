@@ -111,6 +111,8 @@ export default function LabOrders() {
 
   const { labs } = useSelector((state) => state.labs);
 
+  const { patients } = useSelector((state) => state.patients);
+
   const { currentTab: filterStatus, onChangeTab: onChangeFilterStatus } = useTabs('all');
 
   useEffect(() => {
@@ -124,9 +126,9 @@ export default function LabOrders() {
     /* const result = labs.groupBy(v => moment(v.created_at).format('MMMM'))
         .mapValues(v => map(v, 'name'))
         .value(); */
-    console.log(result)
+    console.log(patients)
     setTableData(labs)
-  },[labs])
+  },[labs, patients])
 
   const handleFilterName = (filterPatientName) => {
     setFilterPatientName(filterPatientName);

@@ -5,6 +5,7 @@ import { Container } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
+import useUsers from '../../hooks/useUsers';
 import useSettings from '../../hooks/useSettings';
 // _mock_
 import { _userList } from '../../_mock';
@@ -19,13 +20,15 @@ import LabsNewEditForm from '../../sections/@dashboard/user/LabsNewEditForm';
 export default function LabsCreate() {
   const { themeStretch } = useSettings();
 
+  const { patients:_userCards } = useUsers();
+
   const { pathname } = useLocation();
 
-  const { name = '' } = useParams();
+  const { name = '', id = '' } = useParams();
 
   const isEdit = pathname.includes('edit');
 
-  const currentUser = _userList.find((user) => paramCase(user.name) === name);
+  const currentPatient = _userCards.find((user) => Number(user.id) === Number(id));
 
   return (
     <Page title="Labs: Create a new order">
@@ -39,7 +42,7 @@ export default function LabsCreate() {
           ]}
         />
 
-        <LabsNewEditForm isEdit={isEdit} currentUser={currentUser} />
+        <LabsNewEditForm isEdit={isEdit} currentPatient={currentPatient} />
       </Container>
     </Page>
   );

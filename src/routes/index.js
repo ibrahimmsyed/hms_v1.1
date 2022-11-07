@@ -124,8 +124,8 @@ export default function Router() {
             { element: <Navigate to="/dashboard/labs/orders" replace />, index: true },
             { path: 'orders', element: <LabOrders /> },
             { path: 'new', element: <LabsCreate /> },
-            { path: ':id/new', element: <LabsCreate /> },
-            { path: ':id/edit', element: <LabsCreate /> },
+            { path: ':id/:name/new', element: <LabsCreate /> },
+            { path: ':id/:name/edit', element: <LabsCreate /> },
           ],
         },
         {

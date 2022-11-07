@@ -13,6 +13,7 @@ const initialState = {
   isAuthenticated: false,
   isInitialized: false,
   user: [],
+  patients: [],
   practicedetails: [],
   inventorydetails: []
 };
@@ -32,6 +33,14 @@ const handlers = {
     return {
       ...state,
       user,
+    };
+  },
+  PATIENTSDETAILS: (state, action) => {
+    const { patients } = action.payload;
+
+    return {
+      ...state,
+      patients,
     };
   },
   PRACTICEDETAILS: (state, action) => {
@@ -57,6 +66,7 @@ const reducer = (state, action) => (handlers[action.type] ? handlers[action.type
 const UsersContext = createContext({
   ...initialState,
   userDetails: () => Promise.resolve(),
+  patientsDetails: () => Promise.resolve(),
   setUserDetails: () => Promise.resolve(),
   practiceDetails: () => Promise.resolve(),
   inventoryDetails: () => Promise.resolve(),
@@ -85,6 +95,22 @@ function UsersProvider({ children }) {
       type: 'USERDETAILS',
       payload: {
         user,
+      },
+    });
+  };
+
+  const patientsDetails = async () => {
+    const accessToken = window.localStorage.getItem('accessToken');
+    const patientsresponse = await axios.get('http://localhost:8000/auth/patientdetails/', {
+      headers: {
+        Authorization: `JWT ${accessToken}`
+      }
+    })
+    const patients = patientsresponse.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
+    dispatch({
+      type: 'PATIENTSDETAILS',
+      payload: {
+        patients,
       },
     });
   };
@@ -138,6 +164,7 @@ function UsersProvider({ children }) {
       value={{
         ...state,
         userDetails,
+        patientsDetails,
         setUserDetails,
         practiceDetails,
         inventoryDetails,

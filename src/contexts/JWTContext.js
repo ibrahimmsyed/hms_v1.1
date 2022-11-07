@@ -6,6 +6,7 @@ import { isValidToken, setSession } from '../utils/jwt';
 import useUsers from '../hooks/useUsers';
 import { UsersContext } from './UsersContext';
 
+
 // ----------------------------------------------------------------------
 
 const initialState = {
@@ -82,11 +83,11 @@ function AuthProvider({ children }) {
             }
           })
           await useUsers.userDetails()
+          await useUsers.patientsDetails()
           await useUsers.practiceDetails()
           await useUsers.inventoryDetails()
           // await useUsers.patientDetails()
           const { data:user } = response;
-
           dispatch({
             type: 'INITIALIZE',
             payload: {

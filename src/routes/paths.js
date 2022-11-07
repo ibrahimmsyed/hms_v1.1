@@ -87,8 +87,8 @@ export const PATH_DASHBOARD = {
     cards: path(ROOTS_DASHBOARD, '/labs/cards'),
     profile: path(ROOTS_DASHBOARD, '/labs/profile'),
     account: path(ROOTS_DASHBOARD, '/labs/account'),
-    edit: (id) => path(ROOTS_DASHBOARD, `/labs/${id}/edit`),
-    new: (id) => path(ROOTS_DASHBOARD, `/labs/${id}/new`),
+    edit: (id, name) => path(ROOTS_DASHBOARD, `/labs/${id}/${name}/edit`),
+    new: (id, name) => path(ROOTS_DASHBOARD, `/labs/${id}/${name}/new`),
     demoEdit: path(ROOTS_DASHBOARD, `/labs/reece-chung/edit`),
   },
   settings: {

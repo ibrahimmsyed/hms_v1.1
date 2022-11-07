@@ -35,8 +35,8 @@ UserCard.propTypes = {
 };
 
 export default function UserCard({ user, isSearch }) {
-  const { name, cover, position, follower, totalPost, avatarUrl, following } = user;
-  const redirectLink = isSearch ? `${PATH_DASHBOARD.labs.new(name)}` : `${PATH_DASHBOARD.patient.edit(name)}`
+  const { patientName, id, primaryMobNo, gender, dop, cover } = user;
+  const redirectLink = isSearch ? `${PATH_DASHBOARD.labs.new(id, patientName)}` : `${PATH_DASHBOARD.patient.edit(id, patientName)}`
   return (
     <Card sx={{ textAlign: 'center' }}>
       <Box sx={{ position: 'relative' }}>
@@ -55,8 +55,8 @@ export default function UserCard({ user, isSearch }) {
           }}
         />
         <Avatar
-          alt={name}
-          src={avatarUrl}
+          alt={patientName}
+          src={dop}
           sx={{
             width: 64,
             height: 64,
@@ -73,27 +73,23 @@ export default function UserCard({ user, isSearch }) {
       </Box>
       <Link to={redirectLink} color="inherit" component={RouterLink}>
         <Typography variant="subtitle1" sx={{ mt: 6 }}>
-          {name}
+          {patientName}
         </Typography>
       </Link>
-
-      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-        {position}
-      </Typography>
 
       <Box sx={{ py: 3, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
         <div>
           <Typography variant="caption" component="div" sx={{ mb: 0.75, color: 'text.disabled' }}>
             Gender
           </Typography>
-          <Typography variant="subtitle1">{fShortenNumber(follower)}</Typography>
+          <Typography variant="subtitle1">{gender}</Typography>
         </div>
 
         <div>
           <Typography variant="caption" component="div" sx={{ mb: 0.75, color: 'text.disabled' }}>
             Contact No.
           </Typography>
-          <Typography variant="subtitle1">{fShortenNumber(totalPost)}</Typography>
+          <Typography variant="subtitle1">{primaryMobNo}</Typography>
         </div>
       </Box>
     </Card>

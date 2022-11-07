@@ -35,6 +35,7 @@ import Label from '../../../components/Label';
 import { FormProvider, RHFSelect, RHFSwitch, RHFTextField, RHFUploadAvatar, RHFRadioGroup } from '../../../components/hook-form';
 import useTable, { getComparator, emptyRows } from '../../../hooks/useTable';
 import { ProductTableRow, ProductTableToolbar } from '../e-commerce/product-list';
+
 // ----------------------------------------------------------------------
 
 LabsNewEditForm.propTypes = {
@@ -42,7 +43,10 @@ LabsNewEditForm.propTypes = {
   currentUser: PropTypes.object,
 };
 
-export default function LabsNewEditForm({ isEdit, currentUser }) {
+export default function LabsNewEditForm({ isEdit, currentPatient, currentUser }) {
+
+  console.log(currentPatient)
+
   const toothOption = {
     from: 21, 
     to: 28
@@ -310,7 +314,7 @@ export default function LabsNewEditForm({ isEdit, currentUser }) {
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Avatar alt='' src='' sx={{ mr: 2 }} />
             <Typography variant="subtitle2" noWrap>
-              Patient Name
+              {currentPatient.patientName}
             </Typography>
           </Box>
             <Scrollbar>

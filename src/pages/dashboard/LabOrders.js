@@ -29,6 +29,7 @@ import { LoadingButton } from '@mui/lab';
 import { PATH_DASHBOARD } from '../../routes/paths';
 
 // hooks
+import useUsers from '../../hooks/useUsers';
 import useTabs from '../../hooks/useTabs';
 import useSettings from '../../hooks/useSettings';
 import useTable, { getComparator, emptyRows } from '../../hooks/useTable';
@@ -111,6 +112,8 @@ export default function LabOrders() {
 
   const { labs } = useSelector((state) => state.labs);
 
+  const { patients:_userCards } = useUsers();
+  console.log(_userCards)
   const { currentTab: filterStatus, onChangeTab: onChangeFilterStatus } = useTabs('all');
 
   useEffect(() => {
@@ -119,7 +122,7 @@ export default function LabOrders() {
 
   useEffect(() => {
     const result = groupBy(labs, (lab) => moment(lab.created_at).format('DD-MM-YYYY'));
-    console.log(result)
+    
     setTableData(labs)
   },[labs])
 
