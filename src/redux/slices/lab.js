@@ -17,7 +17,8 @@ const initialState = {
   error: null,
   labs: [],
   currentLab: {},
-  labworks: []
+  labworks: [],
+  labNames: []
 };
 
 const slice = createSlice({
@@ -68,7 +69,20 @@ const slice = createSlice({
     removeLabWork(state, action) {
       state.isLoading = false;
       state.labworks = state.labworks.filter(lab => lab.id !== action.payload)
-    }
+    },
+    // LAB NAME
+    getlabNameSuccess(state, action) {
+      state.isLoading = false;
+      state.labNames = action.payload;
+    },
+    setlabName(state, action) {
+      state.isLoading = false;
+      state.labNames = [...state.labNames, action.payload]
+    },
+    updatelabName(state, action) {
+      state.isLoading = false;
+      state.labNames = [...state.labNames, action.payload]
+    },
   },
 });
 
@@ -84,7 +98,10 @@ export const {
     getLabWorkSuccess,
     setLabWork,
     updateLabWork,
-    removeLabWork
+    removeLabWork,
+    getlabNamesSuccess,
+    setlabName,
+    updatelabName,
 } = slice.actions;
 
 // ----------------------------------------------------------------------
@@ -247,6 +264,40 @@ export function deleteLabWorks(data, id) {
     }
   };
 }
-
-
+// ----------------------------------------------------------------------
+export function getAllLabNames() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const res = await axios.get('http://localhost:8000/auth/labname/', headers);
+      // const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
+      dispatch(slice.actions.getlabNameSuccess(res.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function addLabName(data) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.post('http://localhost:8000/auth/labname/', data, headers);
+      dispatch(slice.actions.updatelabName(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
 

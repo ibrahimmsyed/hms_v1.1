@@ -8,7 +8,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import { LoadingButton, MobileDateTimePicker } from '@mui/lab';
-import { Box, Card, Grid, Stack, Switch, Typography, FormControlLabel, TextField, TableContainer, Table, TableBody, InputAdornment, Checkbox, Button, Avatar, Accordion, AccordionSummary, AccordionDetails, MenuList, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Box, Card, Grid, Stack, Switch, Typography, FormControlLabel, TextField, TableContainer, Table, TableBody, InputAdornment, Checkbox, Button, Avatar, Accordion, AccordionSummary, AccordionDetails, MenuList, MenuItem, ListItemIcon, ListItemText, IconButton, Dialog, DialogTitle, DialogContent, DialogActions  } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import { Icon } from '@iconify/react';
 // utils
@@ -18,6 +18,7 @@ import { PATH_DASHBOARD } from '../../../routes/paths';
 // _mock
 import { countries, _faqs, _labTreatments } from '../../../_mock';
 // redux
+import { getAllLabWork, addLabName, getAllLabNames } from '../../../redux/slices/lab';
 import { useDispatch, useSelector } from '../../../redux/store';
 import { getProducts } from '../../../redux/slices/product';
 // components
@@ -43,9 +44,22 @@ LabsNewEditForm.propTypes = {
   currentUser: PropTypes.object,
 };
 
-export default function LabsNewEditForm({ isEdit, currentPatient, currentUser }) {
+export default function LabsNewEditForm({ isEdit, currentPatient, currentWork }) {
 
   console.log(currentPatient)
+  const dispatch = useDispatch();
+
+  const [newLabNames, setNewLabNames] = useState([]);
+
+  const [labTreatments, setLabTreatments] = useState([]);
+
+  const [labWorkName, setLabWorkName] = useState('')
+
+  const [showAddForm, setShowAddForm] = useState(false);
+
+  const [newLabName, setNewLabName] = useState('')
+
+  const [open, setOpen] = useState(false);
 
   const toothOption = {
     from: 21, 
@@ -55,6 +69,42 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentUser })
     from: 18,
     to: 11
   }
+  const status = [
+    {id:1 , label: 'Sent'},
+    {id:2 , label: 'In Production'},
+    {id:3 , label: 'In Transit'},
+    {id:4 , label: 'Received'}
+  ]
+  const alloy = [
+    {id: 1, label: 'Semi-precious porcelain bonded (yellow)'},
+    {id: 2, label: 'Precious porcelain bonded (white)'},
+    {id: 3, label: 'Precious porcelain bonded (yellow)'},
+    {id: 4, label: 'Non-precious porcelain bonded'},
+    {id: 5, label: 'Full metal (white)'},
+    {id: 6, label: 'Full metal (yellow)'},
+    {id: 7, label: 'Others'},
+  ]
+  const shade = [
+    {id: 1, label: 'A1'},
+    {id: 2, label: 'A2'},
+    {id: 3, label: 'A2.5'},
+    {id: 4, label: 'A3'},
+    {id: 5, label: 'A3.5'},
+    {id: 6, label: 'A4'},
+    {id: 7, label: 'B1'},
+    {id: 8, label: 'B1.5'},
+    {id: 9, label: 'B2'},
+    {id: 10, label: 'B3'},
+    {id: 11, label: 'B4'},
+    {id: 12, label: 'C1'},
+    {id: 13, label: 'C1.5'},
+    {id: 14, label: 'C2'},
+    {id: 15, label: 'C3'},
+    {id: 16, label: 'C4'},
+    {id: 17, label: 'D2'},
+    {id: 18, label: 'D3'},
+    {id: 19, label: 'D4'},
+  ]
 
   const navigate = useNavigate();
 
@@ -94,35 +144,30 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentUser })
   const [tableData, setTableData] = useState([]);
   const[showChildTeeth, setShowChildTeeth]=useState(false);
   const NewUserSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().required('Email is required').email(),
-    phoneNumber: Yup.string().required('Phone number is required'),
-    address: Yup.string().required('Address is required'),
-    country: Yup.string().required('country is required'),
-    company: Yup.string().required('Company is required'),
-    state: Yup.string().required('State is required'),
-    city: Yup.string().required('City is required'),
-    role: Yup.string().required('Role Number is required'),
-    avatarUrl: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
+    jobNo: Yup.string().required('jobNo is required'),
+    labName: Yup.string().required('labName is required').email(),
+    dueDate: Yup.string().required('dueDate is required'),
+    workName: Yup.string().required('workName is required'),
+    shade: Yup.string().required('shade is required'),
+    alloyType: Yup.string().required('alloyType is required'),
+    status: Yup.string().required('status is required'),
+    teeth: Yup.string().required('teeth is required'),
+    expense: Yup.string().required('expense is required'),
   });
   const defaultValues = useMemo(
     () => ({
-      name: currentUser?.name || '',
-      email: currentUser?.email || '',
-      phoneNumber: currentUser?.phoneNumber || '',
-      address: currentUser?.address || '',
-      country: currentUser?.country || '',
-      state: currentUser?.state || '',
-      city: currentUser?.city || '',
-      zipCode: currentUser?.zipCode || '',
-      avatarUrl: currentUser?.avatarUrl || '',
-      isVerified: currentUser?.isVerified || true,
-      status: currentUser?.status,
-      company: currentUser?.company || '',
-      role: currentUser?.role || '',
+      jobNo: currentWork?.jobNo || '',
+      labName: currentWork?.labName || '',
+      dueDate: currentWork?.dueDate || new Date(),
+      workName: currentWork?.workName || '',
+      shade: currentWork?.shade || '',
+      alloyType: currentWork?.alloyType || '',
+      status: currentWork?.status || '',
+      teeth: currentWork?.teeth || '',
+      expense: currentWork?.expense || '',
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentUser]
+    [currentWork]
   );
 
   const methods = useForm({
@@ -140,20 +185,74 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentUser })
     formState: { isSubmitting },
   } = methods;
 
+  const newLabDefaultValues = useMemo(
+    () => ({
+      newLabName: newLabName || '',
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [newLabName]
+  );
+
+  const schemaNewLab = Yup.object().shape({
+    newLabName: Yup.string().required('jobNo is required'),
+  });
+
+  const labMethods = useForm({
+    resolver: yupResolver(schemaNewLab),
+    newLabDefaultValues
+  });
+
+  const {control: controlNewLab, handleSubmit: handleSubmitNewLab, formState: {errors: errorsNewLab}} = labMethods
+  
+
   const values = watch();
 
   useEffect(() => {
-    if (isEdit && currentUser) {
+    dispatch(getAllLabWork());
+    dispatch(getAllLabNames());
+  },[dispatch])
+
+  const { labworks } = useSelector((state) => state.labs);
+  const { labNames } = useSelector((state) => state.labs);
+
+  useEffect(() => {
+    console.log(labworks)
+    setLabTreatments(cookArrayForView(labworks))
+    setNewLabNames(labNames)
+  },[labworks, labNames])
+
+  const cookArrayForView = (labworks) => {
+    const category = labworks.filter(a => !a.parentId);
+    const subCategory = labworks.filter(a => a.parentId);
+    const updateCategory = category.map( (p, i) => {
+      const newObj = {...p}
+      Object.assign(newObj, {treatments:[], showForm: false})
+      subCategory.forEach((c) => {
+          if(newObj.categoryID === c.parentId){
+            newObj.treatments.push(c) 
+          }
+      })
+      return newObj
+    })
+    return updateCategory;
+  }
+
+  useEffect(() => {
+    if (isEdit && currentWork) {
       reset(defaultValues);
     }
     if (!isEdit) {
       reset(defaultValues);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, currentUser]);
+  }, [isEdit, currentWork]);
 
   const toggleChildTeeth = () => {
     setShowChildTeeth(!showChildTeeth)
+  }
+
+  const toggleAddForm = () => {
+    setShowAddForm(!showAddForm)
   }
 
   const onSubmit = async () => {
@@ -162,6 +261,22 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentUser })
       reset();
       enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
       navigate(PATH_DASHBOARD.user.list);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const onNewLabSubmit = async (data) => {
+    try {
+      console.log(data)
+      const payload = {
+        labName: data.newLabName
+      }
+      dispatch(addLabName(payload))
+      reset();
+      setOpen(false);
+      enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
+    //  navigate(PATH_DASHBOARD.user.list);
     } catch (error) {
       console.error(error);
     }
@@ -197,7 +312,21 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentUser })
       setExpanded(newExpanded ? panel : false);
     };
 
+  const setWorkName = (treatment) => {
+    setLabWorkName(treatment.title)
+    console.log(treatment)
+  }
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   return (
+    <>
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3}>
         <Grid item xs={12} md={9}>
@@ -218,15 +347,23 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentUser })
                   gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(3, 1fr)' },
                 }}
               >
+                
                 <RHFTextField name="jobNo" label="Job No" />
-                <RHFSelect name="labName" label="Lab Name" placeholder="Choose the Lab">
-                  <option value="" />
-                  {countries.map((option) => (
-                    <option key={option.code} value={option.label}>
-                      {option.label}
-                    </option>
-                  ))}
-                </RHFSelect>
+                
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <IconButton onClick={handleClickOpen}>
+                    <Iconify icon={showAddForm? 'eva:close-circle-outline':'eva:plus-circle-outline'} />
+                  </IconButton>
+                  {newLabNames && newLabNames.length && (<RHFSelect name="labName" label="Lab Name" placeholder="Choose the Lab">
+                    <option value="" />
+                    {newLabNames.map((option) => (
+                      <option key={option.id} value={option.labName}>
+                        {option.labName}
+                      </option>
+                    ))}
+                  </RHFSelect>)}
+                </div>
+                
                 <Controller
                   name="dueDate"
                   control={control}
@@ -240,27 +377,27 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentUser })
                   )}
                 />
               </Box>
-              <RHFTextField name="workName" label="Work Name" />
+              <RHFTextField name="workName" label="Work Name" value={labWorkName} />
               <RHFSelect name="selectShade" label="Please select Shade" placeholder="Please select Shade">
                 <option value="" />
-                {countries.map((option) => (
-                  <option key={option.code} value={option.label}>
+                {shade.map((option) => (
+                  <option key={option.id} value={option.label}>
                     {option.label}
                   </option>
                 ))}
               </RHFSelect>
               <RHFSelect name="selectAlloyType" label="Please select Alloy Type" placeholder="Please select Alloy Type">
                 <option value="" />
-                {countries.map((option) => (
-                  <option key={option.code} value={option.label}>
+                {alloy.map((option) => (
+                  <option key={option.id} value={option.label}>
                     {option.label}
                   </option>
                 ))}
               </RHFSelect>
               <RHFSelect name="status" label="Status" placeholder="Status">
                 <option value="" />
-                {countries.map((option) => (
-                  <option key={option.code} value={option.label}>
+                {status.map((option) => (
+                  <option key={option.id} value={option.label}>
                     {option.label}
                   </option>
                 ))}
@@ -318,18 +455,18 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentUser })
             </Typography>
           </Box>
             <Scrollbar>
-            {_labTreatments.map((accordion) => (
+            {labTreatments?.length && labTreatments.map((accordion) => (
               <Accordion onChange={handleChange(`panel${accordion.id}`)} expanded={expanded === `panel${accordion.id}`} key={accordion.id}>
                 <AccordionSummary
                   expandIcon={<Iconify icon={'eva:arrow-ios-downward-fill'} width={20} height={20} />}
                 >
-                  <Typography variant="subtitle1">{accordion.name}</Typography>
+                  <Typography variant="subtitle1">{accordion.title}</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                 <MenuList>
                 {accordion.treatments.map((treatment) => (
-                  <MenuItem key={treatment.id}>
-                    <ListItemText>{treatment.name}</ListItemText>
+                  <MenuItem key={treatment.id} onClick={() => setWorkName(treatment)}>
+                    <ListItemText>{treatment.title}</ListItemText>
                   </MenuItem>
                 ))}
                 </MenuList>
@@ -341,6 +478,23 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentUser })
         </Grid>
       </Grid>
     </FormProvider>
+    <Dialog open={open} onClose={handleClose}>
+      <DialogTitle>Add New Lab Name</DialogTitle>
+      <FormProvider methods={labMethods} onSubmit={handleSubmitNewLab(onNewLabSubmit)}>
+        <DialogContent>
+          
+            <RHFTextField autoFocus name="newLabName" label="New Lab Name" fullWidth variant="standard"/>
+          
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+            Save
+          </LoadingButton>
+        </DialogActions>
+      </FormProvider>
+    </Dialog>
+    </>
   );
 }
 // ----------------------------------------------------------------------
