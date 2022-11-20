@@ -9,6 +9,9 @@ import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu } from '../../../../components/table';
 import SplitButton  from '../../../../components/SplitButton';
 
+//
+import useUsers from '../../../../hooks/useUsers';
+
 // ----------------------------------------------------------------------
 
 LabOrdersTableRow.propTypes = {
@@ -19,8 +22,10 @@ LabOrdersTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
 };
 
-export default function LabOrdersTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function LabOrdersTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onStatusSelected }) {
   const theme = useTheme();
+
+  const { user: _userList } = useUsers();
 
   const { jobId, patientName, orderedBy, labName, workName, status, labExpense, dueDate } = row;
 
@@ -34,6 +39,28 @@ export default function LabOrdersTableRow({ row, selected, onEditRow, onSelectRo
     setOpenMenuActions(null);
   };
 
+  const onSelected = (status) => {
+    if(row.status !== status){
+      const clonedRow = {...row}
+      clonedRow.status = status
+      onStatusSelected(clonedRow)
+    }
+  };
+
+/*   useEffect(() => {
+    // setUser(_userList.filter(user => user.isStaff))
+  },[_userList]) */
+
+  const findDoctor = (id) => {
+    const user = _userList.filter(user => user.isStaff && user.id === Number(id))
+    if(user.length){
+      return `${user[0].firstName} ${user[0].lastName}`
+    }
+    return 'NA'
+  }
+
+  // const selected
+
   return (
     <TableRow hover selected={selected}>
       <TableCell align="left">{jobId}</TableCell>
@@ -43,7 +70,7 @@ export default function LabOrdersTableRow({ row, selected, onEditRow, onSelectRo
         </Typography>
       </TableCell>
 
-      <TableCell align="left">{orderedBy}</TableCell>
+      <TableCell align="left">{findDoctor(orderedBy)}</TableCell>
 
       <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
         {workName}
@@ -61,7 +88,7 @@ export default function LabOrdersTableRow({ row, selected, onEditRow, onSelectRo
         >
           {status}
         </Label> */}
-        <SplitButton status={status}/>
+        <SplitButton status={status} onSelected={onSelected}/>
       </TableCell>
 
       <TableCell align="center">

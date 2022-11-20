@@ -16,7 +16,7 @@ import Iconify from './Iconify';
 
 const options = ['Sent', 'In Production', 'In Transit', 'Received'];
 
-export default function ToothSelectionButton({from, to}) {
+export default function ToothSelectionButton({from, to, selectedTeeths, selectedTeeth}) {
   const [toothArr, setToothArr] = useState([]);
   const [open, setOpen] = React.useState(false);
   const anchorRef = useRef();
@@ -24,16 +24,20 @@ export default function ToothSelectionButton({from, to}) {
 
 
   useEffect(() => {
-    generateObj(from, to)
-  },[from, to]);
+    console.log(selectedTeeths)
+    generateObj(from, to, selectedTeeths)
+  },[from, to, selectedTeeths]);
 
-  function generateObj(from, to){
+  function generateObj(from, to, selectedTeeths){
     const localToothArr = []
+    let selectedToothArr = []
+    if(selectedTeeths) {selectedToothArr = JSON.parse(`[${selectedTeeths}]`);}
     const reverse = to < from;
     for (let i = from; (reverse ? i >= to : i <= to) ; (reverse ? i-=1 : i += 1)) {
+      const state =  selectedTeeths && selectedToothArr.includes(i)
       const toothObj = {
         id: i,
-        checked: false,
+        checked: state,
       }
       localToothArr.push(toothObj)
     }      
@@ -73,6 +77,7 @@ export default function ToothSelectionButton({from, to}) {
     localToothArr = toothArr.map(obj => obj.id === option.id ? {...obj, checked : !option.checked} : obj)
     // localToothArr = [...localToothArr]
     setToothArr(localToothArr)
+    selectedTeeth(localToothArr)
     console.log(localToothArr, toothArr)
   };
 

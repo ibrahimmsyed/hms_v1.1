@@ -14,16 +14,17 @@ import Iconify from './Iconify';
 
 const options = ['Sent', 'In Production', 'In Transit', 'Received'];
 
-export default function SplitButton({status}) {
+export default function SplitButton({status, onSelected}) {
   const [open, setOpen] = React.useState(false);
   const anchorRef = useRef();
   const [selectedIndex, setSelectedIndex] = React.useState(1);
 
   useEffect(() => {
-    setSelectedIndex(Number(status))
+    setSelectedIndex(options.indexOf(status))
   },[status])
 
   const handleClick = () => {
+    onSelected(options[selectedIndex])
     console.info(`You clicked ${options[selectedIndex]}`);
   };
 
@@ -87,7 +88,6 @@ export default function SplitButton({status}) {
                   {options.map((option, index) => (
                     <MenuItem
                       key={option}
-                      disabled={index === 2}
                       selected={index === selectedIndex}
                       onClick={(event) => handleMenuItemClick(event, index)}
                     >

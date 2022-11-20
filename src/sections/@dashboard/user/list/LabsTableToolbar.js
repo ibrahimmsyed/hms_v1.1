@@ -10,7 +10,7 @@ LabsTableToolbar.propTypes = {
   filterRole: PropTypes.string,
   onFilterName: PropTypes.func,
   onFilterRole: PropTypes.func,
-  optionsRole: PropTypes.arrayOf(PropTypes.string),
+  optionsRole: PropTypes.array,
 };
 
 export default function LabsTableToolbar({ filterName, filterRole, onFilterName, onFilterRole, optionsRole }) {
@@ -34,8 +34,8 @@ export default function LabsTableToolbar({ filterName, filterRole, onFilterName,
       >
         {optionsRole.map((option) => (
           <MenuItem
-            key={option}
-            value={option}
+            key={option.id}
+            value={option.label}
             sx={{
               mx: 1,
               my: 0.5,
@@ -44,7 +44,7 @@ export default function LabsTableToolbar({ filterName, filterRole, onFilterName,
               textTransform: 'capitalize',
             }}
           >
-            {option}
+            {option.label}
           </MenuItem>
         ))}
       </TextField>

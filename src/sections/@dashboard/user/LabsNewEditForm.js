@@ -12,15 +12,16 @@ import { Box, Card, Grid, Stack, Switch, Typography, FormControlLabel, TextField
 import { styled, alpha } from '@mui/material/styles';
 import { Icon } from '@iconify/react';
 // utils
+import moment from 'moment'
 import { fData } from '../../../utils/formatNumber';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // _mock
 import { countries, _faqs, _labTreatments } from '../../../_mock';
 // redux
-import { getAllLabWork, addLabName, getAllLabNames } from '../../../redux/slices/lab';
+import { getAllLabWork, addLabName, getAllLabNames, addLabDetail, updateLabDetail } from '../../../redux/slices/lab';
 import { useDispatch, useSelector } from '../../../redux/store';
-import { getProducts } from '../../../redux/slices/product';
+import { getProducts, resetCart } from '../../../redux/slices/product';
 // components
 import Iconify from '../../../components/Iconify';
 import Scrollbar from '../../../components/Scrollbar';
@@ -33,21 +34,25 @@ import {
   TableSelectedActions,
 } from '../../../components/table';
 import Label from '../../../components/Label';
-import { FormProvider, RHFSelect, RHFSwitch, RHFTextField, RHFUploadAvatar, RHFRadioGroup } from '../../../components/hook-form';
+import { FormProvider, RHFEditor, RHFSelect, RHFSwitch, RHFTextField, RHFUploadAvatar, RHFRadioGroup } from '../../../components/hook-form';
+import useUsers from '../../../hooks/useUsers';
 import useTable, { getComparator, emptyRows } from '../../../hooks/useTable';
 import { ProductTableRow, ProductTableToolbar } from '../e-commerce/product-list';
+
 
 // ----------------------------------------------------------------------
 
 LabsNewEditForm.propTypes = {
   isEdit: PropTypes.bool,
-  currentUser: PropTypes.object,
+  currentPatient: PropTypes.object,
+  currentWork: PropTypes.object,
 };
 
 export default function LabsNewEditForm({ isEdit, currentPatient, currentWork }) {
 
-  console.log(currentPatient)
   const dispatch = useDispatch();
+
+  const { user: _userList } = useUsers();
 
   const [newLabNames, setNewLabNames] = useState([]);
 
@@ -58,6 +63,12 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
   const [showAddForm, setShowAddForm] = useState(false);
 
   const [newLabName, setNewLabName] = useState('')
+
+  const [selectedTeeths, setSelectedTeeths] = useState([]);
+
+  const [ showNotes, setShowNotes] = useState(false)
+
+  const [user, setUser] = useState([])
 
   const [open, setOpen] = useState(false);
 
@@ -116,11 +127,7 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
     color: theme.palette.text.secondary,
     marginBottom: theme.spacing(1),
   }));
-  const { products, isLoading } = useSelector((state) => state.product);
-  const TABLE_HEAD = [
-    { id: 'name', label: 'History', align: 'left' },
-    { id: '' }
-  ];
+  
   const {
     dense,
     page,
@@ -144,27 +151,29 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
   const [tableData, setTableData] = useState([]);
   const[showChildTeeth, setShowChildTeeth]=useState(false);
   const NewUserSchema = Yup.object().shape({
-    jobNo: Yup.string().required('jobNo is required'),
-    labName: Yup.string().required('labName is required').email(),
+    jobId: Yup.string().required('jobId is required'),
+    labName: Yup.string().required('labName is required'),
     dueDate: Yup.string().required('dueDate is required'),
     workName: Yup.string().required('workName is required'),
     shade: Yup.string().required('shade is required'),
     alloyType: Yup.string().required('alloyType is required'),
     status: Yup.string().required('status is required'),
-    teeth: Yup.string().required('teeth is required'),
-    expense: Yup.string().required('expense is required'),
+    labExpense: Yup.string().required('labExpense is required'),
+    orderedBy: Yup.string().required('orderedBy is required'),
+    notes: Yup.string()
   });
   const defaultValues = useMemo(
     () => ({
-      jobNo: currentWork?.jobNo || '',
+      jobId: currentWork?.jobId || '',
       labName: currentWork?.labName || '',
       dueDate: currentWork?.dueDate || new Date(),
-      workName: currentWork?.workName || '',
+      workName: currentWork?.workName || labWorkName || '',
       shade: currentWork?.shade || '',
       alloyType: currentWork?.alloyType || '',
       status: currentWork?.status || '',
-      teeth: currentWork?.teeth || '',
-      expense: currentWork?.expense || '',
+      labExpense: currentWork?.labExpense || '',
+      orderedBy: currentWork?.orderedBy || '',
+      notes: currentWork?.notes || ''
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentWork]
@@ -194,7 +203,7 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
   );
 
   const schemaNewLab = Yup.object().shape({
-    newLabName: Yup.string().required('jobNo is required'),
+    newLabName: Yup.string().required('NewLabName is required'),
   });
 
   const labMethods = useForm({
@@ -216,10 +225,12 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
   const { labNames } = useSelector((state) => state.labs);
 
   useEffect(() => {
-    console.log(labworks)
+    console.log(_userList)
+    setUser(_userList.filter(user => user.isStaff))
     setLabTreatments(cookArrayForView(labworks))
     setNewLabNames(labNames)
-  },[labworks, labNames])
+    defaultValues.orderedBy = user?.[0]?.id
+  },[labworks, labNames, _userList])
 
   const cookArrayForView = (labworks) => {
     const category = labworks.filter(a => !a.parentId);
@@ -239,6 +250,8 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
 
   useEffect(() => {
     if (isEdit && currentWork) {
+      if(currentWork.notes) setShowNotes(true)
+      if(currentWork.teethSelected) setSelectedTeeths(currentWork.teethSelected)
       reset(defaultValues);
     }
     if (!isEdit) {
@@ -251,16 +264,32 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
     setShowChildTeeth(!showChildTeeth)
   }
 
+  const toggleNotes = () => {
+    setShowNotes(!showNotes)
+  }
+
   const toggleAddForm = () => {
     setShowAddForm(!showAddForm)
   }
 
-  const onSubmit = async () => {
+  const onSubmit = async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
+      
+      const payload = {
+        ...data,
+        patientName: currentPatient.patientName,
+        patientId: currentPatient.id,
+        teethSelected: `${selectedTeeths}`,
+    }
+    payload.dueDate = moment(payload.dueDate).format('YYYY-MM-DD')
+      console.log(payload)
+      if(isEdit){
+        dispatch(updateLabDetail(payload, currentWork.id))
+      }else{
+        dispatch(addLabDetail(payload))
+        reset();
+      }
       enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
-      navigate(PATH_DASHBOARD.user.list);
     } catch (error) {
       console.error(error);
     }
@@ -304,7 +333,7 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
     comparator: getComparator(order, orderBy),
     filterName,
   });
-  const isNotFound = (!dataFiltered.length && !!filterName) || (!isLoading && !dataFiltered.length);
+  
 
   const [expanded, setExpanded] = useState('panel1');
   const handleChange =
@@ -314,7 +343,7 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
 
   const setWorkName = (treatment) => {
     setLabWorkName(treatment.title)
-    console.log(treatment)
+    setValue('workName', treatment.title)
   }
 
   const handleClickOpen = () => {
@@ -325,12 +354,23 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
     setOpen(false);
   };
 
+  const selectedTeeth = (selected) => { // the callback. Use a better name
+    console.log(selected.filter(teeth => teeth.checked && teeth.id).map(teeth => teeth.id))
+    let mappedArray = selectedTeeths.concat(',',selected.filter(teeth => teeth.checked && teeth.id).map(teeth => teeth.id).filter(i => selectedTeeths.indexOf(i)))
+    // const mappedArray = [...selectedTeeths ,...selected.filter(teeth => teeth.checked && teeth.id).map(teeth => teeth.id)]
+    mappedArray = mappedArray.filter(arr => arr !== ',')
+    console.log(mappedArray);
+    setSelectedTeeths(mappedArray)
+    
+  };
+
   return (
     <>
-    <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+    
       <Grid container spacing={3}>
         <Grid item xs={12} md={9}>
           <Card sx={{ p: 3, display: 'grid', rowGap: 3, }}>
+          <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
             <Box
               sx={{
                 display: 'grid',
@@ -348,7 +388,7 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
                 }}
               >
                 
-                <RHFTextField name="jobNo" label="Job No" />
+                <RHFTextField name="jobId" label="Job No" />
                 
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <IconButton onClick={handleClickOpen}>
@@ -377,8 +417,8 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
                   )}
                 />
               </Box>
-              <RHFTextField name="workName" label="Work Name" value={labWorkName} />
-              <RHFSelect name="selectShade" label="Please select Shade" placeholder="Please select Shade">
+              <RHFTextField name="workName" label="Work Name"/>
+              <RHFSelect name="shade" label="Please select Shade" placeholder="Please select Shade">
                 <option value="" />
                 {shade.map((option) => (
                   <option key={option.id} value={option.label}>
@@ -386,7 +426,7 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
                   </option>
                 ))}
               </RHFSelect>
-              <RHFSelect name="selectAlloyType" label="Please select Alloy Type" placeholder="Please select Alloy Type">
+              <RHFSelect name="alloyType" label="Please select Alloy Type" placeholder="Please select Alloy Type">
                 <option value="" />
                 {alloy.map((option) => (
                   <option key={option.id} value={option.label}>
@@ -406,44 +446,67 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
                 Select Teeth
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <ToothSelectionButton from={18} to={11}/>
-                <ToothSelectionButton from={21} to={28}/>
+                <ToothSelectionButton from={18} to={11} selectedTeeths={selectedTeeths} selectedTeeth={selectedTeeth}/>
+                <ToothSelectionButton from={21} to={28} selectedTeeths={selectedTeeths} selectedTeeth={selectedTeeth}/>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <ToothSelectionButton from={48} to={41}/>
-                <ToothSelectionButton from={31} to={38}/>
+                <ToothSelectionButton from={48} to={41} selectedTeeths={selectedTeeths} selectedTeeth={selectedTeeth}/>
+                <ToothSelectionButton from={31} to={38} selectedTeeths={selectedTeeths} selectedTeeth={selectedTeeth}/>
               </Box>
-              <Button variant="text" onClick={toggleChildTeeth}> {showChildTeeth ? 'Hide' : 'Show'} child teeth</Button>
+              {/* <Button variant="text" onClick={toggleChildTeeth}> {showChildTeeth ? 'Hide' : 'Show'} child teeth</Button>
               
               {showChildTeeth?
-              <>
+              <> */}
+              <Typography variant="subtitle2" align="center">
+                Child Teeth
+              </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <ToothSelectionButton from={55} to={51}/>
-                <ToothSelectionButton from={61} to={65}/>
+                <ToothSelectionButton from={55} to={51} selectedTeeths={selectedTeeths} selectedTeeth={selectedTeeth}/>
+                <ToothSelectionButton from={61} to={65} selectedTeeths={selectedTeeths} selectedTeeth={selectedTeeth}/>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <ToothSelectionButton from={85} to={81}/>
-                <ToothSelectionButton from={71} to={75}/>
+                <ToothSelectionButton from={85} to={81} selectedTeeths={selectedTeeths} selectedTeeth={selectedTeeth}/>
+                <ToothSelectionButton from={71} to={75} selectedTeeths={selectedTeeths} selectedTeeth={selectedTeeth}/>
               </Box>
-              </>: null}
+              {/* </>: null} */}
               <RHFTextField
                   name="labExpense"
                   label="Lab Expense"
                   placeholder="0.00"
-                  value={getValues('priceSale') === 0 ? '' : getValues('priceSale')}
-                  onChange={(event) => setValue('price', Number(event.target.value))}
                   InputLabelProps={{ shrink: true }}
                   InputProps={{
                     startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                     type: 'number',
                   }}
                 />
+              <Box
+                sx={{
+                  display: 'grid',
+                  columnGap: 3,
+                  rowGap: 5,
+                  gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(3, 1fr)' },
+                }}
+              >
+                {user && user.length && (<RHFSelect name="orderedBy" label="Ordered By" placeholder="Ordered By">
+                    {user.map((option) => (
+                      <option key={option.id} value={option.id}>
+                        {option.firstName} {option.lastName}
+                      </option>
+                    ))}
+                  </RHFSelect>)}
+              </Box>
+              <Button variant="text" onClick={toggleNotes}> {showNotes ? 'Close' : 'Add'} Notes</Button>
+              {showNotes && (<div>
+                <LabelStyle>Notes</LabelStyle>
+                <RHFTextField name="notes" label="Enter notes here" fullWidth multiline rows={3} />
+              </div>)}
             </Box>
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!isEdit ? 'Create User' : 'Save Changes'}
+                {!isEdit ? 'Save' : 'Save Changes'}
               </LoadingButton>
             </Stack>
+          </FormProvider>
           </Card>
         </Grid>
         <Grid item xs={12} md={3}>
@@ -477,7 +540,7 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
           </Card>
         </Grid>
       </Grid>
-    </FormProvider>
+    
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>Add New Lab Name</DialogTitle>
       <FormProvider methods={labMethods} onSubmit={handleSubmitNewLab(onNewLabSubmit)}>

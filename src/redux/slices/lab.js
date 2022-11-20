@@ -118,7 +118,7 @@ export function getLabDetails() {
         }
       const res = await axios.get('http://localhost:8000/auth/labdetails/', headers);
       // const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
-      dispatch(slice.actions.getLabWorkSuccess(res.data));
+      dispatch(slice.actions.getLabDetailsSuccess(res.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -186,7 +186,7 @@ export function deleteLabDetail(data, id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/auth/labdetails/${id}/`, data, headers);
+      const response = await axios.delete(`http://localhost:8000/auth/labdetails/${id}/`, headers);
       dispatch(slice.actions.removeLabDetails(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));

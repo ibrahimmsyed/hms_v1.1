@@ -36,7 +36,7 @@ import useTable, { getComparator, emptyRows } from '../../hooks/useTable';
 import { useDispatch, useSelector } from '../../redux/store';
 // _mock_
 import { _userList, _userCards } from '../../_mock';
-import { getLabDetails } from '../../redux/slices/lab';
+import { getLabDetails, updateLabDetail, deleteLabDetail } from '../../redux/slices/lab';
 // components
 import Page from '../../components/Page';
 import Iconify from '../../components/Iconify';
@@ -51,6 +51,14 @@ import { PatientCard } from '../../sections/@dashboard/user/cards';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = ['All Patients', 'Recently Visited', 'Recently Added'];
+
+const STATUS = [
+  {id:0 , label: 'all'},
+  {id:1 , label: 'Sent'},
+  {id:2 , label: 'In Production'},
+  {id:3 , label: 'In Transit'},
+  {id:4 , label: 'Received'}
+]
 
 const ROLE_OPTIONS = [
   'all',
@@ -106,7 +114,7 @@ export default function LabOrders() {
 
   const [filterPatientName, setFilterPatientName] = useState('');
 
-  const [filterLabName, setFilterLabName] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
 
   const [isOpen, setDialogState] = useState(false);
 
@@ -114,7 +122,7 @@ export default function LabOrders() {
 
   const { patients:_userCards } = useUsers();
   console.log(_userCards)
-  const { currentTab: filterStatus, onChangeTab: onChangeFilterStatus } = useTabs('all');
+  const { currentTab: filterLabName, onChangeTab: onChangeFilterStatus } = useTabs('all');
 
   useEffect(() => {
     dispatch(getLabDetails());
@@ -127,18 +135,21 @@ export default function LabOrders() {
   },[labs])
 
   const handleFilterName = (filterPatientName) => {
+    console.log(filterPatientName)
     setFilterPatientName(filterPatientName);
     setPage(0);
   };
 
   const handleFilterRole = (event) => {
-    setFilterLabName(event.target.value);
+    console.log(event.target.value)
+    setFilterStatus(event.target.value);
   };
 
-  const handleDeleteRow = (id) => {
-    const deleteRow = tableData.filter((row) => row.id !== id);
+  const handleDeleteRow = (drow) => {
+    const deleteRow = tableData.filter((row) => row.id !== drow.id);
     setSelected([]);
     setTableData(deleteRow);
+    dispatch(deleteLabDetail(drow, drow.id));
   };
 
   const handleDeleteRows = (selected) => {
@@ -148,7 +159,12 @@ export default function LabOrders() {
   };
 
   const handleEditRow = (id) => {
-    navigate(PATH_DASHBOARD.labs.edit(paramCase(id)));
+    navigate(PATH_DASHBOARD.labs.edit(id));
+  };
+
+  const onStatusSelected = (row) => {
+    dispatch(updateLabDetail(row, row.id))
+    console.log(row)
   };
 
   const handleAddNew = () => {
@@ -167,16 +183,16 @@ export default function LabOrders() {
     tableData,
     comparator: getComparator(order, orderBy),
     filterPatientName,
-    filterLabName,
     filterStatus,
+    filterLabName,
   });
 
   const denseHeight = dense ? 52 : 72;
 
   const isNotFound =
     (!dataFiltered.length && !!filterPatientName) ||
-    (!dataFiltered.length && !!filterLabName) ||
-    (!dataFiltered.length && !!filterStatus);
+    (!dataFiltered.length && !!filterStatus) ||
+    (!dataFiltered.length && !!filterLabName);
 
   return (
     <Page title="Lab: Orders">
@@ -206,23 +222,20 @@ export default function LabOrders() {
             allowScrollButtonsMobile
             variant="scrollable"
             scrollButtons="auto"
-            value={filterStatus}
+            value={filterLabName}
             onChange={onChangeFilterStatus}
             sx={{ px: 2, bgcolor: 'background.neutral' }}
           />
           <Divider />
           <LabsTableToolbar
             filterPatientName={filterPatientName}
-            filterLabName={filterLabName}
+            filterStatus={filterStatus}
             onFilterName={handleFilterName}
             onFilterRole={handleFilterRole}
-            optionsRole={ROLE_OPTIONS}
+            optionsRole={STATUS}
           />
 
           <Scrollbar>
-            <Stack spacing={1.5} sx={{ my: 1.5, px: 2.5 }}>
-              <Typography variant="subtitle2">1 Sep, 2022</Typography>
-            </Stack>
             <TableContainer sx={{ minWidth: 800, position: 'relative' }}>
               {selected.length > 0 && (
                 <TableSelectedActions
@@ -262,8 +275,9 @@ export default function LabOrders() {
                       row={row}
                       selected={selected.includes(row.id)}
                       onSelectRow={() => onSelectRow(row.id)}
-                      onDeleteRow={() => handleDeleteRow(row.id)}
-                      onEditRow={() => handleEditRow(row.name)}
+                      onDeleteRow={() => handleDeleteRow(row)}
+                      onEditRow={() => handleEditRow(row.id)}
+                      onStatusSelected={onStatusSelected}
                     />
                   ))}
 
@@ -275,11 +289,6 @@ export default function LabOrders() {
             </TableContainer>
           </Scrollbar>
           <Divider />
-          <Box sx={{ position: 'relative', textAlign: 'center', my: 1.5 }}>
-          <LoadingButton type="submit" variant="contained" loading={false}>
-            Show More
-          </LoadingButton>
-          </Box>
         </Card>
       </Container>
       <DialogAnimate fullWidth maxWidth="md" open={isOpen} onClose={onClose}>
@@ -287,7 +296,7 @@ export default function LabOrders() {
             allowScrollButtonsMobile
             variant="scrollable"
             scrollButtons="auto"
-            value={filterStatus}
+            value={filterLabName}
             onChange={onChangeFilterStatus}
             sx={{ px: 2, bgcolor: 'background.neutral' }}
           >
@@ -332,7 +341,7 @@ export default function LabOrders() {
 
 // ----------------------------------------------------------------------
 
-function applySortFilter({ tableData, comparator, filterPatientName, filterStatus, filterLabName }) {
+function applySortFilter({ tableData, comparator, filterPatientName, filterLabName, filterStatus }) {
   const stabilizedThis = tableData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -344,7 +353,7 @@ function applySortFilter({ tableData, comparator, filterPatientName, filterStatu
   tableData = stabilizedThis.map((el) => el[0]);
 
   if (filterPatientName) {
-    tableData = tableData.filter((item) => item.patientName.toLowerCase().indexOf(filterPatientName.toLowerCase()) !== -1);
+    tableData = tableData.filter((item) => item.patientName.toLowerCase().indexOf(filterPatientName.toLowerCase()) !== -1 || item.jobId.toLowerCase().indexOf(filterPatientName.toLowerCase()) !== -1 || item.labName.toLowerCase().indexOf(filterPatientName.toLowerCase()) !== -1);
   }
 
   if (filterStatus !== 'all') {
