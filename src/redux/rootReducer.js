@@ -10,6 +10,7 @@ import kanbanReducer from './slices/kanban';
 import userReducer from './slices/user';
 import patientReducer from './slices/patient';
 import labReducer from './slices/lab';
+import settingReducer from './slices/setting';
 
 // ----------------------------------------------------------------------
 
@@ -29,6 +30,7 @@ const productPersistConfig = {
 
 const rootReducer = combineReducers({
   patient: patientReducer,
+  setting: settingReducer,
   user: userReducer,
   labs: labReducer,
   mail: mailReducer,

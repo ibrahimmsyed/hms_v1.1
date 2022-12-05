@@ -17,7 +17,8 @@ const initialState = {
   error: null,
   patients: [],
   currentPatient: {},
-  patientHistory: []
+  patientHistory: [],
+  treatmentPlan: []
 };
 
 const slice = createSlice({
@@ -51,7 +52,7 @@ const slice = createSlice({
     removePatientDetail(state, action) {
       state.isLoading = false;
       state.patients = state.patients.filter(patient => patient.id !== action.payload)
-  },
+    },
     setPatientHistory(state, action) {
       state.isLoading = false;
       state.patientHistory = action.payload;
@@ -63,6 +64,18 @@ const slice = createSlice({
     deletePatientHistory(state, action) {
       state.isLoading = false;
       state.patientHistory = state.patientHistory.filter(history => history.id !== action.payload)
+    },
+    setTreatmentPlan(state, action) {
+      state.isLoading = false;
+      state.treatmentPlan = action.payload;
+    },
+    updateTreatmentPlan(state, action) {
+      state.isLoading = false;
+      state.treatmentPlan = [...state.treatmentPlan, action.payload]
+    },
+    removeTreatmentPlan(state, action) {
+      state.isLoading = false;
+      state.treatmentPlan = state.treatmentPlan.filter(plan => plan.id !== action.payload)
     },
   },
 });
@@ -78,7 +91,10 @@ export const {
     updatePatientHistory,
     updatePatientDetails,
     deletePatientHistory,
-    removePatientDetail
+    removePatientDetail,
+    setTreatmentPlan,
+    updateTreatmentPlan,
+    removeTreatmentPlan
 } = slice.actions;
 
 // ----------------------------------------------------------------------
@@ -170,7 +186,7 @@ export function deletePatientsDetail(data, id) {
     }
   };
 }
-
+// Medical History
 export function getMedicalHistory() {
   return async () => {
     dispatch(slice.actions.startLoading());
@@ -217,6 +233,58 @@ export function deleteMedicalHistory(id) {
         }
       const response = await axios.delete(`http://localhost:8000/auth/medicalhistory/${id}/`, headers);
       dispatch(slice.actions.deletePatientHistory(id));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+// Treatment plan
+export function getTreatmentPlan() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.get('http://localhost:8000/auth/procedure/', headers);
+      dispatch(slice.actions.setTreatmentPlan(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function addTreatmentPlan(plan) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.post('http://localhost:8000/auth/procedure/', plan, headers);
+      dispatch(slice.actions.updateTreatmentPlan(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function deleteTreatmentPlan(id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.delete(`http://localhost:8000/auth/procedure/${id}/`, headers);
+      dispatch(slice.actions.removeTreatmentPlan(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

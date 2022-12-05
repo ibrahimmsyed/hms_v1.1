@@ -18,7 +18,8 @@ const initialState = {
   labs: [],
   currentLab: {},
   labworks: [],
-  labNames: []
+  labNames: [],
+  treatmentPlans: []
 };
 
 const slice = createSlice({
@@ -83,6 +84,14 @@ const slice = createSlice({
       state.isLoading = false;
       state.labNames = [...state.labNames, action.payload]
     },
+    getTreatmentPlansSuccess(state, action) {
+      state.isLoading = false;
+      state.treatmentPlans = action.payload
+    },
+    updateTreatmentPlans(state, action) {
+      state.isLoading = false;
+      state.treatmentPlans = [...state.treatmentPlans, action.payload]
+    },
   },
 });
 
@@ -102,6 +111,8 @@ export const {
     getlabNamesSuccess,
     setlabName,
     updatelabName,
+    getTreatmentPlansSuccess,
+    updateTreatmentPlans
 } = slice.actions;
 
 // ----------------------------------------------------------------------
@@ -264,6 +275,43 @@ export function deleteLabWorks(data, id) {
     }
   };
 }
+// ----------------------------------------------------------------------
+export function getAllTreatmentPlans() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const res = await axios.get('http://localhost:8000/auth/treatmentplans/', headers);
+      // const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
+      dispatch(slice.actions.getTreatmentPlansSuccess(res.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function addTreatmentPlans(data) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.post('http://localhost:8000/auth/treatmentplans/', data, headers);
+      dispatch(slice.actions.updateTreatmentPlans(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
 // ----------------------------------------------------------------------
 export function getAllLabNames() {
   return async () => {

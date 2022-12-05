@@ -129,6 +129,14 @@ export default function Router() {
           ],
         },
         {
+          path: 'treatments',
+          children: [
+            { element: <Navigate to="/dashboard/treatments" replace />, index: true },
+            { path: ':id/:name/new', element: <TreatmentPlanCart /> },
+            { path: ':id/edit', element: <TreatmentPlanCart /> },
+          ],
+        },
+        {
           path: 'settings',
           children: [
             { element: <Navigate to="/dashboard/settings/practicedetails" replace />, index: true },
@@ -137,7 +145,7 @@ export default function Router() {
             { path: 'inventory', element: <Inventory /> },
             { path: 'labwork', element: <LabsWork /> },
             { path: 'inventory/new', element: <InventoryCreate /> },
-            { path: 'inventory/:name/edit', element: <InventoryCreate /> },
+            { path: 'inventory/:id/edit', element: <InventoryCreate /> },
             { path: 'new', element: <PatientCreate /> },
             { path: ':name/edit', element: <PatientCreate /> },
             { path: 'account', element: <UserAccount /> },
@@ -264,6 +272,7 @@ const LabOrders = Loadable(lazy(() => import('../pages/dashboard/LabOrders')));
 const LabsCreate = Loadable(lazy(() => import('../pages/dashboard/LabsCreate')));
 const TreatmentPlanCart = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/checkout/TreatmentPlanCart')));
 const PrescriptionCart = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/checkout/PrescriptionCart')));
+
 const MLCNewEditForm = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/MLCNewEditForm')));
 const FileNewEditForm = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/FileNewEditForm')));
 const Inventory = Loadable(lazy(() => import('../pages/dashboard/Inventory')));

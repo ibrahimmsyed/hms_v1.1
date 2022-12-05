@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import sum from 'lodash/sum';
 import * as Yup from 'yup';
 import { Link as RouterLink } from 'react-router-dom';
@@ -11,6 +11,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // redux
 import { useDispatch, useSelector } from '../../../../redux/store';
+import { getAllInventory } from '../../../../redux/slices/setting';
 import {
   deleteCart,
   onNextStep,
@@ -20,6 +21,7 @@ import {
 } from '../../../../redux/slices/product';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
+
 // components
 import Iconify from '../../../../components/Iconify';
 import Scrollbar from '../../../../components/Scrollbar';
@@ -35,7 +37,31 @@ import PrescriptionList from './PrescriptionList';
 export default function PrescriptionCart() {
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    dispatch(getAllInventory());
+  },[dispatch])
+
   const { checkout } = useSelector((state) => state.product);
+
+  const { inventory } = useSelector((state) => state.setting);
+
+  const [inventroyItems, setInventoryItems ] = useState([]) 
+
+  const [selectedDrugs, setSelectedDrugs ] = useState([]) 
+
+  const [isEmptyCart, setEmptyCart] = useState(true)
+
+  useEffect(() => {
+    const items = inventory.map(item => ({...item, isChecked : false}));
+    setInventoryItems(items)
+  },[inventory])
+
+  useEffect(() => {
+    const clonedinventroyItems = [...inventroyItems]
+    const selectedDrugs = clonedinventroyItems.filter(plan => plan.isChecked);
+    setEmptyCart(!selectedDrugs.length > 0)
+    setSelectedDrugs(selectedDrugs)
+  },[inventroyItems])
 
   const drugs = [
     {
@@ -80,8 +106,6 @@ export default function PrescriptionCart() {
 
   const totalItems = sum(cart.map((item) => item.quantity));
 
-  const isEmptyCart = drugs.length === 0;
-
   const NewProcedureSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     amount: Yup.string().required('amount is required')
@@ -125,16 +149,13 @@ export default function PrescriptionCart() {
   } = methods;
 
   const handleToggle = (value: number) => () => {
-    const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
-
-    if (currentIndex === -1) {
-      newChecked.push(value);
-    } else {
-      newChecked.splice(currentIndex, 1);
-    }
-
-    setChecked(newChecked);
+    const items = [...inventroyItems];
+    items.forEach((item) => {
+      if(item.id === value.id){
+        item.isChecked = !value.isChecked
+      }
+    });
+    setInventoryItems(items)
   };
   const onSubmit = async () => {
     try {
@@ -167,7 +188,7 @@ export default function PrescriptionCart() {
           {!isEmptyCart ? (
             <Scrollbar>
               <PrescriptionList
-                drugs={drugs}
+                drugs={selectedDrugs}
                 onDelete={handleDeleteCart}
                 onIncreaseQuantity={handleIncreaseQuantity}
                 onDecreaseQuantity={handleDecreaseQuantity}
@@ -259,15 +280,15 @@ export default function PrescriptionCart() {
               />
             </Box>
             <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-              {[0, 1, 2, 3].map((value) => {
-                const labelId = `checkbox-list-label-${value}`;
+              {inventroyItems.map((value) => {
+                const labelId = `checkbox-list-label-${value.id}`;
 
                 return (
                   <ListItem
-                    key={value}
+                    key={value.id}
                     secondaryAction={
                       <IconButton edge="end" aria-label="comments">
-                        0
+                        {value.quantity}
                       </IconButton>
                     }
                     disablePadding
@@ -276,13 +297,13 @@ export default function PrescriptionCart() {
                       <ListItemIcon>
                         <Checkbox
                           edge="start"
-                          checked={checked.indexOf(value) !== -1}
+                          checked={value.isChecked}
                           tabIndex={-1}
                           disableRipple
                           inputProps={{ 'aria-labelledby': labelId }}
                         />
                       </ListItemIcon>
-                      <ListItemText id={labelId} primary={`Line item ${value + 1}`} />
+                      <ListItemText id={labelId} primary={value.itemName} />
                     </ListItemButton>
                   </ListItem>
                 );

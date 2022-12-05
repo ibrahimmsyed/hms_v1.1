@@ -22,6 +22,7 @@ import {
 import { useSnackbar } from 'notistack';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
+import { getAllInventory } from '../../redux/slices/setting';
 import { getProducts } from '../../redux/slices/product';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
@@ -101,11 +102,17 @@ export default function Inventory() {
 
   const [filterName, setFilterName] = useState('');
 
+  const { inventory } = useSelector((state) => state.setting);
+
   useEffect(() => {
-    if (products?.length) {
-      setTableData(products);
+    dispatch(getAllInventory())
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (inventory?.length) {
+      setTableData(inventory);
     }
-  }, [products]);
+  }, [inventory]);
 
   const openDialog = (id) => {
     setOpen(true);
@@ -138,7 +145,7 @@ export default function Inventory() {
   };
 
   const handleEditRow = (id) => {
-    navigate(PATH_DASHBOARD.settings.inventoryPath.edit(paramCase(id)));
+    navigate(PATH_DASHBOARD.settings.inventoryPath.edit(id));
   };
 
   const dataFiltered = applySortFilter({
@@ -227,7 +234,7 @@ export default function Inventory() {
                           selected={selected.includes(row.id)}
                           onSelectRow={() => onSelectRow(row.id)}
                           onDeleteRow={() => openDialog(row.id)}
-                          onEditRow={() => handleEditRow(row.itemName)}
+                          onEditRow={() => handleEditRow(row.id)}
                         />
                       ) : (
                         !isNotFound && <TableSkeleton key={index} sx={{ height: denseHeight }} />

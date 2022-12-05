@@ -1,13 +1,16 @@
 // @mui
 import { Container, Box, Button, Tabs, Tab, InputAdornment, Typography, Stack } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import {useState, SyntheticEvent, ReactNode} from 'react';
+import {useState, SyntheticEvent, ReactNode, useEffect} from 'react';
 import { sub } from 'date-fns';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
 import useSettings from '../../hooks/useSettings';
+import useUsers from '../../hooks/useUsers';
+import useTabs from '../../hooks/useTabs';
 import { useDispatch, useSelector } from '../../redux/store';
+import { getAllTreatmentPlans } from '../../redux/slices/lab';
 // _mock_
 import { _userCards } from '../../_mock';
 // components
@@ -15,6 +18,7 @@ import Iconify from '../../components/Iconify';
 import Page from '../../components/Page';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import InputStyle from '../../components/InputStyle';
+import { DialogAnimate } from '../../components/animate';
 import PatientInvoiceList from './PatientInvoiceList'
 // sections
 import { PatientCard } from '../../sections/@dashboard/user/cards';
@@ -25,8 +29,43 @@ import CommunicationDetails from '../../sections/@dashboard/e-commerce/Communica
 
 export default function UserCards() {
   const { themeStretch } = useSettings();
+  const dispatch = useDispatch();
+  const { patients } = useUsers();
+  const { user } = useUsers();
   const [value, setValue] = useState(0);
-  const plans = [
+  const [plans, setPlans] = useState([]);
+  const [isOpen, setDialogState] = useState(false);
+  const [url , setRedirectURL] = useState('labs')
+  const { currentTab: filterLabName, onChangeTab: onChangeFilterStatus } = useTabs('all');
+  const STATUS_OPTIONS = ['All Patients', 'Recently Visited', 'Recently Added'];
+
+  useEffect(() => {
+    dispatch(getAllTreatmentPlans());
+  },[dispatch])
+
+  const { treatmentPlans } = useSelector((state) => state.labs);
+
+  useEffect(() => {
+    // const plan = treatmentPlan.map((plan, i) => {id: i, procedure: plan, })
+    const plans = []
+    treatmentPlans?.forEach((plan, i) => {
+      const patient = patients.find(patient => Number(patient.id) === Number(plan.patientId))
+      const doctor = user.find(user => user.isStaff && Number(user.id) === Number(plan.orderedBy))
+      console.log(patient , doctor)
+      const planObj = {
+        id: i+1,
+        procedure: JSON.parse(plan.selection).updatedProcedure[0],
+        patient,
+        doctor 
+      }
+      plans.push(planObj)
+    });
+    console.log(plans)
+
+    setPlans(plans)
+  },[treatmentPlans])
+
+  /* const plans = [
     {
       id:1,
       patient: {
@@ -50,7 +89,7 @@ export default function UserCards() {
         estimatedAmount: "1000"
       }
     }
-  ]
+  ] */
   const appointments = [
     {
       id:1,
@@ -136,6 +175,13 @@ export default function UserCards() {
   const findPatients = () => {
     
   }
+  const handleAddNew = (url) => {
+    setRedirectURL(url)
+    setDialogState(true)
+  }
+  const onClose = () => {
+    setDialogState(true)
+  }
 
   return (
     <Page title="User: Cards">
@@ -203,8 +249,8 @@ export default function UserCards() {
               },
             }}
           >
-            {_userCards.map((user) => (
-              <PatientCard key={user.id} user={user} />
+            {patients.map((patient) => (
+              <PatientCard key={patient.id} patient={patient} />
             ))}
           </Box>
         </TabPanel>
@@ -219,9 +265,9 @@ export default function UserCards() {
             <Button
               variant="contained"
               startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
-              component={RouterLink} to={PATH_DASHBOARD.patient.newplans}
+              onClick={() => handleAddNew('treatments')}
             >
-              Add Patient
+              Add New Plans
             </Button>
           </Stack>
             
@@ -285,6 +331,50 @@ export default function UserCards() {
           <CommunicationDetails/>
         </TabPanel>
       </Container>
+      <DialogAnimate fullWidth maxWidth="md" open={isOpen} onClose={onClose}>
+        <Tabs
+            allowScrollButtonsMobile
+            variant="scrollable"
+            scrollButtons="auto"
+            value={filterLabName}
+            onChange={onChangeFilterStatus}
+            sx={{ px: 2, bgcolor: 'background.neutral' }}
+          >
+            {STATUS_OPTIONS.map((tab) => (
+              <Tab disableRipple key={tab} label={tab} value={tab} />
+            ))}
+        </Tabs>
+        <InputStyle
+          stretchStart={240}
+          value=""
+          onChange={(event) => findPatients(event.target.value)}
+          placeholder="Find patients..."
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon={'eva:search-fill'} sx={{ color: 'text.disabled', width: 20, height: 20 }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ my: 1 }}
+        />
+        <Box
+          sx={{
+            display: 'grid',
+            gap: 3,
+            gridTemplateColumns: {
+              xs: 'repeat(1, 1fr)',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)',
+            },
+            m: 2
+          }}
+        >
+          {patients.map((patient) => (
+            <PatientCard key={patient.id} patient={patient} url={url} isSearch/>
+          ))}
+        </Box>
+      </DialogAnimate>
     </Page>
   );
 }

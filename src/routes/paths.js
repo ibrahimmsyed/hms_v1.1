@@ -80,6 +80,9 @@ export const PATH_DASHBOARD = {
     edit: (name) => path(ROOTS_DASHBOARD, `/patient/${name}/edit`),
     demoEdit: path(ROOTS_DASHBOARD, `/patient/reece-chung/edit`),
   },
+  treatments:{
+    new: (id, name) => path(ROOTS_DASHBOARD, `/treatments/${id}/${name}/new`),
+  },
   labs: {
     root: path(ROOTS_DASHBOARD, '/labs'),
     orders: path(ROOTS_DASHBOARD, '/labs/orders'),

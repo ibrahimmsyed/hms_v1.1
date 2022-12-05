@@ -1,4 +1,5 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { useRef, useEffect, useState } from "react";
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -16,7 +17,15 @@ import Iconify from './Iconify';
 
 const options = ['Sent', 'In Production', 'In Transit', 'Received'];
 
-export default function ToothSelectionButton({from, to, selectedTeeths, selectedTeeth}) {
+ToothSelectionButton.propTypes = {
+  from: PropTypes.number.isRequired,
+  to: PropTypes.number.isRequired,
+  i: PropTypes.number,
+  selectedTeeths: PropTypes.array,
+  selectedTeeth: PropTypes.func,
+};
+
+export default function ToothSelectionButton({from, to, i, selectedTeeths, selectedTeeth}) {
   const [toothArr, setToothArr] = useState([]);
   const [open, setOpen] = React.useState(false);
   const anchorRef = useRef();
@@ -77,7 +86,7 @@ export default function ToothSelectionButton({from, to, selectedTeeths, selected
     localToothArr = toothArr.map(obj => obj.id === option.id ? {...obj, checked : !option.checked} : obj)
     // localToothArr = [...localToothArr]
     setToothArr(localToothArr)
-    selectedTeeth(localToothArr)
+    selectedTeeth(localToothArr, i)
     console.log(localToothArr, toothArr)
   };
 

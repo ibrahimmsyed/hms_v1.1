@@ -24,6 +24,10 @@ import {
 } from '../../../components/hook-form';
 import InventoryApiService from '../../../services/Inventory'
 import useUsers from '../../../hooks/useUsers';
+
+// redux
+import { useDispatch, useSelector } from '../../../redux/store';
+import { addInventory, modifyInventory } from '../../../redux/slices/setting';
 // ----------------------------------------------------------------------
 
 const ITEMTYPE_OPTION = [
@@ -76,9 +80,25 @@ InventoryNewEditForm.propTypes = {
 
 export default function InventoryNewEditForm({ isEdit, currentItem }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const inventoryApiService = new InventoryApiService();
   const { enqueueSnackbar } = useSnackbar();
   const { setInventoryDetails } = useUsers();
+
+  const units = [
+    {id: 1, name: 'mg' },
+    {id: 2, name: 'gm' },
+    {id: 3, name: 'units' },
+    {id: 4, name: 'IU' },
+    {id: 5, name: 'ml' },
+  ]
+  const drugType = [
+    {id: 1, name: 'Tablets' },
+    {id: 2, name: 'Capsule' },
+    {id: 3, name: 'Cream' },
+    {id: 4, name: 'Injection' },
+    {id: 5, name: 'Mouth wash' },
+  ]
 
   const NewProductSchema = Yup.object().shape({
     itemName: Yup.string().required('Name is required'),
@@ -96,6 +116,7 @@ export default function InventoryNewEditForm({ isEdit, currentItem }) {
       reorderLevel : currentItem?.reorderLevel || 0,
       retailPrice : currentItem?.retailPrice || 0,
       itemType : currentItem?.itemType || '',
+      strength : currentItem?.strength || '',
       quantity : currentItem?.quantity || 0,
       batch : currentItem?.batch || '',
       unitCost : currentItem?.unitCost || 0,
@@ -136,8 +157,7 @@ export default function InventoryNewEditForm({ isEdit, currentItem }) {
   const onSubmit = async (data) => {
     try {
       console.log(data)
-      const response = isEdit ? await inventoryApiService.updateInventory(data, currentItem.id) : await inventoryApiService.createInventory(data)
-      setInventoryDetails(response)
+      const response = isEdit ? dispatch(modifyInventory(data, currentItem.id)) : dispatch(addInventory(data))
       reset();
       enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
       navigate(PATH_DASHBOARD.settings.inventory);
@@ -190,6 +210,7 @@ export default function InventoryNewEditForm({ isEdit, currentItem }) {
                   </option>
                 ))}
               </RHFSelect>
+              <RHFTextField name="strength" label="Strength" />
             </Stack>
           </Card>
         </Grid>

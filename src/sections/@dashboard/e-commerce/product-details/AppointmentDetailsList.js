@@ -21,7 +21,7 @@ AppointmentDetailsList.propTypes = {
   appointments: PropTypes.object,
 };
 
-export default function AppointmentDetailsList({ appointments, plans, prescriptions }) {
+export default function AppointmentDetailsList({ patients, appointments, plans, prescriptions }) {
   
   return (
     <Box sx={{ pt: 3, px: 2, pb: 5 }}>
@@ -214,7 +214,7 @@ function TreatmentPlanItem({ plan }) {
             }}
           >
             <Avatar
-              src={patient.avatarUrl}
+              src={patient.dop}
               sx={{
                 mr: { xs: 2, sm: 0 },
                 mb: { sm: 2 },
@@ -224,11 +224,11 @@ function TreatmentPlanItem({ plan }) {
             />
             <div>
               <Typography variant="subtitle2" noWrap>
-                {patient.name}
+                {patient.patientName}
               </Typography>
               <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
                 
-                {patient.age} / {patient.gender}
+                {patient.dob} / {patient.gender}
               </Typography>
             </div>
           </Box>
@@ -240,7 +240,7 @@ function TreatmentPlanItem({ plan }) {
               />
               <TableBody>
                 <TableRow>
-                  <TableCell align="left">{procedure.name}</TableCell>
+                  <TableCell align="left">{procedure.procedureName}</TableCell>
 
                   <TableCell align="left">₹ {procedure.cost}</TableCell>
 
@@ -264,7 +264,7 @@ function TreatmentPlanItem({ plan }) {
             >
               {!isHelpful && (
                 <Typography variant="body2" sx={{ mr: 1 }}>
-                  Planned by <b>{doctor.name}</b> at Estimated amount of <b>{procedure.estimatedAmount}</b>
+                  Planned by <b>{doctor.firstName} {doctor.lastName}</b> at Estimated amount of <b>₹ {procedure.total}</b>
                 </Typography>
               )}
             </Box>

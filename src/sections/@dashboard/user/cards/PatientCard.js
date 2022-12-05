@@ -34,9 +34,9 @@ UserCard.propTypes = {
   isSearch: PropTypes.bool
 };
 
-export default function UserCard({ user, isSearch }) {
-  const { patientName, id, primaryMobNo, gender, dop, cover } = user;
-  const redirectLink = isSearch ? `${PATH_DASHBOARD.labs.new(id, patientName)}` : `${PATH_DASHBOARD.patient.edit(id, patientName)}`
+export default function UserCard({ patient, isSearch, url }) {
+  const { patientName, id, primaryMobNo, gender, dop, cover } = patient;
+  const redirectLink = isSearch ? `${PATH_DASHBOARD[url].new(id, patientName)}` : `${PATH_DASHBOARD.patient.edit(id, patientName)}`
   return (
     <Card sx={{ textAlign: 'center' }}>
       <Box sx={{ position: 'relative' }}>
