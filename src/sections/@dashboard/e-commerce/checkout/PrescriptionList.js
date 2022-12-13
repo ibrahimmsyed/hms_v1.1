@@ -38,10 +38,15 @@ import getColorName from '../../../../utils/getColorName';
 import { fCurrency } from '../../../../utils/formatNumber';
 // hooks
 import useUsers from '../../../../hooks/useUsers';
+// hooks
+import { useDispatch, useSelector } from '../../../../redux/store';
+import { addPresciption } from '../../../../redux/slices/patient'; 
+import { modifyInventory } from '../../../../redux/slices/setting';
 // components
 import Image from '../../../../components/Image';
 import Iconify from '../../../../components/Iconify';
 import { FormProvider, RHFSelect, RHFSwitch, RHFTextField, RHFUploadAvatar, RHFRadioGroup } from '../../../../components/hook-form';
+
 
 // ----------------------------------------------------------------------
 
@@ -64,7 +69,8 @@ PrescriptionList.propTypes = {
   onIncreaseQuantity: PropTypes.func,
 };
 
-export default function PrescriptionList({ drugs, onDelete, onIncreaseQuantity, onDecreaseQuantity }) {
+export default function PrescriptionList({ patient, drugs, onDelete, onIncreaseQuantity, onDecreaseQuantity }) {
+  const dispatch = useDispatch();
   const INTAKE_OPTION = ['Before Food', 'After Food'];
   const [currentPrescription, setCurrentPrescription] = useState([]);
   const { user: _userList } = useUsers();
@@ -72,10 +78,10 @@ export default function PrescriptionList({ drugs, onDelete, onIncreaseQuantity, 
   const [defaultUser, setDefaultUser] = useState(_userList.filter(user => user.isStaff)[0].id)
 
   const duration = [
-    {id: 1, label: 'day(s)'},
-    {id: 2, label: 'week(s)'},
-    {id: 3, label: 'month(s)'},
-    {id: 4, label: 'year(s)'}
+    {id: 1, label: 'day(s)', count: 1},
+    {id: 2, label: 'week(s)', count: 7},
+    {id: 3, label: 'month(s)', count: 30},
+    {id: 4, label: 'year(s)', count: 365}
   ]
   const validationSchema = Yup.object().shape({
     cart: Yup.array().of(
@@ -99,12 +105,13 @@ export default function PrescriptionList({ drugs, onDelete, onIncreaseQuantity, 
     register,
     handleSubmit,
     formState,
+    setValue,
     watch,
     reset,
     control
   } = useForm({
     resolver: yupResolver(validationSchema),
-    defaultValues,
+    defaultValues
   });
   const { errors } = formState;
   const { fields, append, prepend, remove, replace } = useFieldArray({
@@ -125,9 +132,28 @@ export default function PrescriptionList({ drugs, onDelete, onIncreaseQuantity, 
   },[_userList])
 
   useEffect(() => {
-    drugs?.forEach(drug => {
-      replace([{itemName: 'test'},{itemName: 'test2'}]) 
+    // update field array when ticket number changed
+    const newVal = Number(drugs.length || 0);
+    const oldVal = fields.length;
+    if (newVal > oldVal) {
+        // append tickets to field array
+        for (let i = oldVal; i < newVal; i+=1) {
+            append({ when: "" , durationUnit: duration[0].id, duration: "0", morning: "0", noon: "0", night: "0", instruction: "" });
+        }
+    } else {
+        // remove tickets from field array
+        for (let i = oldVal; i > newVal; i-=1) {
+            remove(i - 1);
+        }
+    }
+    const items = []
+    drugs?.forEach((drug, i) => {
+      setValue(`cart.${i}.itemId`, drug.id);
+      setValue(`cart.${i}.itemName`, drug.itemName);
+      setValue(`cart.${i}.strength`, drug.strength);
+      // items.push({itemName: drug.itemName, strength: drug.strength, })
     })
+    // replace(items)
     setCurrentPrescription(drugs)
   },[drugs])
 
@@ -147,20 +173,41 @@ export default function PrescriptionList({ drugs, onDelete, onIncreaseQuantity, 
     console.log(currentPrescription)
   }
 
+  const updateInventory = (cart) => {
+    drugs.forEach(drug => {
+      cart.forEach(item => {
+        if(drug.id === item.itemId && item.count){
+          drug.quantity = `${Number(drug.quantity) - Number(item.count)}`
+          dispatch(modifyInventory(drug, drug.id))
+        }
+      })
+    })
+  }
   
-function onSubmit(data) {
-    // display form data on success
-    console.log(data);
-}
+  const onSubmit = (data) => {
+      // display form data on success
+      data.patientId = `${patient.id}`
+      const cart = calculateTotal(data.cart)
+      updateInventory(cart)
+      data.cart = JSON.stringify(cart)
+      dispatch(addPresciption(data));
+      console.log(data);
+  }
+
+  const calculateTotal = (cart) => {
+    return cart.map(item => {
+      const durationCount = duration.find(val => val.id === Number(item.durationUnit)).count * Number(item.duration)
+      const totalPerDay = (Number(item.morning) + Number(item.noon) + Number(item.night)) * durationCount;
+      return {...item, count: totalPerDay}
+    })
+  }
 
   return (
     <>
     <form
-        onSubmit={handleSubmit((data) => {
-          console.log("Submit data", data);
-        })}
+        onSubmit={handleSubmit(onSubmit)}
       >
-        {currentPrescription.map((field, index) => {
+        {fields.map((field, index) => {
           return (
             <section key={field.id}>
               
@@ -188,22 +235,21 @@ function onSubmit(data) {
                   }}
                   aria-labelledby="demo-radio-buttons-group-label"
                   name="radio-buttons-group"
-                  {...register(`cart.${index}.when`, { required: true })}
                 >
-                  <FormControlLabel value="before" control={<Radio />} label="Before Food" />
-                  <FormControlLabel value="after" control={<Radio />} label="After Food" />
+                  <FormControlLabel {...register(`cart.${index}.when`, { required: true })} value="before" control={<Radio />} label="Before Food" />
+                  <FormControlLabel {...register(`cart.${index}.when`, { required: true })} value="after" control={<Radio />} label="After Food" />
                 </RadioGroup>
               </Stack>
               <Stack
-              sx={{
-                display: 'flex',
-                columnGap: 2,
-                flexDirection: 'row',
-                rowGap: 3,
-                padding: 2,
-                gridTemplateColumns: { xs: 'repeat(5, 1fr)', sm: 'repeat(5, 1fr)' },
-              }}
-            >
+                sx={{
+                  display: 'flex',
+                  columnGap: 2,
+                  flexDirection: 'row',
+                  rowGap: 3,
+                  padding: 2,
+                  gridTemplateColumns: { xs: 'repeat(5, 1fr)', sm: 'repeat(5, 1fr)' },
+                }}
+              >
               <TextField id="outlined-basic" label="Duration" {...register(`cart.${index}.duration`, { required: true })} variant="outlined" />
               <Controller
                 name={`cart.${index}.durationUnit`}
@@ -223,6 +269,25 @@ function onSubmit(data) {
               <TextField id="outlined-basic" label="Noon" {...register(`cart.${index}.noon`, { required: true })} variant="outlined" />
               <TextField id="outlined-basic" label="Night" {...register(`cart.${index}.night`, { required: true })} variant="outlined" />
             </Stack>
+            <Stack
+                sx={{
+                  display: 'flex',
+                  columnGap: 2,
+                  flexDirection: 'row',
+                  rowGap: 3,
+                  padding: 2,
+                  gridTemplateColumns: { xs: 'repeat(5, 1fr)', sm: 'repeat(5, 1fr)' },
+                }}
+              >
+                <TextField
+                  id="outlined-multiline-flexible"
+                  label="Instruction"
+                  multiline
+                  maxRows={4}
+                  {...register(`cart.${index}.instruction`)}
+                />
+            </Stack>        
+            
             </section>
           );
         })}
@@ -243,7 +308,7 @@ function onSubmit(data) {
           />
           <DesktopDatePicker
             {...register(`orderedOn`, { required: true })}
-            label="Date desktop"
+            label="Ordered On"
             value={dateValue}
             inputFormat="dd/MM/yyyy"
             onChange={handleChange}

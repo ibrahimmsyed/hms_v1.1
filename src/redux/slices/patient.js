@@ -18,7 +18,8 @@ const initialState = {
   patients: [],
   currentPatient: {},
   patientHistory: [],
-  treatmentPlan: []
+  treatmentPlan: [],
+  prescriptions: []
 };
 
 const slice = createSlice({
@@ -77,6 +78,18 @@ const slice = createSlice({
       state.isLoading = false;
       state.treatmentPlan = state.treatmentPlan.filter(plan => plan.id !== action.payload)
     },
+    setPrescription(state, action) {
+      state.isLoading = false;
+      state.prescriptions = action.payload;
+    },
+    updatePrescription(state, action) {
+      state.isLoading = false;
+      state.prescriptions = [...state.prescriptions, action.payload]
+    },
+    removePrescription(state, action) {
+      state.isLoading = false;
+      state.prescriptions = state.prescriptions.filter(plan => plan.id !== action.payload)
+    },
   },
 });
 
@@ -94,7 +107,10 @@ export const {
     removePatientDetail,
     setTreatmentPlan,
     updateTreatmentPlan,
-    removeTreatmentPlan
+    removeTreatmentPlan,
+    setPrescription,
+    updatePrescription,
+    removePrescription
 } = slice.actions;
 
 // ----------------------------------------------------------------------
@@ -290,5 +306,75 @@ export function deleteTreatmentPlan(id) {
     }
   };
 }
+// Presciption
+export function getPresciptions() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.get('http://localhost:8000/auth/precription/', headers);
+      dispatch(slice.actions.setPrescription(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function addPresciption(plan) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.post('http://localhost:8000/auth/precription/', plan, headers);
+      dispatch(slice.actions.updatePrescription(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function deletePresciption(id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.delete(`http://localhost:8000/auth/precription/${id}/`, headers);
+      dispatch(slice.actions.removePrescription(id));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
 
-
+/** ******************************************************** */
+export function uploadFiles(plan) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`,
+            'Content-Type':'multipart/form-data'
+            }
+        }
+      const response = await axios.post('http://localhost:8000/auth/imageUpload/', plan, headers);
+      dispatch(slice.actions.updatePrescription(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}

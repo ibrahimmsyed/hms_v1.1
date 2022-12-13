@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 // form
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+
 // @mui
 import { styled } from '@mui/material/styles';
 import { LoadingButton } from '@mui/lab';
@@ -27,6 +28,11 @@ import {
 } from '../../../components/hook-form';
 import Image from '../../../components/Image';
 import Iconify from '../../../components/Iconify';
+
+// hook
+import { useDispatch, useSelector } from '../../../redux/store';
+import { uploadFiles } from '../../../redux/slices/patient';
+
 // ----------------------------------------------------------------------
 
 const RADIO_OPTION = ['Valid for absence from court attendance ', 'Invalid for absence from court attendance ', 'Dont mention'];
@@ -45,6 +51,7 @@ FileNewEditForm.propTypes = {
 };
 
 export default function FileNewEditForm() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const patient = {
     id: 32974,
@@ -66,8 +73,8 @@ export default function FileNewEditForm() {
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewMLCSchema),
-    defaultValues,
+    /* resolver: yupResolver(NewMLCSchema),
+    defaultValues, */
   });
 
   const {
@@ -80,9 +87,10 @@ export default function FileNewEditForm() {
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = async () => {
+  const onSubmit = async (data) => {
     try {
-      console.error('Submit');
+      dispatch(uploadFiles(data))
+      console.log(data);
     } catch (error) {
       console.error(error);
     }
@@ -90,6 +98,23 @@ export default function FileNewEditForm() {
   const onCancel = () => {
     console.log('CLose')
   };
+
+  const handleDrop = useCallback(
+    (acceptedFiles) => {
+      const file = acceptedFiles[0];
+
+      if (file) {
+        setValue(
+          'cover',
+          Object.assign(file, {
+            preview: URL.createObjectURL(file),
+          })
+        );
+      }
+    },
+    [setValue]
+  );
+
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3} sx={{justifyContent: 'space-around'}}>
@@ -119,7 +144,7 @@ export default function FileNewEditForm() {
             >
               <div>
                 <LabelStyle>Upload Files</LabelStyle>
-                <RHFUploadSingleFile name="cover" accept="image/*" maxSize={3145728}/>
+                <RHFUploadSingleFile name="cover" accept="image/*" maxSize={3145728} onDrop={handleDrop}/>
               </div>
             </Box>
             <Box 
@@ -149,7 +174,9 @@ export default function FileNewEditForm() {
             <Button fullWidth onClick={onCancel}>
               Cancel
             </Button>
-
+            <LoadingButton fullWidth type="submit" variant="contained" size="large" loading={isSubmitting}>
+              Submit
+            </LoadingButton>
             <Button fullWidth variant="contained" onClick={onCancel}>
               Save
             </Button>

@@ -5,6 +5,10 @@ import { Box, List, MenuItem, Button, Rating, Avatar, ListItem, Pagination, Typo
 // utils
 import { fDate } from '../../../../utils/formatTime';
 import { fShortenNumber } from '../../../../utils/formatNumber';
+// hooks
+import { deletePresciption } from '../../../../redux/slices/patient';
+import { modifyInventory } from '../../../../redux/slices/setting';
+import { useDispatch, useSelector } from '../../../../redux/store';
 // components
 import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu, TableHeadCustom } from '../../../../components/table';
@@ -32,8 +36,8 @@ export default function AppointmentDetailsList({ patients, appointments, plans, 
         {plans?.length > 0 && plans.map((plan) => (
           <TreatmentPlanItem key={plan.id} plan={plan}/>
         ))}
-        {prescriptions?.length > 0 && prescriptions.map((prescription) => (
-          <PrescriptionPlanItem key={prescription.id} prescription={prescription}/>
+        {prescriptions?.length > 0 && prescriptions.map((prescription, i) => (
+          <PrescriptionPlanItem key={i} prescription={prescription}/>
         ))}
       </List>
     </Box>
@@ -306,9 +310,13 @@ PrescriptionPlanItem.propTypes = {
 };
 
 function PrescriptionPlanItem({ prescription }) {
+  const dispatch = useDispatch();
+
+  const { inventory } = useSelector((state) => state.setting);
+
   const [isHelpful, setHelpfuls] = useState(false);
 
-  const { patient, time, drugs, doctor, instruction } = prescription;
+  const { id, patient, time, drugs, doctor } = prescription;
   const [openMenu, setOpenMenuActions] = useState(null);
 
   const handleOpenMenu = (event) => {
@@ -317,6 +325,22 @@ function PrescriptionPlanItem({ prescription }) {
 
   const handleCloseMenu = () => {
     setOpenMenuActions(null);
+  };
+
+  const onDeleteRow = (id) => {
+    const cart = [...inventory]
+    drugs.forEach(drug => {
+      cart.forEach(item => {
+        if(item.id === drug.itemId && drug.count){
+          const quantity = `${Number(item.quantity) + Number(drug.count)}`
+          item = {...item, quantity}
+          dispatch(modifyInventory(item, item.id))
+        }
+      })
+    })
+    
+    dispatch(deletePresciption(id));
+    console.log(id)
   };
 
   const onEditRow = () => {
@@ -328,6 +352,17 @@ function PrescriptionPlanItem({ prescription }) {
     { id: 'duration', label: 'Duration', align: 'left' },
     { id: 'instruction', label: 'Instruction', align: 'center' },
   ];
+  const duration = [
+    {id: 1, label: 'day(s)', count: 1},
+    {id: 2, label: 'week(s)', count: 7},
+    {id: 3, label: 'month(s)', count: 30},
+    {id: 4, label: 'year(s)', count: 365}
+  ]
+
+  const getDuration = (id) => {
+    console.log(duration.filter(item => item.id === Number(id))[0].label)
+    return duration.filter(item => item.id === Number(id))[0]?.label
+  }
 
   return (
     <>
@@ -363,11 +398,11 @@ function PrescriptionPlanItem({ prescription }) {
             />
             <div>
               <Typography variant="subtitle2" noWrap>
-                {patient.name}
+                {patient.patientName}
               </Typography>
               <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
                 
-                {patient.age} / {patient.gender}
+                {patient.dob} / {patient.gender}
               </Typography>
             </div>
           </Box>
@@ -380,14 +415,14 @@ function PrescriptionPlanItem({ prescription }) {
               <TableBody>
                 {drugs?.map((drug) => 
                    <TableRow key={drug.id}>
-                    <TableCell align="left">{drug.name} <br/> {drug.duration * (drug.morning + drug.noon + drug.night)} Tablets</TableCell>
+                    <TableCell align="left">{drug.itemName} {drug.strength}<br/> {drug.count} Tablets</TableCell>
   
                     <TableCell align="left">{drug.morning} - {drug.noon} - {drug.night}</TableCell>
   
-                    <TableCell align="center">{drug.duration} days(s)</TableCell>
+                    <TableCell align="center">{drug.duration} {getDuration(drug.durationUnit)}</TableCell>
   
                     <TableCell align="center">
-                    {instruction.description}
+                          {drug.instruction}
                     </TableCell>
                   </TableRow>
                 )}
@@ -402,7 +437,7 @@ function PrescriptionPlanItem({ prescription }) {
             >
               {!isHelpful && (
                 <Typography variant="body2" sx={{ mr: 1 }}>
-                  Prescribed  by <b>{doctor.name}</b>
+                  Prescribed  by <b>{doctor.firstName} {doctor.lastName}</b>
                 </Typography>
               )}
             </Box>
@@ -417,6 +452,15 @@ function PrescriptionPlanItem({ prescription }) {
               onClose={handleCloseMenu}
               actions={
                 <>
+                  <MenuItem
+                      onClick={() => {
+                        onDeleteRow(id);
+                        handleCloseMenu();
+                      }}
+                  >
+                    <Iconify icon={'eva:trash-2-outline'} />
+                    Delete
+                  </MenuItem>
                   <MenuItem
                     onClick={() => {
                       onEditRow();

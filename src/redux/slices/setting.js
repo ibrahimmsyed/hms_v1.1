@@ -64,7 +64,7 @@ export const {
 } = slice.actions;
 
 // ----------------------------------------------------------------------
-// Treatment plan
+// Inventory
 export function getAllInventory() {
   return async () => {
     dispatch(slice.actions.startLoading());

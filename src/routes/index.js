@@ -137,6 +137,14 @@ export default function Router() {
           ],
         },
         {
+          path: 'prescription',
+          children: [
+            { element: <Navigate to="/dashboard/prescription" replace />, index: true },
+            { path: ':id/:name/new', element: <PrescriptionCart /> },
+            { path: ':id/edit', element: <PrescriptionCart /> },
+          ],
+        },
+        {
           path: 'settings',
           children: [
             { element: <Navigate to="/dashboard/settings/practicedetails" replace />, index: true },

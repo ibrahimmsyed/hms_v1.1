@@ -1,10 +1,10 @@
 import {useState, useEffect} from 'react';
 import sum from 'lodash/sum';
 import * as Yup from 'yup';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useParams } from 'react-router-dom';
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Grid, Card, Button, CardHeader, TextField, Typography, List, ListItem, ListItemText, Checkbox, IconButton, ListItemButton, ListItemIcon, Box, InputAdornment, Stack } from '@mui/material';
+import { Grid, Card, Avatar, Button, CardHeader, TextField, Typography, List, ListItem, ListItemText, Checkbox, IconButton, ListItemButton, ListItemIcon, Box, InputAdornment, Stack } from '@mui/material';
 
 // form
 import { useForm, Controller } from 'react-hook-form';
@@ -21,7 +21,8 @@ import {
 } from '../../../../redux/slices/product';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
-
+// hooks
+import useUsers from '../../../../hooks/useUsers';
 // components
 import Iconify from '../../../../components/Iconify';
 import Scrollbar from '../../../../components/Scrollbar';
@@ -40,6 +41,10 @@ export default function PrescriptionCart() {
   useEffect(() => {
     dispatch(getAllInventory());
   },[dispatch])
+
+  const { patients } = useUsers();
+  const { name = '', id = '' } = useParams();
+  const currentPatient = patients.find((user) => Number(user.id) === Number(id));
 
   const { checkout } = useSelector((state) => state.product);
 
@@ -184,10 +189,17 @@ export default function PrescriptionCart() {
             }
             sx={{ mb: 3 }}
           />
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', m: 2 }}>
+            <Avatar alt='' src='' sx={{ mr: 2 }} />
+            <Typography variant="subtitle2" noWrap>
+              {currentPatient.patientName}
+            </Typography>
+          </Box>
 
           {!isEmptyCart ? (
             <Scrollbar>
               <PrescriptionList
+                patient={currentPatient}
                 drugs={selectedDrugs}
                 onDelete={handleDeleteCart}
                 onIncreaseQuantity={handleIncreaseQuantity}

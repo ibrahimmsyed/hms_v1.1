@@ -11,6 +11,8 @@ import useUsers from '../../hooks/useUsers';
 import useTabs from '../../hooks/useTabs';
 import { useDispatch, useSelector } from '../../redux/store';
 import { getAllTreatmentPlans } from '../../redux/slices/lab';
+import { getPresciptions } from '../../redux/slices/patient';
+import { getAllInventory } from '../../redux/slices/setting';
 // _mock_
 import { _userCards } from '../../_mock';
 // components
@@ -25,6 +27,9 @@ import { PatientCard } from '../../sections/@dashboard/user/cards';
 import { AppointmentDetailsList } from '../../sections/@dashboard/e-commerce/product-details';
 import FilesDetails from '../../sections/@dashboard/e-commerce/FilesDetails';
 import CommunicationDetails from '../../sections/@dashboard/e-commerce/CommunicationDetails';
+
+import { RHFUploadSingleFile } from '../../components/hook-form';
+
 // ----------------------------------------------------------------------
 
 export default function UserCards() {
@@ -34,6 +39,7 @@ export default function UserCards() {
   const { user } = useUsers();
   const [value, setValue] = useState(0);
   const [plans, setPlans] = useState([]);
+  const [prescriptions, setPrescriptions] = useState([]);
   const [isOpen, setDialogState] = useState(false);
   const [url , setRedirectURL] = useState('labs')
   const { currentTab: filterLabName, onChangeTab: onChangeFilterStatus } = useTabs('all');
@@ -41,9 +47,12 @@ export default function UserCards() {
 
   useEffect(() => {
     dispatch(getAllTreatmentPlans());
+    dispatch(getPresciptions());
+    dispatch(getAllInventory());
   },[dispatch])
 
   const { treatmentPlans } = useSelector((state) => state.labs);
+  const { prescriptions: rawPrescriptions } = useSelector((state) => state.patient);
 
   useEffect(() => {
     // const plan = treatmentPlan.map((plan, i) => {id: i, procedure: plan, })
@@ -63,33 +72,27 @@ export default function UserCards() {
     console.log(plans)
 
     setPlans(plans)
-  },[treatmentPlans])
+  },[treatmentPlans]) 
 
-  /* const plans = [
-    {
-      id:1,
-      patient: {
-        id: 32974,
-        name: "Wilson",
-        age: "52 Years",
-        gender: "Male",
-        avatarUrl: ""
-      },
-      doctor: {
-        id: "1",
-        name: "Dr L.P Mohan"
-      },
-      procedure: {
-        id:1,
-        name: "CROWN",
-        cost: "1000",
-        discount: "10",
-        total: "900",
-        notes: "6RD Dr. Deepika",
-        estimatedAmount: "1000"
+  useEffect(() => {
+    // const plan = treatmentPlan.map((plan, i) => {id: i, procedure: plan, })
+    const items = []
+    rawPrescriptions?.forEach((item, i) => {
+      const patient = patients.find(patient => Number(patient.id) === Number(item.patientId))
+      const doctor = user.find(user => user.isStaff && Number(user.id) === Number(item.orderedBy))
+      console.log(patient , doctor)
+      const itemObj = {
+        id: item.id,
+        drugs: JSON.parse(item?.cart),
+        patient,
+        doctor 
       }
-    }
-  ] */
+      items.push(itemObj)
+    });
+    console.log(items)
+    setPrescriptions(items)
+  },[rawPrescriptions])
+
   const appointments = [
     {
       id:1,
@@ -120,7 +123,7 @@ export default function UserCards() {
     }
   ]
 
-  const prescriptions = [
+  /* const prescriptions = [
     {
       id:1,
       patient: {
@@ -166,7 +169,7 @@ export default function UserCards() {
         }
       ]
     }
-  ]
+  ] */
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     console.log(event, newValue)
@@ -281,7 +284,7 @@ export default function UserCards() {
             <Button
               variant="contained"
               startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
-              component={RouterLink} to={PATH_DASHBOARD.patient.newprescription}
+              onClick={() => handleAddNew('prescription')}
             >
               Add Prescription
             </Button>
@@ -309,6 +312,7 @@ export default function UserCards() {
             direction="row"
             sx={{flexDirection: 'row-reverse', mx: 3, mb:1}}
           >
+            <RHFUploadSingleFile name="cover" accept="image/*" maxSize={3145728}/>
             <Button
               variant="contained"
               sx={{mx: 1}}
