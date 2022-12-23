@@ -11,7 +11,7 @@ import useUsers from '../../hooks/useUsers';
 import useTabs from '../../hooks/useTabs';
 import { useDispatch, useSelector } from '../../redux/store';
 import { getAllTreatmentPlans } from '../../redux/slices/lab';
-import { getPresciptions } from '../../redux/slices/patient';
+import { getPresciptions, getUploadFiles, getMedicalCertificate } from '../../redux/slices/patient';
 import { getAllInventory } from '../../redux/slices/setting';
 // _mock_
 import { _userCards } from '../../_mock';
@@ -49,10 +49,14 @@ export default function UserCards() {
     dispatch(getAllTreatmentPlans());
     dispatch(getPresciptions());
     dispatch(getAllInventory());
+    dispatch(getUploadFiles())
+    dispatch(getMedicalCertificate())
   },[dispatch])
 
   const { treatmentPlans } = useSelector((state) => state.labs);
   const { prescriptions: rawPrescriptions } = useSelector((state) => state.patient);
+  const { files } = useSelector((state) => state.patient);
+  const { medicalCertificate } = useSelector((state) => state.patient);
 
   useEffect(() => {
     // const plan = treatmentPlan.map((plan, i) => {id: i, procedure: plan, })
@@ -312,24 +316,25 @@ export default function UserCards() {
             direction="row"
             sx={{flexDirection: 'row-reverse', mx: 3, mb:1}}
           >
-            <RHFUploadSingleFile name="cover" accept="image/*" maxSize={3145728}/>
             <Button
               variant="contained"
               sx={{mx: 1}}
               startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
-              component={RouterLink} to={PATH_DASHBOARD.patient.mlcfiles}
+              onClick={() => handleAddNew('mlc')}
+              // component={RouterLink} to={PATH_DASHBOARD.patient.mlcfiles}
             >
               Add Medical Certificate
             </Button>
             <Button
               variant="contained"
               startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
-              component={RouterLink} to={PATH_DASHBOARD.patient.newfiles}
+              onClick={() => handleAddNew('files')}
+              // component={RouterLink} to={PATH_DASHBOARD.patient.newfiles}
             >
               Add Files
             </Button>
           </Stack>
-          <FilesDetails/>
+          <FilesDetails files={files} medicalCertificate={medicalCertificate}/>
         </TabPanel>
         <TabPanel value={value} index={6}>
           <CommunicationDetails/>

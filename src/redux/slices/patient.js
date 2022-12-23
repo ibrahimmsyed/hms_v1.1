@@ -19,7 +19,8 @@ const initialState = {
   currentPatient: {},
   patientHistory: [],
   treatmentPlan: [],
-  prescriptions: []
+  prescriptions: [],
+  medicalCertificate: []
 };
 
 const slice = createSlice({
@@ -90,6 +91,30 @@ const slice = createSlice({
       state.isLoading = false;
       state.prescriptions = state.prescriptions.filter(plan => plan.id !== action.payload)
     },
+    setFiles(state, action) {
+      state.isLoading = false;
+      state.files = action.payload;
+    },
+    updateFiles(state, action) {
+      state.isLoading = false;
+      state.files = [...state.files, action.payload]
+    },
+    removeFiles(state, action) {
+      state.isLoading = false;
+      state.files = state.files.filter(plan => plan.id !== action.payload)
+    },
+    setMedicalCertificate(state, action) {
+      state.isLoading = false;
+      state.medicalCertificate = action.payload;
+    },
+    updateMedicalCertificate(state, action) {
+      state.isLoading = false;
+      state.medicalCertificate = [...state.medicalCertificate, action.payload]
+    },
+    removeMedicalCertificate(state, action) {
+      state.isLoading = false;
+      state.medicalCertificate = state.medicalCertificate.filter(plan => plan.id !== action.payload)
+    },
   },
 });
 
@@ -110,7 +135,9 @@ export const {
     removeTreatmentPlan,
     setPrescription,
     updatePrescription,
-    removePrescription
+    removePrescription,
+    setFiles,
+    updateFiles
 } = slice.actions;
 
 // ----------------------------------------------------------------------
@@ -360,19 +387,94 @@ export function deletePresciption(id) {
 }
 
 /** ******************************************************** */
-export function uploadFiles(plan) {
+export function getUploadFiles() {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
         const headers = {
             headers: {
-            Authorization: `JWT ${accessToken}`,
-            'Content-Type':'multipart/form-data'
+            Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/auth/imageUpload/', plan, headers);
-      dispatch(slice.actions.updatePrescription(response.data));
+      const response = await axios.get('http://localhost:8000/auth/fileUpload/', headers);
+      dispatch(slice.actions.setFiles(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function uploadFiles(plan) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const formData = new FormData();
+        formData.append("File_to_upload", plan.File_to_upload);
+        formData.append("patientId", plan.patientId);
+        formData.append("tags", plan.tag);
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`,
+            'Content-Disposition': `attachment; filename=${plan?.File_to_upload?.name}`,
+            }
+        }
+      const response = await axios.post('http://localhost:8000/auth/fileUpload/', formData, headers);
+      dispatch(slice.actions.updateFiles(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+/** ******************************************************** */
+
+export function getMedicalCertificate() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.get('http://localhost:8000/auth/medicalcertificate/', headers);
+      dispatch(slice.actions.setMedicalCertificate(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function addMedicalCertificate(plan) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.post('http://localhost:8000/auth/medicalcertificate/', plan, headers);
+      dispatch(slice.actions.updateMedicalCertificate(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function deleteMedicalCertificate(id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.delete(`http://localhost:8000/auth/medicalcertificate/${id}/`, headers);
+      dispatch(slice.actions.removeMedicalCertificate(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

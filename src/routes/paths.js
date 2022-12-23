@@ -80,6 +80,12 @@ export const PATH_DASHBOARD = {
     edit: (name) => path(ROOTS_DASHBOARD, `/patient/${name}/edit`),
     demoEdit: path(ROOTS_DASHBOARD, `/patient/reece-chung/edit`),
   },
+  files:{
+    new: (id, name) => path(ROOTS_DASHBOARD, `/files/${id}/${name}/new`),
+  },
+  mlc:{
+    new: (id, name) => path(ROOTS_DASHBOARD, `/mlc/${id}/${name}/new`),
+  },
   prescription:{
     new: (id, name) => path(ROOTS_DASHBOARD, `/prescription/${id}/${name}/new`),
   },

@@ -129,6 +129,22 @@ export default function Router() {
           ],
         },
         {
+          path: 'files',
+          children: [
+            { element: <Navigate to="/dashboard/files" replace />, index: true },
+            { path: ':id/:name/new', element: <FileNewEditForm /> },
+            { path: ':id/edit', element: <FileNewEditForm /> },
+          ],
+        },
+        {
+          path: 'mlc',
+          children: [
+            { element: <Navigate to="/dashboard/mlc" replace />, index: true },
+            { path: ':id/:name/new', element: <MLCNewEditForm /> },
+            { path: ':id/edit', element: <MLCNewEditForm /> },
+          ],
+        },
+        {
           path: 'treatments',
           children: [
             { element: <Navigate to="/dashboard/treatments" replace />, index: true },

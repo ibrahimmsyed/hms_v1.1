@@ -2,16 +2,23 @@ import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 // form
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import { styled } from '@mui/material/styles';
 import { LoadingButton } from '@mui/lab';
-import { Card, Chip, Grid, Stack, TextField, Typography, Autocomplete, InputAdornment, MenuList, MenuItem, Divider, ListItemText, Avatar } from '@mui/material';
+import { Card,  Chip, Grid, Stack, TextField, Typography, Autocomplete, InputAdornment, MenuList, MenuItem, Divider, ListItemText, Avatar, TableRow, Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableContainer,
+} from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
+import Iconify from '../../../components/Iconify';
+import { TableMoreMenu } from '../../../components/table';
 // components
 import {
   FormProvider,
@@ -23,6 +30,7 @@ import {
   RHFUploadMultiFile,
 } from '../../../components/hook-form';
 import Image from '../../../components/Image';
+import { calculateAge, mediaURL } from '../../../utils/utilities';
 // ----------------------------------------------------------------------
 
 const GENDER_OPTION = ['Men', 'Women', 'Kids'];
@@ -62,9 +70,26 @@ FilesList.propTypes = {
   currentProduct: PropTypes.object,
 };
 
-export default function FilesList({fileList}) {
+export default function FilesList({patient, fileLists, mlcLists}) {
+  console.log('patient, fileList', patient, fileLists, mlcLists)
   const navigate = useNavigate();
-  const {patient, files} = fileList
+  const [openMenu, setOpenMenuActions] = useState(null);
+
+  const handleOpenMenu = (event) => {
+    setOpenMenuActions(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setOpenMenuActions(null);
+  };
+
+  const onDeleteRow = () => {
+    console.log('D')
+  };
+
+  const onEditRow = () => {
+    console.log('E')
+  };
   // const [] = useState()
   const img = 'https://ray.practo.com/api/v1/files/182345982?size=medium_thumbnail'
   return (
@@ -75,12 +100,12 @@ export default function FilesList({fileList}) {
       <Stack direction="row" alignItems="center" spacing={1} p={1} sx={{
               width: '100%'
             }}>
-          <Avatar alt={patient.name} src={patient.avatarUrl} sx={{ mr: 2 }} />
+          <Avatar alt={patient.patientName} src={patient.dop} sx={{ mr: 2 }} />
           <Typography variant="subtitle2" noWrap>
-            {patient.name}
+            {patient.patientName}
           </Typography>
           <Typography variant="subtitle2" noWrap>
-            {patient.age} / {patient.gender}
+          {calculateAge(patient.dob)} Year(s) / {patient.gender}
           </Typography>
           <Typography variant="subtitle2" noWrap>
             {patient.id}
@@ -90,32 +115,73 @@ export default function FilesList({fileList}) {
       <Stack direction="row" alignItems="center" spacing={1} p={1} sx={{
               width: '100%'
             }}>
-        <div>
+        
+        {fileLists && fileLists.length && fileLists.map((file, i) =>
+        <div key={i}>
+          <a href={mediaURL(file.File_to_upload)} download target="_blank" rel="noopener noreferrer">
           <Image
-                key={img}
+                key={file.File_to_upload}
                 alt="large image"
-                src={img}
+                src={mediaURL(file.File_to_upload)}
                 sx={{ width: 150, height: 200, borderRadius: 1.5, mr: 2 }}
                 // onClick={() => handleOpenLightbox(img)}
                 // sx={{ cursor: 'zoom-in' }}
               />
+          </a>
           <Typography variant="subtitle2"  sx={{textAlign: 'center'}} noWrap>
-            File name
+            {file.File_to_upload.split('/').pop()}
           </Typography>
-        </div>
-        <div>
-          <Image
-                key={img}
-                alt="large image"
-                src={img}
-                sx={{ width: 150, height: 200, borderRadius: 1.5, mr: 2 }}
-                // onClick={() => handleOpenLightbox(img)}
-                // sx={{ cursor: 'zoom-in' }}
-              />
-          <Typography variant="subtitle2" sx={{textAlign: 'center'}} noWrap>
-            File name
-          </Typography>
-        </div>
+        </div>)
+        }
+        {(mlcLists && mlcLists.length && <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell align="left">ID</TableCell>
+                <TableCell align="left">Issued On</TableCell>
+                <TableCell align="right">Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {mlcLists.map((mlc, i) =>
+              <TableRow>
+                <TableCell align="left">{mlc.MLNo}</TableCell>
+                <TableCell align="left">{mlc.issuedOn}</TableCell>
+                <TableCell align="right">
+                  <TableMoreMenu
+                    open={openMenu}
+                    onOpen={handleOpenMenu}
+                    onClose={handleCloseMenu}
+                    actions={
+                      <>
+                        <MenuItem
+                          onClick={() => {
+                            onDeleteRow();
+                            handleCloseMenu();
+                          }}
+                          sx={{ color: 'error.main' }}
+                        >
+                          <Iconify icon={'eva:trash-2-outline'} />
+                          Delete
+                        </MenuItem>
+                        <MenuItem
+                          onClick={() => {
+                            onEditRow();
+                            handleCloseMenu();
+                          }}
+                        >
+                          <Iconify icon={'eva:edit-fill'} />
+                          Edit
+                        </MenuItem>
+                      </>
+                    }
+                  />
+                </TableCell>
+              </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>)}
       </Stack>
       </Card>
     </Grid>

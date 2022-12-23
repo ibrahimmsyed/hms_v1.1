@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useSnackbar } from 'notistack';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 // form
 import { useForm, Controller } from 'react-hook-form';
@@ -11,7 +11,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { styled } from '@mui/material/styles';
 import { LoadingButton } from '@mui/lab';
 import { Card, Button, Box, Chip, Grid, Stack, TextareaAutosize, Typography, Autocomplete, InputAdornment, MenuList, MenuItem, Divider, ListItemText, Avatar, IconButton } from '@mui/material';
-
+import moment from 'moment'
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // components
@@ -32,6 +32,8 @@ import Iconify from '../../../components/Iconify';
 // hook
 import { useDispatch, useSelector } from '../../../redux/store';
 import { uploadFiles } from '../../../redux/slices/patient';
+import useUsers from '../../../hooks/useUsers';
+import { calculateAge, mediaURL } from '../../../utils/utilities';
 
 // ----------------------------------------------------------------------
 
@@ -53,14 +55,22 @@ FileNewEditForm.propTypes = {
 export default function FileNewEditForm() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const patient = {
-    id: 32974,
-    name: "Wilson",
-    age: "52 Years",
-    gender: "Male",
-    avatarUrl: ""
-  }
+  const { patients } = useUsers();
+  const { name = '', id = '' } = useParams();
+  const currentPatient = patients.find((user) => Number(user.id) === Number(id));
+
+  useEffect(() => {
+    setValue('tag','Untagged');
+  }, [])
+
   const [currentMLCDetail, setCurrentMLCDetail] = useState({});
+
+  const TAG = [
+    {id: 0, label: 'Untagged'},
+    {id: 1, label: 'Procedure Pending'},
+    {id: 2, label: 'Pending'},
+    {id: 3, label: 'Remove'},
+  ]
   const NewMLCSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
   });
@@ -89,6 +99,7 @@ export default function FileNewEditForm() {
 
   const onSubmit = async (data) => {
     try {
+      data.patientId = currentPatient.id
       dispatch(uploadFiles(data))
       console.log(data);
     } catch (error) {
@@ -105,7 +116,7 @@ export default function FileNewEditForm() {
 
       if (file) {
         setValue(
-          'cover',
+          'File_to_upload',
           Object.assign(file, {
             preview: URL.createObjectURL(file),
           })
@@ -123,16 +134,25 @@ export default function FileNewEditForm() {
             <Stack direction="row" alignItems="center" spacing={1} p={1} sx={{
                   width: '100%'
                 }}>
-                <Avatar alt={patient.name} src={patient.avatarUrl} sx={{ mr: 2 }} />
+                <Avatar alt={currentPatient.patientName} src={currentPatient.dp} sx={{ mr: 2 }} />
                 <Typography variant="subtitle2" noWrap>
-                  {patient.name}
+                  {currentPatient.patientName}
                 </Typography>
                 <Typography variant="subtitle2" noWrap>
-                  {patient.age} / {patient.gender}
+                  {calculateAge(currentPatient.dob)} Year(s) / {currentPatient.gender}
                 </Typography>
                 <Typography variant="subtitle2" noWrap>
-                  {patient.id}
+                  {currentPatient.id}
                 </Typography>
+            </Stack>
+            <Stack spacing={3} sx={{ p: 1 }}>
+              <RHFSelect name="tag" label="Tag" placeholder="Tag">
+                {TAG.map((option) => (
+                  <option key={option.id} value={option.label}>
+                    {option.label}
+                  </option>
+                ))}
+              </RHFSelect>
             </Stack>
             <Box 
               sx={{
@@ -144,7 +164,7 @@ export default function FileNewEditForm() {
             >
               <div>
                 <LabelStyle>Upload Files</LabelStyle>
-                <RHFUploadSingleFile name="cover" accept="image/*" maxSize={3145728} onDrop={handleDrop}/>
+                <RHFUploadSingleFile name="File_to_upload" accept="image/*" maxSize={3145728} onDrop={handleDrop}/>
               </div>
             </Box>
             <Box 

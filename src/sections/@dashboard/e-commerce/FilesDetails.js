@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
+import {groupBy, mapValues, omit} from 'lodash'; 
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 // form
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -22,10 +23,12 @@ import {
   RHFRadioGroup,
   RHFUploadMultiFile,
 } from '../../../components/hook-form';
+import useUsers from '../../../hooks/useUsers';
 import FilesList from './FilesList';
+  
 // ----------------------------------------------------------------------
 
-const fileLists = [
+/* const fileLists = [
   {
     id: 1,
     patient: {
@@ -39,7 +42,7 @@ const fileLists = [
       {id:1 , fileURL:'https://ray.practo.com/api/v1/files/182345982?size=medium_thumbnail'}
     ]
   }
-]
+] */
 
 const LabelStyle = styled(Typography)(({ theme }) => ({
   ...theme.typography.subtitle2,
@@ -54,7 +57,50 @@ FilesDetails.propTypes = {
   currentProduct: PropTypes.object,
 };
 
-export default function FilesDetails() {
+export default function FilesDetails(files) {
+
+  const { patients } = useUsers();
+  const [ fileLists, setFileLists ] = useState([])
+  const [ cloneFiles, setClonedFiles ] = useState(files) 
+  const [ mlcLists, setMLCLists ] = useState([])
+  const [ showMLC, setShowMLC ] = useState()
+
+  const toggleMLC = () => {
+    setShowMLC(true)
+  }
+  
+  const TAG = [
+    {id: 0, label: 'Untagged'},
+    {id: 1, label: 'Procedure Pending'},
+    {id: 2, label: 'Pending'},
+    {id: 3, label: 'Remove'},
+  ]
+
+  useEffect(()=>{
+    const grouped = groupBy(cloneFiles.files, 'patientId');
+    const groupedMLC = groupBy(cloneFiles.medicalCertificate, 'patientId');
+    console.log(grouped)
+    setMLCLists(groupedMLC)
+    setFileLists(grouped)
+  }, [cloneFiles])
+
+  const getPatientsDetails = (id) => {
+    return patients.filter(patient => Number(patient.id) === Number(id))[0]
+  }
+
+  const filterFilesByTag = (tag) => {
+    setShowMLC(false)
+    const cloned = [...files.files]
+    let filteredFiles = {}
+    if(tag !== "All"){
+      filteredFiles.files = cloned.filter(file => file.tags === tag);
+    }else{
+      filteredFiles = files
+    }
+    setClonedFiles(filteredFiles)
+    console.log(filteredFiles, tag)
+  }
+
   const navigate = useNavigate();
 
   return (
@@ -63,28 +109,18 @@ export default function FilesDetails() {
         <Stack spacing={3}>
           <Card sx={{ p: 3 }}>
             <MenuList>
-              <MenuItem>
+              <MenuItem onClick={()=> {filterFilesByTag('All')}}>
                 <ListItemText>All Files</ListItemText>
               </MenuItem>
               <MenuList sx={{ pl: 2 }}>
-                <MenuItem>
-                  <ListItemText>Procedure Pending</ListItemText>
-                </MenuItem>
-                <MenuItem>
-                  <ListItemText>Pending</ListItemText>
-                </MenuItem>
-                <MenuItem>
-                  <ListItemText>Remove</ListItemText>
-                </MenuItem>
+                {TAG.map((option) => (
+                  <MenuItem key={option.id} onClick={()=> {filterFilesByTag(option.label)}}>
+                    <ListItemText>{option.label}</ListItemText>
+                  </MenuItem>
+                ))}
               </MenuList>
-              <MenuItem>
-                <ListItemText>Untagged Files</ListItemText>
-              </MenuItem>
               <Divider />
-              <MenuItem>
-                <ListItemText>Emailed Files</ListItemText>
-              </MenuItem>
-              <MenuItem>
+              <MenuItem onClick={() => toggleMLC()}> 
                 <ListItemText>Medical Leave Certificate</ListItemText>
               </MenuItem>
             </MenuList>
@@ -93,10 +129,13 @@ export default function FilesDetails() {
       </Grid>
       <Grid item xs={12} md={8}>
         <Card sx={{ p: 3 }}>
-          <Stack spacing={3}>
-            {fileLists?.length > 0 && fileLists.map((fileList) => (
-              <FilesList key={fileList.id} fileList={fileList}/>
-            ))}
+          <Stack spacing={3} alignItems="flex-end">
+            {!showMLC && Object.keys(fileLists).map((key, i) => 
+              <FilesList key={i} patient={getPatientsDetails(key)} fileLists={fileLists[key]}/>
+            )}
+            {showMLC && Object.keys(mlcLists).map((key, i)=> 
+              <FilesList key={i} patient={getPatientsDetails(key)} mlcLists={mlcLists[key]}/>
+            )}
           </Stack>
         </Card>
       </Grid>
