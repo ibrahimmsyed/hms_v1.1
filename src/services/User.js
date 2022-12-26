@@ -31,7 +31,7 @@ class UserApiService extends EventEmitter {
                 new_password: password.newPassword,
                 re_new_password: password.confirmNewPassword
             }
-            const response = await axios.post('http://localhost:8000/auth/users/set_password/', this.passwordChange,{
+            const response = await axios.post('http://localhost:8000/users/set_password/', this.passwordChange,{
                 headers: {
                 Authorization: `JWT ${accessToken}`
                 }
@@ -66,7 +66,7 @@ class UserApiService extends EventEmitter {
                 password: user.newPassword,
                 re_password: user.confirmNewPassword
             }
-            const response = await axios.post('http://localhost:8000/auth/users/', this.userDetails,{
+            const response = await axios.post('http://localhost:8000/users/', this.userDetails,{
                 headers: {
                 Authorization: `JWT ${accessToken}`
                 }
@@ -100,7 +100,7 @@ class UserApiService extends EventEmitter {
                 is_front_office: user.isFrontOffice,
                 is_back_office: user.isBackOffice,
             }
-            const response = await axios.put(`http://localhost:8000/auth/update_profile/${id}/`, this.userDetails,{
+            const response = await axios.put(`http://localhost:8000/update_profile/${id}/`, this.userDetails,{
                 headers: {
                 Authorization: `JWT ${accessToken}`
                 }
@@ -118,7 +118,7 @@ class UserApiService extends EventEmitter {
         try {
             this.accessToken = window.localStorage.getItem('accessToken');
             let message;
-            const response = await axios.get('http://localhost:8000/auth/users/', 
+            const response = await axios.get('http://localhost:8000/users/', 
             {
                 headers: {
                 Authorization: `JWT ${this.accessToken}`
@@ -136,7 +136,7 @@ class UserApiService extends EventEmitter {
         try {
             this.accessToken = window.localStorage.getItem('accessToken');
             let message;
-            const response = await axios.delete(`http://localhost:8000/auth/delete-user/${id}/`, 
+            const response = await axios.delete(`http://localhost:8000/delete-user/${id}/`, 
             {
                 headers: {
                 Authorization: `JWT ${this.accessToken}`

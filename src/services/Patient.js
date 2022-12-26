@@ -14,7 +14,7 @@ class PatientApiService {
         try {
             this.patient = item
             const accessToken = window.localStorage.getItem('accessToken');
-            const response = await axios.post('http://localhost:8000/auth/patientdetails/', this.patient,{
+            const response = await axios.post('http://localhost:8000/patientdetails/', this.patient,{
                 headers: {
                 Authorization: `JWT ${accessToken}`
                 }
@@ -29,10 +29,16 @@ class PatientApiService {
     updatePatient = async (item, id) => {
         try {
             const accessToken = window.localStorage.getItem('accessToken');
+            const formData = new FormData();
+            Object.keys(item).forEach(key => { 
+                formData.append(key, item[key]);
+            })
             this.patient = item
-            const response = await axios.put(`http://localhost:8000/auth/patientdetails/${id}/`, this.patient,{
+            const response = await axios.put(`http://localhost:8000/patientdetails/${id}/`, formData,{
                 headers: {
-                Authorization: `JWT ${accessToken}`
+                Authorization: `JWT ${accessToken}`,
+                'Content-type':'multipart/form-data',
+                'Content-Disposition': `attachment; filename=${item?.dop?.name}`,
                 }
             });
             const items = response;
@@ -48,7 +54,7 @@ class PatientApiService {
         try {
             this.accessToken = window.localStorage.getItem('accessToken');
             let message;
-            const response = await axios.delete(`http://localhost:8000/auth/inventorydetails/${id}/`, 
+            const response = await axios.delete(`http://localhost:8000/inventorydetails/${id}/`, 
             {
                 headers: {
                 Authorization: `JWT ${this.accessToken}`

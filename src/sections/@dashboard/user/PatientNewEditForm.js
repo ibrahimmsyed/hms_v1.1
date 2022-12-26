@@ -8,7 +8,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import { LoadingButton, DesktopDatePicker } from '@mui/lab';
-import { IconButton, TableRow, Checkbox, TableCell, MenuItem, Box, Card, Grid, Stack, Switch, Typography, FormControlLabel, TextField, TableContainer, Table, TableBody, InputAdornment, Button } from '@mui/material';
+import { IconButton, Avatar, TableRow, Checkbox, TableCell, MenuItem, Box, Card, Grid, Stack, Switch, Typography, FormControlLabel, TextField, TableContainer, Table, TableBody, InputAdornment, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 // utils
 import moment from 'moment'
@@ -39,6 +39,7 @@ import Iconify from '../../../components/Iconify';
 import { FormProvider, RHFSelect, RHFSwitch, RHFTextField, RHFUploadAvatar, RHFRadioGroup } from '../../../components/hook-form';
 import useTable, { getComparator, emptyRows } from '../../../hooks/useTable';
 import { ProductTableRow, ProductTableToolbar } from '../e-commerce/product-list';
+import { mediaURL } from '../../../utils/utilities';
 
 // ----------------------------------------------------------------------
 
@@ -47,7 +48,8 @@ PatientNewEditForm.propTypes = {
   currentPatient: PropTypes.object,
 };
 
-export default function PatientNewEditForm({ isEdit, currentPatient }) {
+export default function PatientNewEditForm({ isEdit, currentPatient, newPatientId }) {
+  console.log(newPatientId)
   const navigate = useNavigate();
   const { setPatientDetails } = useUsers();
   const patientApiService = new PatientApiService();
@@ -80,6 +82,7 @@ export default function PatientNewEditForm({ isEdit, currentPatient }) {
   ]
   const RELATION_OPTION = ['Father', 'Mother', 'Son', 'Daughter', 'Husband', 'Wife', 'Brother', 'Sister', 'Niece', 'Nephew', 'Uncle', 'Aunt', 'Grand Father', 'Grand Mother'];
   const BLOODGROUP_OPTION = ['A+', 'A-', 'B-', 'O+', 'O-', 'AB+', 'AB-', 'B+']
+  const RADIO_OPTION = ['Yes', 'No'];
   const LabelStyle = styled(Typography)(({ theme }) => ({
     ...theme.typography.subtitle2,
     color: theme.palette.text.secondary,
@@ -144,7 +147,7 @@ export default function PatientNewEditForm({ isEdit, currentPatient }) {
   const defaultValues = useMemo(
     () => ({
       patientName: currentPatient?.patientName || '',
-      patientId: currentPatient?.patientId || '',
+      patientId: currentPatient?.patientId || String(newPatientId),
       aadharId: currentPatient?.aadharId || '',
       gender: currentPatient?.gender || '',
       dob: currentPatient?.dob || new Date(),
@@ -162,6 +165,10 @@ export default function PatientNewEditForm({ isEdit, currentPatient }) {
       pinCode: currentPatient?.pinCode || '',
       dop: currentPatient?.dop || '',
       locality: currentPatient?.locality || '',
+      enableBirthday: currentPatient?.enableBirthday || '',
+      enableEmail: currentPatient?.enableEmail || '',
+      enableSMS: currentPatient?.enableSMS || '',
+      enableFollowUp: currentPatient?.enableFollowUp || '',
       // otherHistory: currentPatient?.otherHistory,
       medicalHistory: currentPatient?.medicalHistory || '',
      }),
@@ -185,7 +192,9 @@ export default function PatientNewEditForm({ isEdit, currentPatient }) {
 
   const values = watch();
 
-  
+  useEffect(() => {
+    if(!isEdit) setValue('patientId', String(newPatientId))
+  }, [newPatientId])
 
 
   useEffect(() => {
@@ -207,7 +216,6 @@ export default function PatientNewEditForm({ isEdit, currentPatient }) {
       console.log(data)
       data.dob = moment(data.dob).format('YYYY-MM-DD');
       data.anniversary = moment(data.anniversary).format('YYYY-MM-DD');
-      data.dop = data?.dop?.path;
       data.medicalHistory = selected.toString();
       const response = isEdit ? await patientApiService.updatePatient(data, currentPatient.id) : dispatch(addPatientsDetail(data))
       setPatientDetails(response)
@@ -275,7 +283,7 @@ export default function PatientNewEditForm({ isEdit, currentPatient }) {
               }}
             >
               <RHFTextField name="patientName" label="Patient Name" />
-              <RHFTextField name="patientId" label="Patient Id" />
+              <RHFTextField name="patientId" label="Patient Id" disabled />
               <RHFTextField name="aadharId" label="Aadhaar Id" />
               <div>
                 <LabelStyle>Gender</LabelStyle>
@@ -372,20 +380,12 @@ export default function PatientNewEditForm({ isEdit, currentPatient }) {
           </Card>
         </Grid>
         <Grid item xs={12} md={4}>
-          <Card sx={{ py: 10, px: 3, marginBottom: 3 }}>
-            {isEdit && (
-              <Label
-                color={values.status !== 'active' ? 'error' : 'success'}
-                sx={{ textTransform: 'uppercase', position: 'absolute', top: 24, right: 24 }}
-              >
-                {values.status}
-              </Label>
-            )}
-
+          <Card sx={{ py: 3, px: 3, marginBottom: 3 }}>
             <Box sx={{ mb: 5 }}>
               <RHFUploadAvatar
                 name="dop"
                 accept="image/*"
+                file={values.dop}
                 maxSize={3145728}
                 onDrop={handleDrop}
                 helperText={
@@ -406,7 +406,59 @@ export default function PatientNewEditForm({ isEdit, currentPatient }) {
               />
             </Box>
           </Card>
-          <Card sx={{ py: 10, px: 3, display: 'grid', rowGap: 2,  marginBottom: 3 }}>
+          <Card sx={{ py: 3, px: 3, marginBottom: 3 }}>
+          <Stack>
+              <Typography variant="subtitle2" noWrap>
+                  Enable SMS for the patient
+              </Typography>
+                <RHFRadioGroup
+                  name="enableSMS"
+                  options={RADIO_OPTION}
+                  sx={{
+                    justifyContent: 'space-around',
+                    flexWrap: 'nowrap',
+                    '& .MuiFormControlLabel-root': { mr: 4 },
+                  }}
+                />
+              <Typography variant="subtitle2" noWrap>
+                Enable Email for the patient
+              </Typography>
+                <RHFRadioGroup
+                  name="enableEmail"
+                  options={RADIO_OPTION}
+                  sx={{
+                    justifyContent: 'space-around',
+                    flexWrap: 'nowrap',
+                    '& .MuiFormControlLabel-root': { mr: 4 },
+                  }}
+                />
+              <Typography variant="subtitle2" noWrap>
+              Send Birthday wish SMS & Email
+              </Typography>
+                <RHFRadioGroup
+                  name="enableBirthday"
+                  options={RADIO_OPTION}
+                  sx={{
+                    justifyContent: 'space-around',
+                    flexWrap: 'nowrap',
+                    '& .MuiFormControlLabel-root': { mr: 4 },
+                  }}
+                />
+              <Typography variant="subtitle2" noWrap>
+                Send Follow-up SMS & Email
+              </Typography>
+                <RHFRadioGroup
+                  name="enableFollowUp"
+                  options={RADIO_OPTION}
+                  sx={{
+                    justifyContent: 'space-around',
+                    flexWrap: 'nowrap',
+                    '& .MuiFormControlLabel-root': { mr: 4 },
+                  }}
+                />
+            </Stack>
+          </Card>
+          <Card sx={{ py: 3, px: 3, display: 'grid', rowGap: 2,  marginBottom: 3 }}>
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
               {/* <LoadingButton sx={{ mb: 5 }} type="submit" variant="contained" loading={isSubmitting}>
                 {!isEdit ? 'Add New' : 'Add New'}
@@ -466,68 +518,6 @@ export default function PatientNewEditForm({ isEdit, currentPatient }) {
               </TableContainer>
             </Scrollbar>
           </Card>
-          {/* <Card sx={{ py: 10, px: 3, display: 'grid', rowGap: 2,  marginBottom: 3 }}>
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!isEdit ? 'Add New' : 'Add New'}
-              </LoadingButton>
-            </Stack>
-            <Scrollbar>
-              <TableContainer sx={{ minWidth: 0 }}>
-                {selected.length > 0 && (
-                  <TableSelectedActions
-                    dense={dense}
-                    numSelected={selected.length}
-                    rowCount={medicalHistoryTableData.length}
-                    onSelectAllRows={(checked) =>
-                      onSelectAllRows(
-                        checked,
-                        medicalHistoryTableData.map((row) => row.id)
-                      )
-                    }
-                  />
-                )}
-
-                <Table size={dense ? 'small' : 'medium'}>
-                  <TableHeadCustom
-                    order={order}
-                    orderBy={orderBy}
-                    headLabel={TABLE_HEAD}
-                    rowCount={medicalHistoryTableData.length}
-                    numSelected={selected.length}
-                    onSort={onSort}
-                    onSelectAllRows={(checked) =>
-                      onSelectAllRows(
-                        checked,
-                        medicalHistoryTableData.map((row) => row.id)
-                      )
-                    }
-                  />
-
-                  <TableBody>
-                    {(isLoading ? [...Array(rowsPerPage)] : dataFiltered)
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((row, index) =>
-                        row ? (
-                          <ProductTableRow
-                            key={row.id}
-                            row={row}
-                            selected={selected.includes(row.id)}
-                            onSelectRow={() => onSelectRow(row.id)}
-                          />
-                        ) : (
-                          !isNotFound && <TableSkeleton key={index} sx={{ height: denseHeight }} />
-                        )
-                      )}
-
-                    <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, medicalHistoryTableData.length)} />
-
-                    <TableNoData isNotFound={isNotFound} />
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Scrollbar>
-          </Card> */}
         </Grid>
       </Grid>
     </FormProvider>

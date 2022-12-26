@@ -7,6 +7,7 @@ export function calculateAge(dob) {
 }
 
 export function mediaURL(path) {
-    return `http://127.0.0.1:8000/auth${path}`;
+    return `http://127.0.0.1:8000${path}`;
 }
+
   

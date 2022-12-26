@@ -3,7 +3,7 @@ import { useParams, useLocation } from 'react-router-dom';
 // @mui
 import { Container } from '@mui/material';
 // react
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // redux
@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from '../../redux/store';
 // hooks
 import useUsers from '../../hooks/useUsers';
 import useSettings from '../../hooks/useSettings';
-import { getCurrentPatientsDetails } from '../../redux/slices/patient';
+import { getCurrentPatientsDetails, getPatientsDetails } from '../../redux/slices/patient';
 // _mock_
 import { _userList } from '../../_mock';
 // components
@@ -25,22 +25,31 @@ import PatientNewEditForm from '../../sections/@dashboard/user/PatientNewEditFor
 export default function PatientCreate() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
-  const { currentPatient, isLoading } = useSelector((state) => state.patient);
+  const { patients } = useSelector((state) => state.patient);
+  const [newPatientId, setNewPatientId] = useState('');
 
   const { pathname } = useLocation();
 
   const { name } = useParams();
 
+  const currentPatient = patients?.find(patient => patient?.id === Number(name));
+
   useEffect(() => {
-    dispatch(getCurrentPatientsDetails(Number(name)));
+    dispatch(getPatientsDetails())
+    // dispatch(getCurrentPatientsDetails(Number(name)));
   },[dispatch])
 
   // const currentPatient = _patients?.find(patient => patient?.id === Number(name));
   
   const isEdit = pathname.includes('edit');
 
-  
-  
+  useEffect(() => {
+    if(patients.length){
+      console.log(patients[patients?.length - 1]?.patientId)
+      setNewPatientId(Number(patients[patients?.length - 1].patientId) + 1)
+    }
+  },[patients])
+
   return (
     <Page title="User: Create a new patient">
       <Container maxWidth={themeStretch ? false : 'lg'}>
@@ -53,7 +62,7 @@ export default function PatientCreate() {
           ]}
         />
 
-        <PatientNewEditForm isEdit={isEdit} currentPatient={currentPatient} />
+        <PatientNewEditForm isEdit={isEdit} currentPatient={currentPatient} newPatientId={newPatientId}/>
       </Container>
     </Page>
   );

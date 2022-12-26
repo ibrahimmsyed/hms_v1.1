@@ -85,7 +85,7 @@ function UsersProvider({ children }) {
 
   const userDetails = async () => {
     const accessToken = window.localStorage.getItem('accessToken');
-    const userresponse = await axios.get('http://localhost:8000/auth/users/', {
+    const userresponse = await axios.get('http://localhost:8000/users/', {
       headers: {
         Authorization: `JWT ${accessToken}`
       }
@@ -101,7 +101,7 @@ function UsersProvider({ children }) {
 
   const patientsDetails = async () => {
     const accessToken = window.localStorage.getItem('accessToken');
-    const patientsresponse = await axios.get('http://localhost:8000/auth/patientdetails/', {
+    const patientsresponse = await axios.get('http://localhost:8000/patientdetails/', {
       headers: {
         Authorization: `JWT ${accessToken}`
       }
@@ -117,7 +117,7 @@ function UsersProvider({ children }) {
 
   const practiceDetails = async () => {
     const accessToken = window.localStorage.getItem('accessToken');
-    const pdetails = await axios.get('http://localhost:8000/auth/practicedetails/2/', {
+    const pdetails = await axios.get('http://localhost:8000/practicedetails/2/', {
       headers: {
         Authorization: `JWT ${accessToken}`
       }
@@ -139,7 +139,7 @@ function UsersProvider({ children }) {
 
   const inventoryDetails = async () => {
     const accessToken = window.localStorage.getItem('accessToken');
-    const idetails = await axios.get('http://localhost:8000/auth/inventorydetails/', {
+    const idetails = await axios.get('http://localhost:8000/inventorydetails/', {
       headers: {
         Authorization: `JWT ${accessToken}`
       }

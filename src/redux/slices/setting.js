@@ -75,7 +75,7 @@ export function getAllInventory() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/auth/inventorydetails/', headers);
+      const response = await axios.get('http://localhost:8000/inventorydetails/', headers);
       dispatch(slice.actions.setInventory(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -92,7 +92,7 @@ export function getInventory(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get(`http://localhost:8000/auth/inventorydetails/${id}/`, headers);
+      const response = await axios.get(`http://localhost:8000/inventorydetails/${id}/`, headers);
       dispatch(slice.actions.setCurrentInventory(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -109,7 +109,7 @@ export function addInventory(item) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/auth/inventorydetails/', item, headers);
+      const response = await axios.post('http://localhost:8000/inventorydetails/', item, headers);
       dispatch(slice.actions.updateInventory(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -126,7 +126,7 @@ export function modifyInventory(data, id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.put(`http://localhost:8000/auth/inventorydetails/${id}/`, data, headers);
+      const response = await axios.put(`http://localhost:8000/inventorydetails/${id}/`, data, headers);
       dispatch(slice.actions.setCurrentInventory(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -143,7 +143,7 @@ export function deleteInventory(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/auth/inventorydetails/${id}/`, headers);
+      const response = await axios.delete(`http://localhost:8000/inventorydetails/${id}/`, headers);
       dispatch(slice.actions.removeInventory(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));

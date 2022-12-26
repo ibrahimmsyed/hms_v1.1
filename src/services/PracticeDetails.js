@@ -25,7 +25,7 @@ class PracticeDetailsApiService extends EventEmitter {
         try {
             this.practiceDetails = {...details, logo: details.logo.preview}
             const accessToken = window.localStorage.getItem('accessToken');
-            const response = await axios.put(`http://localhost:8000/auth/practicedetails/${id}/`, this.practiceDetails,{
+            const response = await axios.put(`http://localhost:8000/practicedetails/${id}/`, this.practiceDetails,{
                 headers: {
                 Authorization: `JWT ${accessToken}`
                 }

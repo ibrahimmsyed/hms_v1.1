@@ -152,7 +152,7 @@ export function getPatientsDetails() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const res = await axios.get('http://localhost:8000/auth/patientdetails/', headers);
+      const res = await axios.get('http://localhost:8000/patientdetails/', headers);
       // const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
       dispatch(slice.actions.getPatientsSuccess(res.data));
     } catch (error) {
@@ -170,7 +170,7 @@ export function getCurrentPatientsDetails(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const res = await axios.get(`http://localhost:8000/auth/patientdetails/${id}/`, headers);
+      const res = await axios.get(`http://localhost:8000/patientdetails/${id}/`, headers);
       // const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
       dispatch(slice.actions.setPatientDetails(res.data));
     } catch (error) {
@@ -188,7 +188,7 @@ export function addPatientsDetail(data) {
               Authorization: `JWT ${accessToken}`
               }
           }
-        const response = await axios.post('http://localhost:8000/auth/patientdetails/', data, headers);
+        const response = await axios.post('http://localhost:8000/patientdetails/', data, headers);
         dispatch(slice.actions.updatePatientDetails(response.data));
       } catch (error) {
         dispatch(slice.actions.hasError(error));
@@ -205,7 +205,7 @@ export function updatePatientsDetail(data, id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.put(`http://localhost:8000/auth/patientdetails/${id}/`, data, headers);
+      const response = await axios.put(`http://localhost:8000/patientdetails/${id}/`, data, headers);
       dispatch(slice.actions.setPatientDetails(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -222,7 +222,7 @@ export function deletePatientsDetail(data, id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/auth/patientdetails/${id}/`, data, headers);
+      const response = await axios.delete(`http://localhost:8000/patientdetails/${id}/`, data, headers);
       dispatch(slice.actions.removePatientDetail(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -240,7 +240,7 @@ export function getMedicalHistory() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/auth/medicalhistory/', headers);
+      const response = await axios.get('http://localhost:8000/medicalhistory/', headers);
       dispatch(slice.actions.setPatientHistory(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -257,7 +257,7 @@ export function addMedicalHistory(history) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/auth/medicalhistory/', history, headers);
+      const response = await axios.post('http://localhost:8000/medicalhistory/', history, headers);
       dispatch(slice.actions.updatePatientHistory(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -274,7 +274,7 @@ export function deleteMedicalHistory(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/auth/medicalhistory/${id}/`, headers);
+      const response = await axios.delete(`http://localhost:8000/medicalhistory/${id}/`, headers);
       dispatch(slice.actions.deletePatientHistory(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -292,7 +292,7 @@ export function getTreatmentPlan() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/auth/procedure/', headers);
+      const response = await axios.get('http://localhost:8000/procedure/', headers);
       dispatch(slice.actions.setTreatmentPlan(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -309,7 +309,7 @@ export function addTreatmentPlan(plan) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/auth/procedure/', plan, headers);
+      const response = await axios.post('http://localhost:8000/procedure/', plan, headers);
       dispatch(slice.actions.updateTreatmentPlan(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -326,7 +326,7 @@ export function deleteTreatmentPlan(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/auth/procedure/${id}/`, headers);
+      const response = await axios.delete(`http://localhost:8000/procedure/${id}/`, headers);
       dispatch(slice.actions.removeTreatmentPlan(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -344,7 +344,7 @@ export function getPresciptions() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/auth/precription/', headers);
+      const response = await axios.get('http://localhost:8000/precription/', headers);
       dispatch(slice.actions.setPrescription(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -361,7 +361,7 @@ export function addPresciption(plan) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/auth/precription/', plan, headers);
+      const response = await axios.post('http://localhost:8000/precription/', plan, headers);
       dispatch(slice.actions.updatePrescription(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -378,7 +378,7 @@ export function deletePresciption(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/auth/precription/${id}/`, headers);
+      const response = await axios.delete(`http://localhost:8000/precription/${id}/`, headers);
       dispatch(slice.actions.removePrescription(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -397,7 +397,7 @@ export function getUploadFiles() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/auth/fileUpload/', headers);
+      const response = await axios.get('http://localhost:8000/fileUpload/', headers);
       dispatch(slice.actions.setFiles(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -419,7 +419,7 @@ export function uploadFiles(plan) {
             'Content-Disposition': `attachment; filename=${plan?.File_to_upload?.name}`,
             }
         }
-      const response = await axios.post('http://localhost:8000/auth/fileUpload/', formData, headers);
+      const response = await axios.post('http://localhost:8000/fileUpload/', formData, headers);
       dispatch(slice.actions.updateFiles(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -439,7 +439,7 @@ export function getMedicalCertificate() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/auth/medicalcertificate/', headers);
+      const response = await axios.get('http://localhost:8000/medicalcertificate/', headers);
       dispatch(slice.actions.setMedicalCertificate(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -456,7 +456,7 @@ export function addMedicalCertificate(plan) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/auth/medicalcertificate/', plan, headers);
+      const response = await axios.post('http://localhost:8000/medicalcertificate/', plan, headers);
       dispatch(slice.actions.updateMedicalCertificate(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -473,7 +473,7 @@ export function deleteMedicalCertificate(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/auth/medicalcertificate/${id}/`, headers);
+      const response = await axios.delete(`http://localhost:8000/medicalcertificate/${id}/`, headers);
       dispatch(slice.actions.removeMedicalCertificate(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));

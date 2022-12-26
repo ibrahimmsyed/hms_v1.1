@@ -46,7 +46,7 @@ export default function PatientSearch({selectedPatient}) {
             },
             params: { search: value }
         }
-        const response = await axios.get('http://localhost:8000/auth/patientdetails/', headers);
+        const response = await axios.get('http://localhost:8000/patientdetails/', headers);
 
         if (isMountedRef.current) {
           setSearchResults(response.data);

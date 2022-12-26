@@ -67,7 +67,7 @@ export function getUsersDetails() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const res = await axios.get('http://localhost:8000/auth/users/', headers);
+      const res = await axios.get('http://localhost:8000/users/', headers);
       const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
       dispatch(slice.actions.getUsersSuccess(response));
     } catch (error) {
@@ -85,7 +85,7 @@ export function getCurrentUser() {
               Authorization: `JWT ${accessToken}`
               }
           }
-        const response = await axios.get('http://localhost:8000/auth/users/me/', headers);
+        const response = await axios.get('http://localhost:8000/users/me/', headers);
         dispatch(slice.actions.setCurrentUser(response));
       } catch (error) {
         dispatch(slice.actions.hasError(error));

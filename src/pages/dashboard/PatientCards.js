@@ -1,5 +1,6 @@
 // @mui
-import { Container, Box, Button, Tabs, Tab, InputAdornment, Typography, Stack } from '@mui/material';
+import { Container, Box, Button, Tabs, Tab, InputAdornment, Typography, Stack, IconButton } from '@mui/material';
+import { styled, alpha } from '@mui/material/styles';
 import { Link as RouterLink } from 'react-router-dom';
 import {useState, SyntheticEvent, ReactNode, useEffect} from 'react';
 import { sub } from 'date-fns';
@@ -27,7 +28,7 @@ import { PatientCard } from '../../sections/@dashboard/user/cards';
 import { AppointmentDetailsList } from '../../sections/@dashboard/e-commerce/product-details';
 import FilesDetails from '../../sections/@dashboard/e-commerce/FilesDetails';
 import CommunicationDetails from '../../sections/@dashboard/e-commerce/CommunicationDetails';
-
+import PatientsDialog from '../../components/PatientsDialog';
 import { RHFUploadSingleFile } from '../../components/hook-form';
 
 // ----------------------------------------------------------------------
@@ -127,54 +128,6 @@ export default function UserCards() {
     }
   ]
 
-  /* const prescriptions = [
-    {
-      id:1,
-      patient: {
-        id: 32974,
-        name: "Wilson",
-        age: "52 Years",
-        gender: "Male",
-        avatarUrl: ""
-      },
-      instruction: {
-        id: 1,
-        description: "6RD Dr. Deepika"
-      },
-      doctor: {
-        id: "1",
-        name: "Dr L.P Mohan"
-      },
-      time: {
-        date: sub(new Date(), { days: 3, hours: 5 }),
-        startTime: "12:00 AM",
-        endTime: "12:45 AM"
-      },
-      drugs: [
-        {
-          id:1,
-          name: "COMB Tab",
-          strength: "100",
-          duration: 4,
-          morning: 4,
-          noon: 4,
-          night: 0,
-          intake:  "bf"
-        },
-        {
-          id:2,
-          name: "SESS Tab",
-          strength: "500",
-          duration: 3,
-          morning: 0,
-          noon: 1,
-          night: 0,
-          intake:  "af"
-        }
-      ]
-    }
-  ] */
-
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     console.log(event, newValue)
     setValue(newValue);
@@ -188,6 +141,10 @@ export default function UserCards() {
   }
   const onClose = () => {
     setDialogState(true)
+  }
+
+  const handleClose = () => {
+    setDialogState(false)
   }
 
   return (
@@ -241,7 +198,6 @@ export default function UserCards() {
             <Tab icon={<Iconify icon={'eva:clipboard-outline'} width={20} height={20} />} label="Prescription" />
             <Tab icon={<Iconify icon={'eva:credit-card-outline'} width={20} height={20} />} label="Payments" />
             <Tab icon={<Iconify icon={'eva:file-text-outline'} width={20} height={20} />} label="Files" />
-            <Tab icon={<Iconify icon={'eva:message-square-outline'} width={20} height={20} />} label="Communication" />
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
@@ -336,53 +292,26 @@ export default function UserCards() {
           </Stack>
           <FilesDetails files={files} medicalCertificate={medicalCertificate}/>
         </TabPanel>
-        <TabPanel value={value} index={6}>
-          <CommunicationDetails/>
-        </TabPanel>
       </Container>
       <DialogAnimate fullWidth maxWidth="md" open={isOpen} onClose={onClose}>
-        <Tabs
-            allowScrollButtonsMobile
-            variant="scrollable"
-            scrollButtons="auto"
-            value={filterLabName}
-            onChange={onChangeFilterStatus}
-            sx={{ px: 2, bgcolor: 'background.neutral' }}
-          >
-            {STATUS_OPTIONS.map((tab) => (
-              <Tab disableRipple key={tab} label={tab} value={tab} />
-            ))}
-        </Tabs>
-        <InputStyle
-          stretchStart={240}
-          value=""
-          onChange={(event) => findPatients(event.target.value)}
-          placeholder="Find patients..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon={'eva:search-fill'} sx={{ color: 'text.disabled', width: 20, height: 20 }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ my: 1 }}
-        />
-        <Box
-          sx={{
-            display: 'grid',
-            gap: 3,
-            gridTemplateColumns: {
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
-              md: 'repeat(3, 1fr)',
-            },
-            m: 2
-          }}
-        >
-          {patients.map((patient) => (
-            <PatientCard key={patient.id} patient={patient} url={url} isSearch/>
-          ))}
-        </Box>
+        <IconButton
+            size="small"
+            onClick={() => handleClose()}
+            sx={{
+                top: 6,
+                p: '2px',
+                right: 6,
+                position: 'absolute',
+                color: 'common.white',
+                bgcolor: (theme) => alpha(theme.palette.grey[900], 0.72),
+                '&:hover': {
+                bgcolor: (theme) => alpha(theme.palette.grey[900], 0.48),
+                },
+            }}
+            >
+            <Iconify icon={'eva:close-fill'} />
+        </IconButton>
+        <PatientsDialog patients={patients} url={url}/>
       </DialogAnimate>
     </Page>
   );

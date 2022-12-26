@@ -127,7 +127,7 @@ export function getLabDetails() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const res = await axios.get('http://localhost:8000/auth/labdetails/', headers);
+      const res = await axios.get('http://localhost:8000/labdetails/', headers);
       // const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
       dispatch(slice.actions.getLabDetailsSuccess(res.data));
     } catch (error) {
@@ -145,7 +145,7 @@ export function getCurrentLabDetail(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const res = await axios.get(`http://localhost:8000/auth/labdetails/${id}/`, headers);
+      const res = await axios.get(`http://localhost:8000/labdetails/${id}/`, headers);
       // const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
       dispatch(slice.actions.setLabDetails(res.data));
     } catch (error) {
@@ -163,7 +163,7 @@ export function addLabDetail(data) {
               Authorization: `JWT ${accessToken}`
               }
           }
-        const response = await axios.post('http://localhost:8000/auth/labdetails/', data, headers);
+        const response = await axios.post('http://localhost:8000/labdetails/', data, headers);
         dispatch(slice.actions.updateLabDetails(response.data));
       } catch (error) {
         dispatch(slice.actions.hasError(error));
@@ -180,7 +180,7 @@ export function updateLabDetail(data, id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.put(`http://localhost:8000/auth/labdetails/${id}/`, data, headers);
+      const response = await axios.put(`http://localhost:8000/labdetails/${id}/`, data, headers);
       dispatch(slice.actions.setLabDetails(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -197,7 +197,7 @@ export function deleteLabDetail(data, id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/auth/labdetails/${id}/`, headers);
+      const response = await axios.delete(`http://localhost:8000/labdetails/${id}/`, headers);
       dispatch(slice.actions.removeLabDetails(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -216,7 +216,7 @@ export function getAllLabWork() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const res = await axios.get('http://localhost:8000/auth/labcategory/', headers);
+      const res = await axios.get('http://localhost:8000/labcategory/', headers);
       // const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
       dispatch(slice.actions.getLabWorkSuccess(res.data));
     } catch (error) {
@@ -234,7 +234,7 @@ export function addLabWorks(data) {
               Authorization: `JWT ${accessToken}`
               }
           }
-        const response = await axios.post('http://localhost:8000/auth/labcategory/', data, headers);
+        const response = await axios.post('http://localhost:8000/labcategory/', data, headers);
         dispatch(slice.actions.updateLabWork(response.data));
       } catch (error) {
         dispatch(slice.actions.hasError(error));
@@ -251,7 +251,7 @@ export function updateLabWorks(data, id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.put(`http://localhost:8000/auth/labcategory/${id}/`, data, headers);
+      const response = await axios.put(`http://localhost:8000/labcategory/${id}/`, data, headers);
       dispatch(slice.actions.setLabWork(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -268,7 +268,7 @@ export function deleteLabWorks(data, id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/auth/labcategory/${id}/`, data, headers);
+      const response = await axios.delete(`http://localhost:8000/labcategory/${id}/`, data, headers);
       dispatch(slice.actions.removeLabWork(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -286,7 +286,7 @@ export function getAllTreatmentPlans() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const res = await axios.get('http://localhost:8000/auth/treatmentplans/', headers);
+      const res = await axios.get('http://localhost:8000/treatmentplans/', headers);
       // const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
       dispatch(slice.actions.getTreatmentPlansSuccess(res.data));
     } catch (error) {
@@ -304,7 +304,7 @@ export function addTreatmentPlans(data) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/auth/treatmentplans/', data, headers);
+      const response = await axios.post('http://localhost:8000/treatmentplans/', data, headers);
       dispatch(slice.actions.updateTreatmentPlans(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -323,7 +323,7 @@ export function getAllLabNames() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const res = await axios.get('http://localhost:8000/auth/labname/', headers);
+      const res = await axios.get('http://localhost:8000/labname/', headers);
       // const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
       dispatch(slice.actions.getlabNameSuccess(res.data));
     } catch (error) {
@@ -341,7 +341,7 @@ export function addLabName(data) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/auth/labname/', data, headers);
+      const response = await axios.post('http://localhost:8000/labname/', data, headers);
       dispatch(slice.actions.updatelabName(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
