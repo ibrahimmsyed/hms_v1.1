@@ -1,4 +1,4 @@
-import FullCalendar from '@fullcalendar/react'; // => request placed at the top
+import FullCalendar, { eventTupleToStore } from '@fullcalendar/react'; // => request placed at the top
 import listPlugin from '@fullcalendar/list';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -10,8 +10,8 @@ import { useState, useRef, useEffect } from 'react';
 import { Card, Button, Container, DialogTitle } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
-import { getEvents, openModal, closeModal, updateEvent, selectEvent, selectRange } from '../../redux/slices/calendar';
-import { getPatientsDetails } from '../../redux/slices/patient';
+import { getCalendarEvents, openModal, closeModal, updateEvent, selectEvent, selectRange } from '../../redux/slices/calendar';
+import { getPatientsDetails, getTreatmentPlan } from '../../redux/slices/patient';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -30,9 +30,13 @@ import { CalendarStyle, CalendarToolbar, AppointmentForm } from '../../sections/
 
 
 const selectedEventSelector = (state) => {
-  const { events, selectedEventId } = state.calendar;
+  const { calendarEvents: events, selectedEventId } = state.calendar;
   if (selectedEventId) {
-    return events.find((_event) => _event.id === selectedEventId);
+    let appointment = events.find((_event) => _event.id === Number(selectedEventId));
+    if(appointment.eventType === 'appointment'){
+      appointment = {...appointment, tags: appointment.tags.split(',')}
+    }
+    return appointment
   }
   return null;
 };
@@ -50,15 +54,23 @@ export default function Calendar() {
 
   const [view, setView] = useState(isDesktop ? 'dayGridMonth' : 'listWeek');
 
+  const [events, setEvents] = useState([]);
+
   const selectedEvent = useSelector(selectedEventSelector);
 
-  const { events, isOpenModal, selectedRange } = useSelector((state) => state.calendar);
+  const { calendarEvents, isOpenModal, selectedRange } = useSelector((state) => state.calendar);
   const { patients } = useSelector((state) => state.patient);
 
   useEffect(() => {
-    dispatch(getEvents());
+    dispatch(getCalendarEvents());
     dispatch(getPatientsDetails());
+    dispatch(getTreatmentPlan());
   }, [dispatch]);
+
+  useEffect(() => {
+    if(calendarEvents.length)
+    handleEvent(calendarEvents)
+  }, [calendarEvents])
 
   useEffect(() => {
     const calendarEl = calendarRef.current;
@@ -69,6 +81,26 @@ export default function Calendar() {
       setView(newView);
     }
   }, [isDesktop]);
+
+  const handleEvent = (calendarEvents) => {
+    let cloneCalendarEvents = [...calendarEvents]
+    let title = ''
+    cloneCalendarEvents = cloneCalendarEvents.map(events => {
+      switch (events.eventType){
+        case 'block':
+          title = events.leaveDetails;
+          break;
+        case 'reminder':
+          title = events.reminderTitle;
+          break;
+        default:
+          title = events.patientName;
+          break;
+      }
+      return {...events, title}
+    })
+    setEvents(cloneCalendarEvents)
+  }
 
   const handleClickToday = () => {
     const calendarEl = calendarRef.current;
@@ -188,6 +220,10 @@ export default function Calendar() {
               droppable
               selectable
               events={events}
+              /* events={[
+                { title: 'event 1', date: '2022-12-01', textColor: '#1890FF' },
+                { title: 'event 2', date: '2022-12-30', allDay: true, textColor: '#7A0C2E' }
+              ]} */
               ref={calendarRef}
               rerenderDelay={10}
               initialDate={date}
@@ -209,7 +245,7 @@ export default function Calendar() {
 
         <DialogAnimate maxWidth={false}  open={isOpenModal} onClose={handleCloseModal} sx={{maxWidth: 860}}>
           <DialogTitle>{selectedEvent ? 'Edit Event' : 'Add Event'}</DialogTitle>
-          <AppointmentForm event={selectedEvent || {}} range={selectedRange} onCancel={handleCloseModal} />
+          <AppointmentForm isEdit={!!selectedEvent} currentAppointment={selectedEvent || {}} range={selectedRange} onCancel={handleCloseModal} />
         </DialogAnimate>
       </Container>
     </Page>

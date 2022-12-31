@@ -9,6 +9,7 @@ import { dispatch } from '../store';
 const initialState = {
   isLoading: false,
   error: null,
+  calendarEvents: [],
   events: [],
   isOpenModal: false,
   selectedEventId: null,
@@ -28,6 +29,21 @@ const slice = createSlice({
     hasError(state, action) {
       state.isLoading = false;
       state.error = action.payload;
+    },
+
+    setCalendarEvent(state, action) {
+      state.isLoading = false;
+      state.calendarEvents = action.payload;
+    },
+
+    updateCalendarEvents(state, action) {
+      state.isLoading = false;
+      state.calendarEvents = [...state.calendarEvents, action.payload]
+    },
+
+    removeCalendarEvents(state, action) {
+      state.isLoading = false;
+      state.calendarEvents = state.calendarEvents.filter(plan => plan.id !== action.payload)
     },
 
     // GET EVENTS
@@ -163,9 +179,65 @@ export function selectRange(start, end) {
   return async () => {
     dispatch(
       slice.actions.selectRange({
-        start: start.getTime(),
-        end: end.getTime(),
+        start,
+        end,
       })
     );
+  };
+}
+
+// -------------------
+
+/** ******************************************************** */
+
+export function getCalendarEvents() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.get('http://localhost:8000/eventcalendar/', headers);
+      dispatch(slice.actions.setCalendarEvent(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function addCalendarEvents(plan) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.post('http://localhost:8000/eventcalendar/', plan, headers);
+      dispatch(slice.actions.updateCalendarEvents(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function deleteCalendarEvents(id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.delete(`http://localhost:8000/eventcalendar/${id}/`, headers);
+      dispatch(slice.actions.removeCalendarEvents(id));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
   };
 }

@@ -35,6 +35,8 @@ export default function PatientSearch({selectedPatient}) {
 
   const [searchResults, setSearchResults] = useState([]);
 
+  const [value, setValue] = useState();
+
   const handleChangeSearch = async (value) => {
     try {
       setSearchQuery(value);
@@ -70,6 +72,7 @@ export default function PatientSearch({selectedPatient}) {
   return (
     <Stack spacing={2}>
       <Autocomplete
+        value={value}
         freeSolo
         id="free-solo-2-demo"
         onInputChange={(event, value) => handleChangeSearch(value)}
@@ -93,6 +96,7 @@ export default function PatientSearch({selectedPatient}) {
           />
         )}
         onChange={(event, newValue) => {
+          setValue(newValue);
           selectedPatient(newValue)
           console.log(JSON.stringify(newValue, null, ' '));
         }}
