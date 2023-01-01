@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from '../../redux/store';
 import { getAllTreatmentPlans } from '../../redux/slices/lab';
 import { getPresciptions, getUploadFiles, getMedicalCertificate } from '../../redux/slices/patient';
 import { getAllInventory } from '../../redux/slices/setting';
+import { getCalendarEvents } from '../../redux/slices/calendar';
 // _mock_
 import { _userCards } from '../../_mock';
 // components
@@ -41,6 +42,7 @@ export default function UserCards() {
   const [value, setValue] = useState(0);
   const [plans, setPlans] = useState([]);
   const [prescriptions, setPrescriptions] = useState([]);
+  const [appointments, setAppointments] = useState([]);
   const [isOpen, setDialogState] = useState(false);
   const [url , setRedirectURL] = useState('labs')
   const { currentTab: filterLabName, onChangeTab: onChangeFilterStatus } = useTabs('all');
@@ -48,6 +50,7 @@ export default function UserCards() {
 
   useEffect(() => {
     dispatch(getAllTreatmentPlans());
+    dispatch(getCalendarEvents());
     dispatch(getPresciptions());
     dispatch(getAllInventory());
     dispatch(getUploadFiles())
@@ -55,6 +58,7 @@ export default function UserCards() {
   },[dispatch])
 
   const { treatmentPlans } = useSelector((state) => state.labs);
+  const { calendarEvents } = useSelector((state) => state.calendar);
   const { prescriptions: rawPrescriptions } = useSelector((state) => state.patient);
   const { files } = useSelector((state) => state.patient);
   const { medicalCertificate } = useSelector((state) => state.patient);
@@ -98,7 +102,33 @@ export default function UserCards() {
     setPrescriptions(items)
   },[rawPrescriptions])
 
-  const appointments = [
+  useEffect(() => {
+    const items = []
+
+    calendarEvents?.filter(events => events.eventType === 'appointment').forEach((item, i) => {
+      const patient = patients.find(patient => Number(patient.patientId) === Number(item.patientId))
+      const doctor = user.find(user => user.isStaff && Number(user.id) === Number(item.doctor))
+      item = {...item, tags: item.tags.split(',')}
+      const itemObj = {
+        id: item.id,
+        patient,
+        doctor,
+        appointments: item,
+        description: item.description,
+        procedure: item.tags,
+        time: {
+          // date: sub(new Date(), { days: 3, hours: 5 }),
+          startTime: item.start,
+          endTime: item.end
+        } 
+      }
+      items.push(itemObj)
+    });
+    console.log(items)
+    setAppointments(items)
+  },[calendarEvents])
+
+/*   const appointments = [
     {
       id:1,
       patient: {
@@ -126,7 +156,7 @@ export default function UserCards() {
         endTime: "12:45 AM"
       }
     }
-  ]
+  ] */
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     console.log(event, newValue)

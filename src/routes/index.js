@@ -212,7 +212,16 @@ export default function Router() {
             { path: ':conversationKey', element: <Chat /> },
           ],
         },
-        { path: 'calendar', element: <Calendar /> },
+        {
+          path: 'calendar',
+          children: [
+            { element: <Calendar />, index: true },
+            { path: 'calendar', element: <Calendar /> },
+            { path: ':id/:name/new', element: <Calendar /> },
+            { path: ':id/edit', element: <Calendar /> },
+          ],
+        },
+        // { path: 'calendar', element: <Calendar /> },
         { path: 'kanban', element: <Kanban /> },
       ],
     },

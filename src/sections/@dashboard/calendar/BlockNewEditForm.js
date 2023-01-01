@@ -115,7 +115,7 @@ export default function BlockNewEditForm({ isEdit, staff, currentAppointment, ra
 
   const isDateError = isBefore(new Date(values.end), new Date(values.start));
 
-  const isCreating = Object.keys(currentAppointment).length === 0;
+  const isCreating = !(currentAppointment && Object.keys(currentAppointment).length === 0);
 
   useEffect(() => {
     if (isEdit && currentAppointment) {

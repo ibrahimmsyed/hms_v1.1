@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 // @mui
-import { Box, List, MenuItem, Button, Rating, Avatar, ListItem, Pagination, Typography, styled, Paper, TableRow, TableCell, TableBody, Table  } from '@mui/material';
+import { Box, List, MenuItem, Button, Rating, Avatar, ListItem, Pagination, Typography, styled, Paper, TableRow, TableCell, TableBody, Table, DialogTitle  } from '@mui/material';
 // utils
 import { fDate } from '../../../../utils/formatTime';
 import { fShortenNumber } from '../../../../utils/formatNumber';
@@ -12,6 +12,9 @@ import { useDispatch, useSelector } from '../../../../redux/store';
 // components
 import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu, TableHeadCustom } from '../../../../components/table';
+import { calculateAge } from '../../../../utils/utilities';
+import { DialogAnimate } from '../../../../components/animate';
+import AppointmentForm from '../../calendar/AppointmentForm';
 
 // ----------------------------------------------------------------------
 
@@ -53,8 +56,11 @@ AppointmentItem.propTypes = {
 function AppointmentItem({ appointment }) {
   const [isHelpful, setHelpfuls] = useState(false);
 
-  const { patient, procedure, notes, doctor, time } = appointment;
+  const { patient, procedure, appointments, description, doctor, time } = appointment;
   const [openMenu, setOpenMenuActions] = useState(null);
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [selectedRange, setSelectedRange] = useState(time);
+  const [selectedEvent, setSelectedEvent] = useState(appointments);
 
   const handleOpenMenu = (event) => {
     setOpenMenuActions(event.currentTarget);
@@ -65,8 +71,12 @@ function AppointmentItem({ appointment }) {
   };
 
   const onEditRow = () => {
-    
+    setIsOpenModal(true)
   };
+
+  const handleCloseModal = () => {
+
+  }
 
   return (
     <>
@@ -92,7 +102,7 @@ function AppointmentItem({ appointment }) {
             }}
           >
             <Avatar
-              src={patient.avatarUrl}
+              src={patient.dop}
               sx={{
                 mr: { xs: 2, sm: 0 },
                 mb: { sm: 2 },
@@ -102,21 +112,21 @@ function AppointmentItem({ appointment }) {
             />
             <div>
               <Typography variant="subtitle2" noWrap>
-                {patient.name}
+                {patient.patientName}
               </Typography>
               <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
                 
-                {patient.age} / {patient.gender}
+                {calculateAge(patient.dob)} / {patient.gender}
               </Typography>
             </div>
           </Box>
 
           <div>
             <Typography variant="h6">PROCEDURE:</Typography>
-            <Typography variant="body2">{procedure.name}</Typography>
+            <Typography variant="body2">{procedure}</Typography>
 
             <Typography variant="h6">NOTES:</Typography>
-            <Typography variant="body2">{notes.description}</Typography>
+            <Typography variant="body2">{description}</Typography>
 
             <Box
               sx={{
@@ -127,7 +137,7 @@ function AppointmentItem({ appointment }) {
             >
               {!isHelpful && (
                 <Typography variant="body2" sx={{ mr: 1 }}>
-                  With <b>{doctor.name}</b> at <b>{time.startTime}</b>
+                  With <b>{doctor.name}</b> at <b>{`${new Date(time.startTime).toDateString()} ${new Date(time.startTime).toTimeString()}`}</b>
                 </Typography>
               )}
             </Box>
@@ -157,6 +167,10 @@ function AppointmentItem({ appointment }) {
           </Box>
         </ListItem>
       </Item>
+      <DialogAnimate maxWidth={false}  open={isOpenModal} onClose={handleCloseModal} sx={{maxWidth: 860}}>
+        <DialogTitle>{selectedEvent ? 'Edit Event' : 'Add Event'}</DialogTitle>
+        <AppointmentForm isEdit={!!selectedEvent} currentAppointment={selectedEvent || null} range={selectedRange} onCancel={handleCloseModal} />
+      </DialogAnimate>
     </>
   );
 }

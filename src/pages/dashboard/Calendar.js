@@ -46,6 +46,11 @@ export default function Calendar() {
 
   const dispatch = useDispatch();
 
+  const defaultRange = {
+    start: new Date(),
+    end: new Date()
+  }
+
   const isDesktop = useResponsive('up', 'sm');
 
   const calendarRef = useRef(null);
@@ -245,7 +250,7 @@ export default function Calendar() {
 
         <DialogAnimate maxWidth={false}  open={isOpenModal} onClose={handleCloseModal} sx={{maxWidth: 860}}>
           <DialogTitle>{selectedEvent ? 'Edit Event' : 'Add Event'}</DialogTitle>
-          <AppointmentForm isEdit={!!selectedEvent} currentAppointment={selectedEvent || {}} range={selectedRange} onCancel={handleCloseModal} />
+          <AppointmentForm isEdit={!!selectedEvent} currentAppointment={selectedEvent || null} range={selectedRange || defaultRange} onCancel={handleCloseModal} />
         </DialogAnimate>
       </Container>
     </Page>

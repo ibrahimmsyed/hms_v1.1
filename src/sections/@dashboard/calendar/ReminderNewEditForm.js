@@ -68,8 +68,8 @@ export default function ReminderNewEditForm({ isEdit, staff, currentAppointment,
       reminderTitle: currentAppointment?.reminderTitle || '',
       doctor: currentAppointment?.doctor || '',
       duration: currentAppointment?.duration ||  'All Day',
-      date: currentAppointment.date ? new Date(currentAppointment?.date) : new Date(range?.start),
-      customTime: currentAppointment.customTime ? new Date(currentAppointment?.customTime) : new Date(range?.start),
+      date: currentAppointment?.date ? new Date(currentAppointment?.date) : new Date(range?.start),
+      customTime: currentAppointment?.customTime ? new Date(currentAppointment?.customTime) : new Date(range?.start),
       textColor: currentAppointment?.textColor ||  '#FFC1CC',
      }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -118,7 +118,7 @@ export default function ReminderNewEditForm({ isEdit, staff, currentAppointment,
 
   const isDateError = isBefore(new Date(values.end), new Date(values.start));
 
-  const isCreating = Object.keys(currentAppointment).length === 0;
+  const isCreating = !(currentAppointment && Object.keys(currentAppointment).length === 0);
 
   const durationWatch = watch("duration");
 

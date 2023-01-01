@@ -63,6 +63,7 @@ export default function AppointmentNewEditForm({ isEdit, staff, currentAppointme
 
   useEffect(() => {
     if (isEdit && currentAppointment) {
+      COLOR_OPTIONS = [currentAppointment?.textColor]
       reset(currentAppointment);
     }
     if (!isEdit && staff.length) {
@@ -81,8 +82,9 @@ export default function AppointmentNewEditForm({ isEdit, staff, currentAppointme
       doctor: currentAppointment?.doctor || '',
       description: currentAppointment?.description || '',
       tags: currentAppointment?.tags || [],
-      start: currentAppointment?.start ? new Date(currentAppointment?.start) : new Date(range.start),
-      end: currentAppointment?.end ? new Date(currentAppointment.end) : new Date(range.end),
+      start: currentAppointment?.start ? new Date(currentAppointment?.start) : range?.start,
+      end: currentAppointment?.end ? new Date(currentAppointment.end) : range?.end,
+      textColor: currentAppointment?.textColor || '#EFEFEF',
      }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentAppointment]
@@ -147,7 +149,7 @@ export default function AppointmentNewEditForm({ isEdit, staff, currentAppointme
 
   const isDateError = isBefore(new Date(values.end), new Date(values.start));
 
-  const isCreating = Object.keys(currentAppointment).length === 0;
+  const isCreating = !(currentAppointment && Object.keys(currentAppointment).length === 0);
 
   const watchDoctor = watch("doctor");
   
@@ -177,9 +179,9 @@ export default function AppointmentNewEditForm({ isEdit, staff, currentAppointme
                 }}
               >
                 <Stack spacing={3} sx={{ p: 1 }}>
-                  <PatientSearch selectedPatient={selectedPatient}/>
-
-                  <RHFTextField name="mobileNo" label="Mobile Number" />
+                  {!isEdit && <PatientSearch selectedPatient={selectedPatient}/>}
+                  {isEdit && <RHFTextField name="patientName" label="Patient Name" disabled />}
+                  <RHFTextField name="mobileNo" label="Mobile Number" disabled/>
                   <Box
                     sx={{
                       display: 'flex',
@@ -241,7 +243,7 @@ export default function AppointmentNewEditForm({ isEdit, staff, currentAppointme
                 </Stack>
                 <Stack spacing={3} sx={{ p: 1 }}>
                   <RHFTextField name="patientId" label="Patient Id" disabled />
-                  <RHFTextField name="email" label="Email Id"/>
+                  <RHFTextField name="email" label="Email Id" disabled/>
                   <Controller
                     name="tags"
                     control={control}
