@@ -92,6 +92,9 @@ export const PATH_DASHBOARD = {
   treatments:{
     new: (id, name) => path(ROOTS_DASHBOARD, `/treatments/${id}/${name}/new`),
   },
+  notes:{
+    new: (id, name) => path(ROOTS_DASHBOARD, `/notes/${id}/${name}/new`),
+  },
   labs: {
     root: path(ROOTS_DASHBOARD, '/labs'),
     orders: path(ROOTS_DASHBOARD, '/labs/orders'),

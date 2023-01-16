@@ -12,7 +12,7 @@ import useUsers from '../../hooks/useUsers';
 import useTabs from '../../hooks/useTabs';
 import { useDispatch, useSelector } from '../../redux/store';
 import { getAllTreatmentPlans } from '../../redux/slices/lab';
-import { getPresciptions, getUploadFiles, getMedicalCertificate } from '../../redux/slices/patient';
+import { getPresciptions, getUploadFiles, getMedicalCertificate, getClinicalNotes } from '../../redux/slices/patient';
 import { getAllInventory } from '../../redux/slices/setting';
 import { getCalendarEvents } from '../../redux/slices/calendar';
 // _mock_
@@ -43,6 +43,7 @@ export default function UserCards() {
   const [plans, setPlans] = useState([]);
   const [prescriptions, setPrescriptions] = useState([]);
   const [appointments, setAppointments] = useState([]);
+  const [notes, setNotes] = useState([]);
   const [isOpen, setDialogState] = useState(false);
   const [url , setRedirectURL] = useState('labs')
   const { currentTab: filterLabName, onChangeTab: onChangeFilterStatus } = useTabs('all');
@@ -52,6 +53,7 @@ export default function UserCards() {
     dispatch(getAllTreatmentPlans());
     dispatch(getCalendarEvents());
     dispatch(getPresciptions());
+    dispatch(getClinicalNotes());
     dispatch(getAllInventory());
     dispatch(getUploadFiles())
     dispatch(getMedicalCertificate())
@@ -59,10 +61,8 @@ export default function UserCards() {
 
   const { treatmentPlans } = useSelector((state) => state.labs);
   const { calendarEvents } = useSelector((state) => state.calendar);
-  const { prescriptions: rawPrescriptions } = useSelector((state) => state.patient);
-  const { files } = useSelector((state) => state.patient);
-  const { medicalCertificate } = useSelector((state) => state.patient);
-
+  const { prescriptions: rawPrescriptions, files, medicalCertificate, clinicalNotes } = useSelector((state) => state.patient);
+  
   useEffect(() => {
     // const plan = treatmentPlan.map((plan, i) => {id: i, procedure: plan, })
     const plans = []
@@ -128,35 +128,22 @@ export default function UserCards() {
     setAppointments(items)
   },[calendarEvents])
 
-/*   const appointments = [
-    {
-      id:1,
-      patient: {
-        id: 32974,
-        name: "Wilson",
-        age: "52 Years",
-        gender: "Male",
-        avatarUrl: ""
-      },
-      procedure: {
-        id:1,
-        name: "CROWN"
-      },
-      notes: {
-        id: 1,
-        description: "6RD Dr. Deepika"
-      },
-      doctor: {
-        id: "1",
-        name: "Dr L.P Mohan"
-      },
-      time: {
-        date: sub(new Date(), { days: 3, hours: 5 }),
-        startTime: "12:00 AM",
-        endTime: "12:45 AM"
+  useEffect(() => {
+    const items = []
+    clinicalNotes?.forEach((item, i) => {
+      const patient = patients.find(patient => Number(patient.patientId) === Number(item.patientId))
+      const doctor = user.find(user => user.isStaff && Number(user.id) === Number(item.orderedBy))
+      const itemObj = {
+        id: item.id,
+        patient,
+        doctor,
+        notes: JSON.parse(item.notes)
       }
-    }
-  ] */
+      items.push(itemObj)
+    });
+    console.log(items)
+    setNotes(items)
+  },[clinicalNotes])
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     console.log(event, newValue)
@@ -225,6 +212,7 @@ export default function UserCards() {
             <Tab icon={<Iconify icon={'eva:people-outline'} width={20} height={20} />} label="Profile" />
             <Tab icon={<Iconify icon={'eva:calendar-outline'} width={20} height={20} />} label="Appointments" />
             <Tab icon={<Iconify icon={'eva:book-outline'} width={20} height={20} />} label="Treatment Plans" />
+            <Tab icon={<Iconify icon={'eva:edit-2-outline'} width={20} height={20} />} label="Clinical Notes" />
             <Tab icon={<Iconify icon={'eva:clipboard-outline'} width={20} height={20} />} label="Prescription" />
             <Tab icon={<Iconify icon={'eva:credit-card-outline'} width={20} height={20} />} label="Payments" />
             <Tab icon={<Iconify icon={'eva:file-text-outline'} width={20} height={20} />} label="Files" />
@@ -274,6 +262,22 @@ export default function UserCards() {
             <Button
               variant="contained"
               startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
+              onClick={() => handleAddNew('notes')}
+            >
+              Add Notes
+            </Button>
+          </Stack>
+            
+          <AppointmentDetailsList notes={notes}/>
+        </TabPanel>
+        <TabPanel value={value} index={4}>
+          <Stack
+            direction="row"
+            sx={{flexDirection: 'row-reverse'}}
+          >
+            <Button
+              variant="contained"
+              startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
               onClick={() => handleAddNew('prescription')}
             >
               Add Prescription
@@ -282,7 +286,7 @@ export default function UserCards() {
             
           <AppointmentDetailsList prescriptions={prescriptions}/>
         </TabPanel>
-        <TabPanel value={value} index={4}>
+        <TabPanel value={value} index={5}>
           <Stack
             direction="row"
             sx={{flexDirection: 'row-reverse', mx: 3, mb:1}}
@@ -297,7 +301,7 @@ export default function UserCards() {
           </Stack>
           <PatientInvoiceList/>
         </TabPanel>
-        <TabPanel value={value} index={5}>
+        <TabPanel value={value} index={6}>
         <Stack
             direction="row"
             sx={{flexDirection: 'row-reverse', mx: 3, mb:1}}
@@ -309,7 +313,7 @@ export default function UserCards() {
               onClick={() => handleAddNew('mlc')}
               // component={RouterLink} to={PATH_DASHBOARD.patient.mlcfiles}
             >
-              Add Medical Certificate
+              Add Notes
             </Button>
             <Button
               variant="contained"

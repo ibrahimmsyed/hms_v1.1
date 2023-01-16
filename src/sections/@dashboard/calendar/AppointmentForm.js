@@ -97,9 +97,9 @@ export default function AppointmentForm({ isEdit, currentAppointment, range, onC
 
   const renderForm = () => {
     switch(currentAppointment.eventType) {
-      case "reminder": return <ReminderNewEditForm isEdit={isEdit} staff={staff} currentAppointment={currentAppointment} range={range} selectedTab={value}/>;
-      case "block": return <BlockNewEditForm isEdit={isEdit} staff={staff} range={range} currentAppointment={currentAppointment} selectedTab={value}/>;
-      default: return <AppointmentNewEditForm isEdit={isEdit} staff={staff} currentAppointment={currentAppointment} range={range} selectedTab={value}/>;
+      case "reminder": return <ReminderNewEditForm isEdit={isEdit} staff={staff} currentAppointment={currentAppointment} range={range} selectedTab={value} onCancel={onCancel}/>;
+      case "block": return <BlockNewEditForm isEdit={isEdit} staff={staff} range={range} currentAppointment={currentAppointment} selectedTab={value} onCancel={onCancel}/>;
+      default: return <AppointmentNewEditForm isEdit={isEdit} staff={staff} currentAppointment={currentAppointment} range={range} selectedTab={value} onCancel={onCancel}/>;
     }
   }
 
@@ -115,13 +115,13 @@ export default function AppointmentForm({ isEdit, currentAppointment, range, onC
             </TabList>
           </Box>
           <TabPanel value="appointment">
-            <AppointmentNewEditForm isEdit={isEdit} staff={staff} currentAppointment={currentAppointment} range={range} selectedTab={value}/>
+            <AppointmentNewEditForm isEdit={isEdit} staff={staff} currentAppointment={currentAppointment} range={range} selectedTab={value} onCancel={onCancel}/>
           </TabPanel>
             <TabPanel value="reminder">  
-              <ReminderNewEditForm isEdit={isEdit} staff={staff} currentAppointment={currentAppointment} range={range} selectedTab={value}/>
+              <ReminderNewEditForm isEdit={isEdit} staff={staff} currentAppointment={currentAppointment} range={range} selectedTab={value} onCancel={onCancel}/>
             </TabPanel>
           <TabPanel value="block">
-            <BlockNewEditForm isEdit={isEdit} staff={staff} range={range} currentAppointment={currentAppointment} selectedTab={value}/>
+            <BlockNewEditForm isEdit={isEdit} staff={staff} range={range} currentAppointment={currentAppointment} selectedTab={value} onCancel={onCancel}/>
           </TabPanel>
       </TabContext> }
       {isEdit && currentAppointment && renderForm()}

@@ -153,6 +153,14 @@ export default function Router() {
           ],
         },
         {
+          path: 'notes',
+          children: [
+            { element: <Navigate to="/dashboard/notes" replace />, index: true },
+            { path: ':id/:name/new', element: <NotesNewEditForm /> },
+            { path: ':id/edit', element: <NotesNewEditForm /> },
+          ],
+        },
+        {
           path: 'prescription',
           children: [
             { element: <Navigate to="/dashboard/prescription" replace />, index: true },
@@ -304,6 +312,7 @@ const PracticeStaff = Loadable(lazy(() => import('../pages/dashboard/PracticeSta
 const LabOrders = Loadable(lazy(() => import('../pages/dashboard/LabOrders')));
 const LabsCreate = Loadable(lazy(() => import('../pages/dashboard/LabsCreate')));
 const TreatmentPlanCart = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/checkout/TreatmentPlanCart')));
+const NotesNewEditForm = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/NotesNewEditForm')));
 const PrescriptionCart = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/checkout/PrescriptionCart')));
 
 const MLCNewEditForm = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/MLCNewEditForm')));

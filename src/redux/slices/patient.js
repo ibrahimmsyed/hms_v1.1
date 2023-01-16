@@ -20,7 +20,8 @@ const initialState = {
   patientHistory: [],
   treatmentPlan: [],
   prescriptions: [],
-  medicalCertificate: []
+  medicalCertificate: [],
+  clinicalNotes: []
 };
 
 const slice = createSlice({
@@ -114,6 +115,18 @@ const slice = createSlice({
     removeMedicalCertificate(state, action) {
       state.isLoading = false;
       state.medicalCertificate = state.medicalCertificate.filter(plan => plan.id !== action.payload)
+    },
+    setClinicalNotes(state, action) {
+      state.isLoading = false;
+      state.clinicalNotes = action.payload;
+    },
+    updateClinicalNotes(state, action) {
+      state.isLoading = false;
+      state.clinicalNotes = [...state.clinicalNotes, action.payload]
+    },
+    removeClinicalNotes(state, action) {
+      state.isLoading = false;
+      state.clinicalNotes = state.clinicalNotes.filter(plan => plan.id !== action.payload)
     },
   },
 });
@@ -475,6 +488,60 @@ export function deleteMedicalCertificate(id) {
         }
       const response = await axios.delete(`http://localhost:8000/medicalcertificate/${id}/`, headers);
       dispatch(slice.actions.removeMedicalCertificate(id));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+/** ******************************************************** */
+
+export function getClinicalNotes() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.get('http://localhost:8000/clinicalnotes/', headers);
+      dispatch(slice.actions.setClinicalNotes(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function addClinicalNotes(plan) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.post('http://localhost:8000/clinicalnotes/', plan, headers);
+      dispatch(slice.actions.updateClinicalNotes(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function deleteClinicalNotes(id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.delete(`http://localhost:8000/clinicalnotes/${id}/`, headers);
+      dispatch(slice.actions.removeClinicalNotes(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

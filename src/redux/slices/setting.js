@@ -16,6 +16,7 @@ const initialState = {
   isLoading: false,
   error: null,
   inventory: [],
+  notes: []
 };
 
 const slice = createSlice({
@@ -49,6 +50,18 @@ const slice = createSlice({
       state.isLoading = false;
       state.inventory = state.inventory.filter(item => item.id !== action.payload)
     },
+    setNotes(state, action) {
+      state.isLoading = false;
+      state.notes = action.payload;
+    },
+    updateNotes(state, action) {
+      state.isLoading = false;
+      state.notes = [...state.notes, action.payload]
+    },
+    removeNotes(state, action) {
+      state.isLoading = false;
+      state.notes = state.notes.filter(item => item.id !== action.payload)
+    },
   },
 });
 
@@ -60,7 +73,10 @@ export const {
     setInventory,
     setCurrentInventory,
     updateInventory,
-    removeInventory
+    removeInventory,
+    setNotes,
+    updateNotes,
+    removeNotes
 } = slice.actions;
 
 // ----------------------------------------------------------------------
@@ -151,4 +167,57 @@ export function deleteInventory(id) {
   };
 }
 
+/** NOTES ******************************************************** */
+
+export function getNotes() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.get('http://localhost:8000/notes/', headers);
+      dispatch(slice.actions.setNotes(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function addNotes(plan) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.post('http://localhost:8000/notes/', plan, headers);
+      dispatch(slice.actions.updateNotes(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function deleteNotes(id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.delete(`http://localhost:8000/notes/${id}/`, headers);
+      dispatch(slice.actions.removeNotes(id));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
 

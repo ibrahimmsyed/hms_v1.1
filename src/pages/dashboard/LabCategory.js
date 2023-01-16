@@ -43,6 +43,7 @@ import Scrollbar from '../../components/Scrollbar';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import { DialogAnimate } from '../../components/animate';
 import InputStyle from '../../components/InputStyle';
+import PatientsDialog from '../../components/PatientsDialog';
 import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } from '../../components/table';
 // sections
 import { LabsTableToolbar, LabOrdersTableRow } from '../../sections/@dashboard/user/list';
@@ -287,48 +288,24 @@ export default function LabOrders() {
         </Card>
       </Container>
       <DialogAnimate fullWidth maxWidth="md" open={isOpen} onClose={onClose}>
-        <Tabs
-            allowScrollButtonsMobile
-            variant="scrollable"
-            scrollButtons="auto"
-            value={filterStatus}
-            onChange={onChangeFilterStatus}
-            sx={{ px: 2, bgcolor: 'background.neutral' }}
-          >
-            {STATUS_OPTIONS.map((tab) => (
-              <Tab disableRipple key={tab} label={tab} value={tab} />
-            ))}
-        </Tabs>
-        <InputStyle
-          stretchStart={240}
-          value=""
-          onChange={(event) => findPatients(event.target.value)}
-          placeholder="Find patients..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon={'eva:search-fill'} sx={{ color: 'text.disabled', width: 20, height: 20 }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ my: 1 }}
-        />
-        <Box
-          sx={{
-            display: 'grid',
-            gap: 3,
-            gridTemplateColumns: {
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
-              md: 'repeat(3, 1fr)',
-            },
-            m: 2
-          }}
-        >
-          {_userCards.map((user) => (
-            <PatientCard key={user.id} user={user} isSearch/>
-          ))}
-        </Box>
+        <IconButton
+            size="small"
+            onClick={() => handleClose()}
+            sx={{
+                top: 6,
+                p: '2px',
+                right: 6,
+                position: 'absolute',
+                color: 'common.white',
+                bgcolor: (theme) => alpha(theme.palette.grey[900], 0.72),
+                '&:hover': {
+                bgcolor: (theme) => alpha(theme.palette.grey[900], 0.48),
+                },
+            }}
+            >
+            <Iconify icon={'eva:close-fill'} />
+        </IconButton>
+        <PatientsDialog patients={patients} url={url}/>
       </DialogAnimate>
     </Page>
   );

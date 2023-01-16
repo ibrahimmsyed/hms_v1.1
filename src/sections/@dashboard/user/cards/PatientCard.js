@@ -29,12 +29,12 @@ const OverlayStyle = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-UserCard.propTypes = {
+PatientCard.propTypes = {
   user: PropTypes.object.isRequired,
   isSearch: PropTypes.bool
 };
 
-export default function UserCard({ patient, isSearch, url }) {
+export default function PatientCard({ patient, isSearch, url }) {
   const { patientName, id, primaryMobNo, gender, dop, cover } = patient;
   const redirectLink = isSearch ? `${PATH_DASHBOARD[url].new(id, patientName)}` : `${PATH_DASHBOARD.patient.edit(id, patientName)}`
   return (
