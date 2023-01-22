@@ -12,6 +12,7 @@ import { Card, Stack } from '@mui/material';
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 // mock
 import { _invoiceAddressFrom } from '../../../../_mock';
+import useUsers from '../../../../hooks/useUsers';
 // components
 import { FormProvider } from '../../../../components/hook-form';
 //
@@ -26,7 +27,11 @@ InvoiceNewEditForm.propTypes = {
   currentInvoice: PropTypes.object,
 };
 
-export default function InvoiceNewEditForm({ isEdit, currentInvoice }) {
+export default function InvoiceNewEditForm({ isEdit, currentInvoice, appointment,  currentPatient}) {
+  const toAddress = currentPatient
+
+  const { practicedetails: fromAddress } = useUsers();
+
   const navigate = useNavigate();
 
   const [loadingSave, setLoadingSave] = useState(false);
@@ -41,7 +46,7 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice }) {
 
   const defaultValues = useMemo(
     () => ({
-      createDate: currentInvoice?.createDate || null,
+      createDate: currentInvoice?.createDate || new Date(),
       dueDate: currentInvoice?.dueDate || null,
       taxes: currentInvoice?.taxes || '',
       status: currentInvoice?.status || 'draft',
@@ -62,6 +67,7 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice }) {
   const {
     reset,
     watch,
+    setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
@@ -117,7 +123,7 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice }) {
   return (
     <FormProvider methods={methods}>
       <Card>
-        <InvoiceNewEditAddress />
+        <InvoiceNewEditAddress fromAddress={fromAddress} toAddress={toAddress}/>
         <InvoiceNewEditStatusDate />
         <InvoiceNewEditDetails />
       </Card>

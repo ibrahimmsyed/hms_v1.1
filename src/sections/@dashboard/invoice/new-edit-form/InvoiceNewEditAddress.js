@@ -15,7 +15,7 @@ import InvoiceAddressListDialog from './InvoiceAddressListDialog';
 
 // ----------------------------------------------------------------------
 
-export default function InvoiceNewEditAddress() {
+export default function InvoiceNewEditAddress({fromAddress, toAddress}) {
   const {
     watch,
     setValue,
@@ -45,9 +45,9 @@ export default function InvoiceNewEditAddress() {
             From:
           </Typography>
 
-          <Button size="small" startIcon={<Iconify icon="eva:edit-fill" />} onClick={onOpenFrom}>
+          {/* <Button size="small" startIcon={<Iconify icon="eva:edit-fill" />} onClick={onOpenFrom}>
             Change
-          </Button>
+          </Button> */}
 
           <InvoiceAddressListDialog
             open={openFrom}
@@ -58,7 +58,7 @@ export default function InvoiceNewEditAddress() {
           />
         </Stack>
 
-        <AddressInfo name={invoiceFrom.name} address={invoiceFrom.address} phone={invoiceFrom.phone} />
+        <AddressInfo address={fromAddress} />
       </Stack>
 
       <Stack sx={{ width: 1 }}>
@@ -67,13 +67,13 @@ export default function InvoiceNewEditAddress() {
             To:
           </Typography>
 
-          <Button
+          {/* <Button
             size="small"
             startIcon={<Iconify icon={invoiceTo ? 'eva:edit-fill' : 'eva:plus-fill'} />}
             onClick={onOpenTo}
           >
             {invoiceTo ? 'Change' : 'Add'}
-          </Button>
+          </Button> */}
 
           <InvoiceAddressListDialog
             open={openTo}
@@ -84,13 +84,15 @@ export default function InvoiceNewEditAddress() {
           />
         </Stack>
 
-        {invoiceTo ? (
-          <AddressInfo name={invoiceTo.name} address={invoiceTo.address} phone={invoiceTo.phone} />
+        <AddressInfo address={toAddress}  />
+
+        {/* {invoiceTo ? (
+          <AddressInfo address={toAddress}  />
         ) : (
           <Typography typography="caption" sx={{ color: 'error.main' }}>
             {errors.invoiceTo ? errors.invoiceTo.message : null}
           </Typography>
-        )}
+        )} */}
       </Stack>
     </Stack>
   );
@@ -99,19 +101,20 @@ export default function InvoiceNewEditAddress() {
 // ----------------------------------------------------------------------
 
 AddressInfo.propTypes = {
-  address: PropTypes.string,
-  name: PropTypes.string,
-  phone: PropTypes.string,
+  address: PropTypes.object,
 };
 
-function AddressInfo({ name, address, phone }) {
+function AddressInfo({address}) {
   return (
     <>
-      <Typography variant="subtitle2">{name}</Typography>
+      <Typography variant="subtitle2">{address.name} {address.patientName}</Typography>
       <Typography variant="body2" sx={{ mt: 1, mb: 0.5 }}>
-        {address}
+        {address.address} {address.street} {address.locality} <br/>
+        {address.city} - {address.zipcode} {address.pinCode}<br/>
+        {address.state} {address.primaryMobNo}<br/>
+        {address.country} {address.landlineNo}<br/>
       </Typography>
-      <Typography variant="body2">Phone: {phone}</Typography>
+      <Typography variant="body2">{address.phoneNumber} {address.secondaryMobNo}</Typography>
     </>
   );
 }
