@@ -37,7 +37,7 @@ export default function InvoiceNewEditDetails() {
   });
 
   const values = watch();
-  const total = values.items.reduce((n, {price, quantity}) => n + (quantity * price), 0)
+  const total = values.items.reduce((n, {price, quantity}) => n + (quantity * price), 0)  + values.taxes - values.discount
   
 
   useEffect(()=> {

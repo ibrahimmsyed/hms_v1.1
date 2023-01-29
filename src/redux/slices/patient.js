@@ -21,7 +21,8 @@ const initialState = {
   treatmentPlan: [],
   prescriptions: [],
   medicalCertificate: [],
-  clinicalNotes: []
+  clinicalNotes: [],
+  invoice: []
 };
 
 const slice = createSlice({
@@ -127,6 +128,18 @@ const slice = createSlice({
     removeClinicalNotes(state, action) {
       state.isLoading = false;
       state.clinicalNotes = state.clinicalNotes.filter(plan => plan.id !== action.payload)
+    },
+    setInvoice(state, action) {
+      state.isLoading = false;
+      state.invoice = action.payload;
+    },
+    updateInvoice(state, action) {
+      state.isLoading = false;
+      state.invoice = [...state.invoice, action.payload]
+    },
+    removeInvoice(state, action) {
+      state.isLoading = false;
+      state.invoice = state.invoice.filter(plan => plan.id !== action.payload)
     },
   },
 });
@@ -542,6 +555,60 @@ export function deleteClinicalNotes(id) {
         }
       const response = await axios.delete(`http://localhost:8000/clinicalnotes/${id}/`, headers);
       dispatch(slice.actions.removeClinicalNotes(id));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+/** *****************Invoice************************** */
+
+export function getInvoice() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.get('http://localhost:8000/invoice/', headers);
+      dispatch(slice.actions.setInvoice(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function addInvoice(plan) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.post('http://localhost:8000/invoice/', plan, headers);
+      dispatch(slice.actions.updateInvoice(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function deleteInvoice(id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.delete(`http://localhost:8000/invoice/${id}/`, headers);
+      dispatch(slice.actions.removeInvoice(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
