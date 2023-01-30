@@ -1,5 +1,5 @@
 import sumBy from 'lodash/sumBy';
-import { useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // @mui
 import { useTheme } from '@mui/material/styles';
@@ -21,12 +21,16 @@ import {
   TablePagination,
   FormControlLabel,
 } from '@mui/material';
+//
+import { getInvoice } from '../../redux/slices/patient';
+import { useDispatch, useSelector } from '../../redux/store';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
 import useTabs from '../../hooks/useTabs';
 import useSettings from '../../hooks/useSettings';
 import useTable, { getComparator, emptyRows } from '../../hooks/useTable';
+import useUsers from '../../hooks/useUsers';
 // _mock_
 import { _invoices } from '../../_mock';
 // components
@@ -40,6 +44,7 @@ import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } fr
 import InvoiceAnalytic from '../../sections/@dashboard/invoice/InvoiceAnalytic';
 import { InvoiceTableRow, InvoiceTableToolbar } from '../../sections/@dashboard/invoice/list';
 
+
 // ----------------------------------------------------------------------
 
 const SERVICE_OPTIONS = [
@@ -52,13 +57,13 @@ const SERVICE_OPTIONS = [
 ];
 
 const TABLE_HEAD = [
+  { id: 'check' },
   { id: 'invoiceNumber', label: 'Client', align: 'left' },
   { id: 'createDate', label: 'Create', align: 'left' },
   { id: 'dueDate', label: 'Due', align: 'left' },
   { id: 'price', label: 'Amount', align: 'center', width: 140 },
-  { id: 'sent', label: 'Sent', align: 'center', width: 140 },
   { id: 'status', label: 'Status', align: 'left' },
-  { id: '' },
+  { id: 'action' },
 ];
 
 // ----------------------------------------------------------------------
@@ -66,9 +71,13 @@ const TABLE_HEAD = [
 export default function InvoiceList() {
   const theme = useTheme();
 
+  const dispatch = useDispatch();
+
   const { themeStretch } = useSettings();
 
   const navigate = useNavigate();
+
+  const { patients } = useUsers();
 
   const {
     dense,
@@ -88,6 +97,22 @@ export default function InvoiceList() {
     onChangePage,
     onChangeRowsPerPage,
   } = useTable({ defaultOrderBy: 'createDate' });
+
+  useEffect(() => {
+    dispatch(getInvoice());
+  },[dispatch])
+
+  const { invoice } = useSelector((state) => state.patient);
+
+  useEffect(() => {
+    console.log('_invoices' ,_invoices)
+    let clonedInv = [...invoice]
+    clonedInv = clonedInv.map(item => {
+      return {...item, items : JSON.parse(item.items), invoiceTo: patients?.find((user) => Number(user.patientId) === Number(item.invoiceTo))}
+    })
+    console.log('invoice' ,clonedInv)
+    setTableData(clonedInv)
+  },[invoice])
 
   const [tableData, setTableData] = useState(_invoices);
 
@@ -154,7 +179,7 @@ export default function InvoiceList() {
   const getTotalPriceByStatus = (status) =>
     sumBy(
       tableData.filter((item) => item.status === status),
-      'totalPrice'
+      'grandTotal'
     );
 
   const getPercentByStatus = (status) => (getLengthByStatus(status) / tableData.length) * 100;
@@ -200,7 +225,7 @@ export default function InvoiceList() {
                 title="Total"
                 total={tableData.length}
                 percent={100}
-                price={sumBy(tableData, 'totalPrice')}
+                price={sumBy(tableData, 'grandTotal')}
                 icon="ic:round-receipt"
                 color={theme.palette.info.main}
               />
@@ -249,10 +274,10 @@ export default function InvoiceList() {
             onChange={onFilterStatus}
             sx={{ px: 2, bgcolor: 'background.neutral' }}
           >
-            {TABS.map((tab) => (
+            {TABS.map((tab, i) => (
               <Tab
                 disableRipple
-                key={tab.value}
+                key={i}
                 value={tab.value}
                 label={
                   <Stack spacing={1} direction="row" alignItems="center">
@@ -341,9 +366,9 @@ export default function InvoiceList() {
                 />
 
                 <TableBody>
-                  {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                  {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, i) => (
                     <InvoiceTableRow
-                      key={row.id}
+                      key={i}
                       row={row}
                       selected={selected.includes(row.id)}
                       onSelectRow={() => onSelectRow(row.id)}
@@ -408,8 +433,8 @@ function applySortFilter({
   if (filterName) {
     tableData = tableData.filter(
       (item) =>
-        item.invoiceNumber.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 ||
-        item.invoiceTo.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
+        item.invoiceId.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 ||
+        item.invoiceTo.patientName.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
     );
   }
 
@@ -424,7 +449,7 @@ function applySortFilter({
   if (filterStartDate && filterEndDate) {
     tableData = tableData.filter(
       (item) =>
-        item.createDate.getTime() >= filterStartDate.getTime() && item.createDate.getTime() <= filterEndDate.getTime()
+        new Date(item.createDate).getTime() >= filterStartDate.getTime() && new Date(item.createDate).getTime() <= filterEndDate.getTime()
     );
   }
 
