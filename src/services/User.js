@@ -92,7 +92,7 @@ class UserApiService extends EventEmitter {
                 email: user.email,
                 registration_number: user.registrationNumber,
                 calendar_color: user.calendarColor,
-                display_picture: user.avatarUrl.preview,
+                display_picture: user.display_picture.preview,
                 phone_number: user.phoneNumber,
                 is_staff: user.isStaff,
                 is_active: user.isActive,

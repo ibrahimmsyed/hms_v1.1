@@ -36,7 +36,7 @@ import useSettings from '../../hooks/useSettings';
 import useTable, { getComparator, emptyRows } from '../../hooks/useTable';
 // _mock_
 import { useDispatch, useSelector } from '../../redux/store';
-import { getUsersDetails } from '../../redux/slices/user';
+import { getUsers } from '../../redux/slices/user';
 import { _userList } from '../../_mock';
 // components
 import Page from '../../components/Page';
@@ -76,6 +76,7 @@ export default function PracticeStaff() {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const { user: _userList } = useUsers();
+  const { users } = useSelector((state) => state.user);
   
   const {
     dense,
@@ -97,8 +98,12 @@ export default function PracticeStaff() {
   } = useTable();
 
   useEffect(() => {
-    if(_userList) {setTableData(_userList)}
-  }, [_userList])
+    dispatch(getUsers());
+  }, [dispatch])
+
+  useEffect(() => {
+    if(users) {setTableData(users)}
+  }, [users])
 
   const { themeStretch } = useSettings();
 
@@ -147,8 +152,8 @@ export default function PracticeStaff() {
     // setTableData(deleteRows);
   };
 
-  const handleEditRow = (username) => {
-    navigate(PATH_DASHBOARD.user.edit(paramCase(username)));
+  const handleEditRow = (id, name) => {
+    navigate(PATH_DASHBOARD.user.edit(id));
   };
 
   const dataFiltered = applySortFilter({
@@ -258,7 +263,7 @@ export default function PracticeStaff() {
                       selected={selected.includes(row.id)}
                       onSelectRow={() => onSelectRow(row.id)}
                       onDeleteRow={() => openDialog(row.id)}
-                      onEditRow={() => handleEditRow(row.username)}
+                      onEditRow={() => handleEditRow(row.id, row.username)}
                     />
                   ))}
 
@@ -316,26 +321,26 @@ function applySortFilter({ tableData, comparator, filterName, filterStatus, filt
   tableData = stabilizedThis.map((el) => el[0]);
 
   if (filterName) {
-    tableData = tableData.filter((item) => (`${item.firstName} ${item.lastName}`).toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
+    tableData = tableData.filter((item) => (`${item.first_name} ${item.last_name}`).toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
   }
 
   if (filterStatus !== 'all') {
-    tableData = filterStatus === 'active' ? tableData.filter((item) => item.isActive) : tableData.filter((item) => !item.isActive);
+    tableData = filterStatus === 'active' ? tableData.filter((item) => item.is_active) : tableData.filter((item) => !item.is_active);
   }
 
   if (filterRole !== 'all') {
     switch(filterRole){
       case 'front office':
-        tableData = tableData.filter((item) => item.isFrontOffice);
+        tableData = tableData.filter((item) => item.is_front_office);
         break;
       case 'back office':
-        tableData = tableData.filter((item) => item.isBackOffice);
+        tableData = tableData.filter((item) => item.is_back_office);
         break;
       case 'doctor':
-        tableData = tableData.filter((item) => item.isStaff);
+        tableData = tableData.filter((item) => item.is_staff);
         break;
       default:
-        tableData = tableData.filter((item) => item.isSuperuser);
+        tableData = tableData.filter((item) => item.is_superuser);
         break
     }
   }

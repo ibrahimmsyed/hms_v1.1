@@ -121,7 +121,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+        <Grid>
           <Card sx={{ p: 3 }}>
             <Box
               sx={{
@@ -159,21 +159,13 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
             </Stack>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+        {/* <Grid item xs={12} md={4}>
           <Card sx={{ py: 10, px: 3 }}>
-            {isEdit && (
-              <Label
-                color={values.status !== 'active' ? 'error' : 'success'}
-                sx={{ textTransform: 'uppercase', position: 'absolute', top: 24, right: 24 }}
-              >
-                {values.status}
-              </Label>
-            )}
-
             <Box sx={{ mb: 5 }}>
               <RHFUploadAvatar
                 name="logo"
                 accept="image/*"
+                file={values.logo}
                 maxSize={3145728}
                 onDrop={handleDrop}
                 helperText={
@@ -194,7 +186,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
               />
             </Box>
           </Card>
-        </Grid>
+        </Grid> */}
       </Grid>
     </FormProvider>
   );

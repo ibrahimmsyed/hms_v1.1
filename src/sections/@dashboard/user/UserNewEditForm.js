@@ -6,11 +6,14 @@ import { useNavigate } from 'react-router-dom';
 // form
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+//
 // @mui
 import { LoadingButton } from '@mui/lab';
 import { Box, Card, Grid, Stack, Switch, Typography, FormControlLabel } from '@mui/material';
 // utils
 import { fData } from '../../../utils/formatNumber';
+import { useDispatch, useSelector } from '../../../redux/store';
+import { addUser, updateUser } from '../../../redux/slices/user';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // _mock
@@ -30,6 +33,7 @@ UserNewEditForm.propTypes = {
 
 export default function UserNewEditForm({ isEdit, currentUser }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const userApiService = new UserApiService();
   const { setUserDetails } = useUsers();
   const { enqueueSnackbar } = useSnackbar();
@@ -55,7 +59,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     registrationNumber: Yup.string().required('registrationNumber is required'),
     calendarColor: Yup.string().required('calendarColor is required'),
     userRole: Yup.string().required('userRole is required'),
-    avatarUrl: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
+    displayPicture: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
     newPassword: Yup.string().min(6, 'Password must be at least 6 characters').required('New Password is required'),
     confirmNewPassword: Yup.string().oneOf([Yup.ref('newPassword'), null], 'Passwords must match'),
   });
@@ -69,7 +73,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     registrationNumber: Yup.string().required('registrationNumber is required'),
     calendarColor: Yup.string().required('calendarColor is required'),
     userRole: Yup.string().required('userRole is required'),
-    avatarUrl: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
+    displayPicture: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
   });
 
   const userRole = [
@@ -108,7 +112,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
       lastName: currentUser?.lastName || '',
       registrationNumber: currentUser?.registrationNumber || '',
       calendarColor: currentUser?.calendarColor || '',
-      avatarUrl: currentUser?.avatarUrl || '',
+      displayPicture: currentUser?.displayPicture || '',
       isActive: currentUser?.isActive || true,
       userRole: currentUser?.userRole || '',
       isSuperuser: currentUser?.isSuperuser || false,
@@ -149,9 +153,11 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     try {
       data = await handleUserRole(data)
       if (data){
-        const response = isEdit ? await userApiService.updateUser(data, currentUser.id) : await userApiService.createUser(data)
-        setUserDetails(response)
-        reset();
+        if(isEdit){
+          dispatch(updateUser(data, currentUser.id))  
+        }else{
+          dispatch(addUser(data))  
+        }
         enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
         navigate(PATH_DASHBOARD.settings.practicestaff);
       }
@@ -185,7 +191,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
 
       if (file) {
         setValue(
-          'avatarUrl',
+          'displayPicture',
           Object.assign(file, {
             preview: URL.createObjectURL(file),
           })
@@ -202,18 +208,19 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
           <Card sx={{ py: 10, px: 3 }}>
             {isEdit && (
               <Label
-                color={!currentUser.isActive ? 'error' : 'success'}
+                color={!currentUser?.isActive ? 'error' : 'success'}
                 sx={{ textTransform: 'uppercase', position: 'absolute', top: 24, right: 24 }}
               >
-                {currentUser.isActive ? 'Active':'Not Active'}
+                {currentUser?.isActive ? 'Active':'Not Active'}
               </Label>
             )}
 
             <Box sx={{ mb: 5 }}>
               <RHFUploadAvatar
-                name="avatarUrl"
+                name="displayPicture"
                 accept="image/*"
                 maxSize={3145728}
+                file={values.displayPicture}
                 onDrop={handleDrop}
                 helperText={
                   <Typography
