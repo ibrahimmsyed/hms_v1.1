@@ -13,7 +13,7 @@ import { FormProvider, RHFTextField } from './hook-form';
 import InputStyle from './InputStyle';
 
 SingleFieldForm.propTypes = {
-  id: PropTypes.string,
+  id: PropTypes.number,
 };
 
 export default function SingleFieldForm({ id, parentId, onSubSubmit }) {
@@ -30,7 +30,7 @@ export default function SingleFieldForm({ id, parentId, onSubSubmit }) {
 
   const NewSubCategorySchema = Yup.object().shape({
     categoryId: Yup.string().required('This field is required'),
-    parentId: Yup.string().required('This field is required'),
+    // parentId: Yup.string().required('This field is required'),
   });
 
   const subDefaultValues = useMemo(

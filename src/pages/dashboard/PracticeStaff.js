@@ -36,7 +36,7 @@ import useSettings from '../../hooks/useSettings';
 import useTable, { getComparator, emptyRows } from '../../hooks/useTable';
 // _mock_
 import { useDispatch, useSelector } from '../../redux/store';
-import { getUsers } from '../../redux/slices/user';
+import { getUsers, deleteUser } from '../../redux/slices/user';
 import { _userList } from '../../_mock';
 // components
 import Page from '../../components/Page';
@@ -135,11 +135,11 @@ export default function PracticeStaff() {
 
   const handleDeleteRow = () => {
     console.log(id)
-    const response = userApiService.deleteUser(id)
+    dispatch(deleteUser(id));
     enqueueSnackbar('Deleted successfully');
-    const deleteRow = tableData.filter((row) => row.id !== id);
-    setSelected([]);
-    setTableData(deleteRow);
+    // const deleteRow = tableData.filter((row) => row.id !== id);
+    // setSelected([]);
+    // setTableData(deleteRow);
     setOpen(false);
   };
   const handleClose = (value: string) => {
@@ -294,14 +294,14 @@ export default function PracticeStaff() {
           </Box>
         </Card>
         <DialogAnimate maxWidth={false}  open={open} onClose={handleClose} sx={{maxWidth: 860}}>
-        <DialogActions sx={{ py: 2, px: 3 }}>
-          <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
-            You are deleting the user. Once deleted you can't retrieve.
-            Please confirm.
-          </Typography>
-          <Button onClick={handleDeleteRow} variant="contained">Confirm</Button>
-          <Button onClick={handleClose}>Cancel</Button>
-        </DialogActions>          
+          <DialogActions sx={{ py: 2, px: 3 }}>
+            <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+              You are deleting the user. Once deleted you can't retrieve.
+              Please confirm.
+            </Typography>
+            <Button onClick={handleDeleteRow} variant="contained">Confirm</Button>
+            <Button onClick={handleClose}>Cancel</Button>
+          </DialogActions>          
         </DialogAnimate>
       </Container>
     </Page>

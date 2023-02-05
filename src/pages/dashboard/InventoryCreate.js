@@ -26,6 +26,7 @@ export default function InventoryCreate() {
   const { currentInventory } = useSelector((state) => state.setting);
   const dispatch = useDispatch();
   useEffect(() => {
+    if(id)
     dispatch(getInventory(id));
   },[dispatch])
   

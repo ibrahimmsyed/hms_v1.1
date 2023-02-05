@@ -258,7 +258,7 @@ export function updateLabWorks(data, id) {
     }
   };
 }
-export function deleteLabWorks(data, id) {
+export function deleteLabWorks(id) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
@@ -268,7 +268,7 @@ export function deleteLabWorks(data, id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/labcategory/${id}/`, data, headers);
+      const response = await axios.delete(`http://localhost:8000/labcategory/${id}/`, headers);
       dispatch(slice.actions.removeLabWork(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));

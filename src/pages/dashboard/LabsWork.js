@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState, SyntheticEvent } from 'react
 import * as Yup from 'yup';
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Container, Box, Card, Grid, Stack, Switch, Typography, FormControlLabel, TextField, TableContainer, Table, TableBody, InputAdornment, Checkbox, Button, Avatar, Accordion, AccordionSummary, AccordionDetails, MenuList, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Container, Box, Card, Grid, Stack, Switch, Typography, FormControlLabel, TextField, TableContainer, Table, TableBody, InputAdornment, Checkbox, Button, Avatar, Accordion, AccordionSummary, AccordionDetails, MenuList, MenuItem, ListItemIcon, ListItemText, IconButton, DialogActions } from '@mui/material';
 // form
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -24,8 +24,10 @@ import Scrollbar from '../../components/Scrollbar';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import { FormProvider, RHFTextField } from '../../components/hook-form';
 import InputStyle from '../../components/InputStyle';
+import ConfirmationDialog from '../../components/ConfirmationDialog';
+import { DialogAnimate } from '../../components/animate';
 
-import lab, { getAllLabWork, addLabWorks } from '../../redux/slices/lab';
+import lab, { getAllLabWork, addLabWorks, deleteLabWorks } from '../../redux/slices/lab';
 import { useDispatch, useSelector } from '../../redux/store';
 // sections
 import LabsNewEditForm from '../../sections/@dashboard/user/LabsNewEditForm';
@@ -33,9 +35,12 @@ import LabsNewEditForm from '../../sections/@dashboard/user/LabsNewEditForm';
 // ----------------------------------------------------------------------
 
 export default function LabsWork() {
+  
   const { themeStretch } = useSettings();
 
   const { pathname } = useLocation();
+
+  const value = 'Work'
 
   const { name = '' } = useParams();
 
@@ -44,6 +49,10 @@ export default function LabsWork() {
   const [expanded, setExpanded] = useState('panel1');
 
   const [labTreatments, setLabTreatments] = useState([]);
+
+  const [open, setOpen] = useState(false);
+
+  const [deletingId, setDeletingId] = useState()
 
   const dispatch = useDispatch();
 
@@ -125,7 +134,9 @@ export default function LabsWork() {
   } = subMethods;
 
   
-
+  const handleClose = (value: string) => {
+    setOpen(false);
+  };
 
 
   const cookArrayForView = (labworks) => {
@@ -167,6 +178,7 @@ export default function LabsWork() {
         "title": data.parentId
       }
       dispatch(addLabWorks(payload));
+      enqueueSnackbar('Added successfully');
       reset(defaultValues);
       console.log(data)
     } catch (error) {
@@ -190,6 +202,20 @@ export default function LabsWork() {
 
   const handleToggle = () => {
     setShowAddForm(!showAddForm)
+  }
+
+  const onDeleteRow = (e, id) => {
+    setOpen(true)
+    setDeletingId(id)
+    console.log(id)
+    // e.stopPropagation();
+  }
+
+  const handleDeleteRow = () => {
+    dispatch(deleteLabWorks(deletingId))
+    enqueueSnackbar('Deleted successfully');
+    setOpen(false)
+    console.log(deletingId)
   }
 
   return (
@@ -235,36 +261,28 @@ export default function LabsWork() {
                 <AccordionSummary
                   expandIcon={<Iconify icon={'eva:arrow-ios-downward-fill'} width={20} height={20} />}
                 >
-                  <Typography variant="subtitle1">{accordion.title}</Typography>
+                  <Typography variant="subtitle1">{accordion.title} - 
+                    <IconButton color="primary" onClick={(e) => onDeleteRow(e, accordion.id)}>
+                      <Iconify icon={'eva:trash-2-outline'} />
+                    </IconButton>
+                  </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                 <MenuList>
                 {accordion.treatments.map((treatment) => (
-                  <MenuItem key={treatment.id}>
-                    <ListItemText>{treatment.title}</ListItemText>
+                  <MenuItem key={treatment.id} onKeyDown={(e) => e.stopPropagation()}>
+                    <ListItemText>{treatment.title}
+                      <IconButton color="primary" onClick={(e) => onDeleteRow(e, treatment.id)}>
+                        <Iconify icon={'eva:close-outline'} />
+                      </IconButton>
+                    </ListItemText>
                   </MenuItem>
                 ))}
-                  <MenuItem onClick={(e) => { handleMenuChange(e, accordion.id);}}>
+                  {/* <MenuItem onClick={(e) => { handleMenuChange(e, accordion.id);}}>
                     <ListItemText>+ Add New Item</ListItemText>
-                  </MenuItem>
-                  <MenuItem>
-                  <SingleFieldForm onSubSubmit={onSubSubmit} id={accordion.id} parentId={accordion.categoryID}/>
-                    {/* {accordion.showForm && (<FormProvider methods={subMethods} onSubmit={handleSubSubmit(onSubSubmit)}>
-                      <Box
-                        sx={{
-                          p:5,
-                          display: 'grid',
-                          columnGap: 1,
-                          rowGap: 1,
-                          gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(2, 1fr)' },
-                        }}
-                      >
-                        <RHFTextField name={`categoryId-${accordion.title.replace(' ','-').toLowerCase()}`} label="New Sub Work" />
-                        <LoadingButton type="submit" variant="contained" loading={isSubSubmitting}>
-                          Save
-                        </LoadingButton>
-                      </Box>
-                    </FormProvider>)} */}
+                  </MenuItem> */}
+                  <MenuItem onKeyDown={(e) => e.stopPropagation()}>
+                    <SingleFieldForm onSubSubmit={onSubSubmit} id={accordion.id} parentId={accordion.categoryID}/>
                   </MenuItem>
                 </MenuList>
                 </AccordionDetails>
@@ -272,6 +290,17 @@ export default function LabsWork() {
             ))}
           </Scrollbar>
       </Container>
+      {/* <ConfirmationDialog openDialog={openDialog} value={value} handleDeleteRow={handleDeleteRow} /> */}
+        <DialogAnimate maxWidth={false}  open={open} onClose={handleClose} sx={{maxWidth: 860}}>
+          <DialogActions sx={{ py: 2, px: 3 }}>
+            <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+              You are deleting the user. Once deleted you can't retrieve.
+              Please confirm.
+            </Typography>
+            <Button onClick={handleDeleteRow} variant="contained">Confirm</Button>
+            <Button onClick={handleClose}>Cancel</Button>
+          </DialogActions>          
+        </DialogAnimate>
     </Page>
   );
 }

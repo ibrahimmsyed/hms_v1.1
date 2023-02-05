@@ -174,7 +174,7 @@ export function deleteUser(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/practicestaff/${id}/`, headers);
+      const response = await axios.delete(`http://localhost:8000/deleteuser/${id}/`, headers);
       dispatch(slice.actions.removeUsers(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
