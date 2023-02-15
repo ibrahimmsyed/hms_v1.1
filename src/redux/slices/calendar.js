@@ -31,14 +31,20 @@ const slice = createSlice({
       state.error = action.payload;
     },
 
-    setCalendarEvent(state, action) {
+    getCalendarEventsSuccess(state, action) {
       state.isLoading = false;
       state.calendarEvents = action.payload;
     },
 
-    updateCalendarEvents(state, action) {
+    setCalendarEvents(state, action) {
       state.isLoading = false;
       state.calendarEvents = [...state.calendarEvents, action.payload]
+    },
+
+    modifyCalendarEvents(state, action) {
+      state.isLoading = false;
+      state.calendarEvents = state.calendarEvents.map((item) => item.id === action?.payload?.id ? action.payload : item);
+      // state.calendarEvents = [...state.calendarEvents, action.payload]
     },
 
     removeCalendarEvents(state, action) {
@@ -201,7 +207,7 @@ export function getCalendarEvents() {
             }
         }
       const response = await axios.get('http://localhost:8000/eventcalendar/', headers);
-      dispatch(slice.actions.setCalendarEvent(response.data));
+      dispatch(slice.actions.getCalendarEventsSuccess(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -218,7 +224,7 @@ export function addCalendarEvents(plan) {
             }
         }
       const response = await axios.post('http://localhost:8000/eventcalendar/', plan, headers);
-      dispatch(slice.actions.updateCalendarEvents(response.data));
+      dispatch(slice.actions.setCalendarEvents(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -236,6 +242,23 @@ export function deleteCalendarEvents(id) {
         }
       const response = await axios.delete(`http://localhost:8000/eventcalendar/${id}/`, headers);
       dispatch(slice.actions.removeCalendarEvents(id));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function updateCalendarEvents(data, id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.put(`http://localhost:8000/eventcalendar/${id}/`, data, headers);
+      dispatch(slice.actions.modifyCalendarEvents(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

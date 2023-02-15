@@ -229,7 +229,7 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
     setUser(_userList.filter(user => user.isStaff))
     setLabTreatments(cookArrayForView(labworks))
     setNewLabNames(labNames)
-    defaultValues.orderedBy = user?.[0]?.id
+    setValue('orderedBy', user?.[0]?.id)
   },[labworks, labNames, _userList])
 
   const cookArrayForView = (labworks) => {
@@ -274,7 +274,6 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
 
   const onSubmit = async (data) => {
     try {
-      
       const payload = {
         ...data,
         patientName: currentPatient.patientName,
@@ -290,6 +289,7 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
         reset();
       }
       enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
+      navigate(PATH_DASHBOARD.labs.orders);
     } catch (error) {
       console.error(error);
     }

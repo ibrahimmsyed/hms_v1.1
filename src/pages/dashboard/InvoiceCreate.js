@@ -37,7 +37,7 @@ export default function InvoiceCreate() {
 
   useEffect(() => {
     if(patients && appointment){
-      const patient = patients.find((user) => Number(user.patientId) === Number(appointment.patientId));
+      const patient = patients.find((user) => Number(user.id) === Number(appointment.patientId));
       setCurrentPatient(patient);
     }
   },[patients, appointment])

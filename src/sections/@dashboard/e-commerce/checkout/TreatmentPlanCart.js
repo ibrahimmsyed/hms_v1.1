@@ -15,7 +15,7 @@ import { Grid, Card, TextField, Button, Avatar, CardHeader, Typography, List, Li
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // redux
-import { addTreatmentPlan, getTreatmentPlan } from '../../../../redux/slices/patient';
+import { addProcedure, getProcedure } from '../../../../redux/slices/patient';
 import { addTreatmentPlans } from '../../../../redux/slices/lab';
 import { useDispatch, useSelector } from '../../../../redux/store';
 import {
@@ -46,7 +46,7 @@ export default function TreatmentPlanCart() {
 
   const { checkout } = useSelector((state) => state.product);
 
-  const { treatmentPlan } = useSelector((state) => state.patient);
+  const { procedure: treatmentPlan } = useSelector((state) => state.patient);
   
   const [procedure, setProcedure ] = useState([]) 
 
@@ -90,7 +90,7 @@ export default function TreatmentPlanCart() {
   const [user, setUser] = useState([])
 
   useEffect(() => {
-    dispatch(getTreatmentPlan());
+    dispatch(getProcedure());
   },[dispatch])
 
   useEffect(() => {
@@ -188,7 +188,7 @@ export default function TreatmentPlanCart() {
   const onSubmit = async (data) => {
     try {
       console.log(data)
-      dispatch(addTreatmentPlan(data))
+      dispatch(addProcedure(data))
       reset()
     } catch (error) {
       console.error(error);

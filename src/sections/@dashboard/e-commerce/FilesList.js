@@ -122,7 +122,7 @@ export default function FilesList({patient, fileLists, mlcLists}) {
           <Image
                 key={file.File_to_upload}
                 alt="large image"
-                src={mediaURL(file.File_to_upload)}
+                src={file.File_to_upload}
                 sx={{ width: 150, height: 200, borderRadius: 1.5, mr: 2 }}
                 // onClick={() => handleOpenLightbox(img)}
                 // sx={{ cursor: 'zoom-in' }}

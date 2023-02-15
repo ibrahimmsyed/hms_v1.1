@@ -105,7 +105,7 @@ function AppointmentItem({ appointment }) {
             }}
           >
             <Avatar
-              src={patient.dop}
+              src={patient?.dop}
               sx={{
                 mr: { xs: 2, sm: 0 },
                 mb: { sm: 2 },
@@ -115,11 +115,11 @@ function AppointmentItem({ appointment }) {
             />
             <div>
               <Typography variant="subtitle2" noWrap>
-                {patient.patientName}
+                {patient?.patientName}
               </Typography>
               <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
                 
-                {calculateAge(patient.dob)} / {patient.gender}
+                {calculateAge(patient?.dob)} / {patient?.gender}
               </Typography>
             </div>
           </Box>
@@ -235,7 +235,7 @@ function TreatmentPlanItem({ plan }) {
             }}
           >
             <Avatar
-              src={patient.dop}
+              src={patient?.dop}
               sx={{
                 mr: { xs: 2, sm: 0 },
                 mb: { sm: 2 },
@@ -245,11 +245,11 @@ function TreatmentPlanItem({ plan }) {
             />
             <div>
               <Typography variant="subtitle2" noWrap>
-                {patient.patientName}
+                {patient?.patientName}
               </Typography>
               <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
                 
-                {patient.dob} / {patient.gender}
+                {patient?.dob} / {patient?.gender}
               </Typography>
             </div>
           </Box>
@@ -261,17 +261,17 @@ function TreatmentPlanItem({ plan }) {
               />
               <TableBody>
                 <TableRow>
-                  <TableCell align="left">{procedure.procedureName}</TableCell>
+                  <TableCell align="left">{procedure?.procedureName}</TableCell>
 
-                  <TableCell align="left">₹ {procedure.cost}</TableCell>
+                  <TableCell align="left">₹ {procedure?.cost}</TableCell>
 
-                  <TableCell align="center">{procedure.discount} %</TableCell>
+                  <TableCell align="center">{procedure?.discount} %</TableCell>
 
                   <TableCell align="center">
-                  ₹ {procedure.total}
+                  ₹ {procedure?.total}
                   </TableCell>
                   <TableCell align="right">
-                  {procedure.notes}
+                  {procedure?.notes}
                   </TableCell>
                 </TableRow>
               </TableBody>

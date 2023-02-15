@@ -6,7 +6,7 @@ import { Box, Stack, Button, Divider, Typography, InputAdornment, MenuItem } fro
 // utils
 import { fNumber } from '../../../../utils/formatNumber';
 import { useDispatch, useSelector } from '../../../../redux/store';
-import { getTreatmentPlan } from '../../../../redux/slices/patient';
+import { getProcedure } from '../../../../redux/slices/patient';
 // components
 import Iconify from '../../../../components/Iconify';
 import { RHFSelect, RHFTextField } from '../../../../components/hook-form';
@@ -25,10 +25,10 @@ export default function InvoiceNewEditDetails() {
   const { control, setValue, watch } = useFormContext();
   const dispatch = useDispatch();
 
-  const { treatmentPlan } = useSelector((state) => state.patient);
+  const { procedure } = useSelector((state) => state.patient);
 
   useEffect(() => {
-    dispatch(getTreatmentPlan());
+    dispatch(getProcedure());
   },[dispatch])
 
   const { fields, append, remove } = useFieldArray({
@@ -61,7 +61,7 @@ export default function InvoiceNewEditDetails() {
 
   const onServiceChange = (value, i) => {
     setValue(`items[${i}].service`, value)
-    setValue(`items[${i}].price`, Number(treatmentPlan.filter(plan => plan.id === value)[0].cost))
+    setValue(`items[${i}].price`, Number(procedure.filter(plan => plan.id === value)[0].cost))
     console.log(value)
   }
 
@@ -111,7 +111,7 @@ export default function InvoiceNewEditDetails() {
                   None
                 </MenuItem>
                 <Divider />
-                {treatmentPlan.map((option) => (
+                {procedure.map((option) => (
                   <MenuItem
                     key={option.id}
                     value={option.id}

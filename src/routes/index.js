@@ -99,20 +99,23 @@ export default function Router() {
           path: 'patient',
           children: [
             { element: <Navigate to="/dashboard/patient/profile" replace />, index: true },
-            { path: 'profile', element: <PatientCards /> },
-            { path: 'appointments', element: <UserCards /> },
+            /* { path: 'profile', element: <PatientCards /> }, */
+            { path: 'profile/:id/selected', element: <PatientCards /> },
+            { path: ':tab/:id', element: <PatientCards /> },
+            { path: ':tab', element: <PatientCards /> },
+            /* { path: 'appointments', element: <UserCards /> }, */
             { path: 'appointments/new', element: <UserCards /> },
             { path: 'appointments/:id/edit', element: <UserCards /> },
-            { path: 'plans', element: <UserList /> },
+            /* { path: 'plans', element: <UserList /> }, */
             { path: 'plans/new', element: <TreatmentPlanCart /> },
             { path: 'plans/:id/edit', element: <TreatmentPlanCart /> },
             { path: 'prescriptions/new', element: <PrescriptionCart /> },
-            { path: 'files', element: <UserList /> },
+            /* { path: 'files', element: <UserList /> }, */
             { path: 'mlc/new', element: <MLCNewEditForm /> }, 
             { path: 'files/new', element: <FileNewEditForm /> },
             { path: 'mlc/:id/edit', element: <MLCNewEditForm /> },
-            { path: 'payments', element: <UserList /> },
-            { path: 'communication', element: <UserList /> },
+            /* { path: 'payments', element: <UserList /> }, */
+            /* { path: 'communication', element: <UserList /> }, */
             { path: 'new', element: <PatientCreate /> },
             { path: ':name/edit', element: <PatientCreate /> },
             { path: 'account', element: <UserAccount /> },

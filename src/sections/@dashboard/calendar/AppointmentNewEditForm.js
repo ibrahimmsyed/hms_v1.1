@@ -18,6 +18,7 @@ import { PATH_DASHBOARD } from '../../../routes/paths';
 import { ColorSinglePicker } from '../../../components/color-utils';
 // components
 import Iconify from '../../../components/Iconify';
+import { DialogAnimate } from '../../../components/animate';
 import {
   FormProvider,
   RHFSwitch,
@@ -28,7 +29,7 @@ import {
   RHFUploadMultiFile,
 } from '../../../components/hook-form';
 import { PatientSearch } from '../user/profile'
-import { addCalendarEvents } from '../../../redux/slices/calendar';
+import { addCalendarEvents, updateCalendarEvents, deleteCalendarEvents } from '../../../redux/slices/calendar';
 // ----------------------------------------------------------------------
 
 const LabelStyle = styled(Typography)(({ theme }) => ({
@@ -48,18 +49,24 @@ AppointmentNewEditForm.propTypes = {
   currentProduct: PropTypes.object,
 };
 
-export default function AppointmentNewEditForm({ isEdit, staff, currentAppointment, range, selectedTab, onCancel, handleDelete }) {
+export default function AppointmentNewEditForm({ isEdit, staff, currentAppointment, range, selectedTab, onCancel }) {
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const { treatmentPlan: procedure } = useSelector((state) => state.patient);
+  const { procedure } = useSelector((state) => state.patient);
 
   const [patient, setSelectedPatient] = useState({});
 
   const [isPatientFieldDirty, setIsPatientFieldDirty] = useState(false)
+
+  const [open, setOpen] = useState(false);
+
+  const handleClose = (value: string) => {
+    setOpen(false);
+  };
 
   useEffect(() => {
     if (isEdit && currentAppointment) {
@@ -114,17 +121,29 @@ export default function AppointmentNewEditForm({ isEdit, staff, currentAppointme
     try {
       data.tags = data.tags.toString()
       data.eventType = selectedTab
-      dispatch(addCalendarEvents(data))
-      /* if (event.id) {
+      if (isEdit) {
+        dispatch(updateCalendarEvents(data, currentAppointment.id))
         enqueueSnackbar('Update success!');
       } else {
+        dispatch(addCalendarEvents(data))
         enqueueSnackbar('Create success!');
-      } */
+      }
       // onCancel();
       // reset();
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleDeleteRow = () => {
+    onCancel();
+    dispatch(deleteCalendarEvents(currentAppointment.id))
+    enqueueSnackbar('Delete success!');
+    setOpen(false);
+  };
+
+  const handleDelete = async () => { 
+    setOpen(true);
   };
 
   const selectedPatient = (selected) => {
@@ -138,7 +157,7 @@ export default function AppointmentNewEditForm({ isEdit, staff, currentAppointme
       textColor: colorValue,
       doctor: doctorValue,
       patientName : selected.patientName,
-      patientId : selected.patientId,
+      patientId : selected.id,
       email : selected.email,
       mobileNo : selected.primaryMobNo
     }
@@ -269,23 +288,23 @@ export default function AppointmentNewEditForm({ isEdit, staff, currentAppointme
               </Box>
               
               <DialogActions>
-                {!isCreating && (
+                {isEdit && (
                   <Tooltip title="Delete Event">
                     <IconButton onClick={handleDelete}>
                       <Iconify icon="eva:trash-2-outline" width={20} height={20} />
                     </IconButton>
                   </Tooltip>
                 )}
-                {!isCreating && (
+                {isEdit && (
                   <Tooltip title="No Show">
                     <IconButton>
                       <Iconify icon="eva:person-delete-outline" width={20} height={20} />
                     </IconButton>
                   </Tooltip>
                 )}
-                {!isCreating && (
+                {isEdit && (
                   <Tooltip title="Collect Payment">
-                    <IconButton variant="subtitle2" component={RouterLink} to={PATH_DASHBOARD.invoice.new}>
+                    <IconButton variant="subtitle2" component={RouterLink} to={PATH_DASHBOARD.invoice.new(currentAppointment.id)}>
                       <Iconify icon="eva:credit-card-outline" width={20} height={20} />
                     </IconButton>
                   </Tooltip>
@@ -297,9 +316,19 @@ export default function AppointmentNewEditForm({ isEdit, staff, currentAppointme
                 </Button>
 
                 <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                  {!isCreating ? 'Update' : 'Add'}
+                  {isEdit ? 'Update' : 'Add'}
                 </LoadingButton>
               </DialogActions>
+              <DialogAnimate maxWidth={false}  open={open} onClose={handleClose} sx={{maxWidth: 860}}>
+                <DialogActions sx={{ py: 2, px: 3 }}>
+                  <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+                    You are deleting the event. Once deleted you can't retrieve.
+                    Please confirm.
+                  </Typography>
+                  <Button onClick={handleDeleteRow} variant="contained">Confirm</Button>
+                  <Button onClick={handleClose}>Cancel</Button>
+                </DialogActions>          
+              </DialogAnimate>
     </FormProvider>
   );
 }

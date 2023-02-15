@@ -1,7 +1,7 @@
 // @mui
 import { Container, Box, Button, Tabs, Tab, InputAdornment, Typography, Stack, IconButton } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import {useState, SyntheticEvent, ReactNode, useEffect} from 'react';
 import { sub } from 'date-fns';
 // routes
@@ -12,7 +12,7 @@ import useUsers from '../../hooks/useUsers';
 import useTabs from '../../hooks/useTabs';
 import { useDispatch, useSelector } from '../../redux/store';
 import { getAllTreatmentPlans } from '../../redux/slices/lab';
-import { getPresciptions, getUploadFiles, getMedicalCertificate, getClinicalNotes } from '../../redux/slices/patient';
+import { getPresciptions, getUploadFiles, getMedicalCertificate, getClinicalNotes, getPatientDetails } from '../../redux/slices/patient';
 import { getAllInventory } from '../../redux/slices/setting';
 import { getCalendarEvents } from '../../redux/slices/calendar';
 // _mock_
@@ -31,15 +31,23 @@ import FilesDetails from '../../sections/@dashboard/e-commerce/FilesDetails';
 import CommunicationDetails from '../../sections/@dashboard/e-commerce/CommunicationDetails';
 import PatientsDialog from '../../components/PatientsDialog';
 import { RHFUploadSingleFile } from '../../components/hook-form';
+import { PatientSearch } from '../../sections/@dashboard/user/profile'
 
 // ----------------------------------------------------------------------
 
 export default function UserCards() {
+  const STATUS_OPTIONS = ['All Patients', 'Recently Visited', 'Recently Added'];
+  const TAB_VALUE = ['profile', 'appointments', 'plans', 'notes', 'prescription', 'payments', 'files'];
+
+  
   const { themeStretch } = useSettings();
+  const navigate = useNavigate();
+  const { tab, id } = useParams();
   const dispatch = useDispatch();
-  const { patients } = useUsers();
+  // const { patients } = useUsers();
   const { user } = useUsers();
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState(TAB_VALUE.indexOf(tab));
+  const [selectedPatientId, setSelectedPatientId] = useState(id);
   const [plans, setPlans] = useState([]);
   const [prescriptions, setPrescriptions] = useState([]);
   const [appointments, setAppointments] = useState([]);
@@ -47,22 +55,23 @@ export default function UserCards() {
   const [isOpen, setDialogState] = useState(false);
   const [url , setRedirectURL] = useState('labs')
   const { currentTab: filterLabName, onChangeTab: onChangeFilterStatus } = useTabs('all');
-  const STATUS_OPTIONS = ['All Patients', 'Recently Visited', 'Recently Added'];
-
+  
   useEffect(() => {
-    dispatch(getAllTreatmentPlans());
-    dispatch(getCalendarEvents());
-    dispatch(getPresciptions());
-    dispatch(getClinicalNotes());
+    if(!id){
+      dispatch(getPatientDetails())
+    }
     dispatch(getAllInventory());
-    dispatch(getUploadFiles())
     dispatch(getMedicalCertificate())
   },[dispatch])
 
-  const { treatmentPlans } = useSelector((state) => state.labs);
-  const { calendarEvents } = useSelector((state) => state.calendar);
-  const { prescriptions: rawPrescriptions, files, medicalCertificate, clinicalNotes } = useSelector((state) => state.patient);
-  
+  useEffect(() => {
+    if(id){
+      dispatch(getPatientDetails(id))
+    }
+  }, [id])
+
+  const { prescriptions: rawPrescriptions, files, medicalCertificate, clinicalNotes, treatmentPlans, calendarEvents, patients } = useSelector((state) => state.patient);
+
   useEffect(() => {
     // const plan = treatmentPlan.map((plan, i) => {id: i, procedure: plan, })
     const plans = []
@@ -106,7 +115,7 @@ export default function UserCards() {
     const items = []
 
     calendarEvents?.filter(events => events.eventType === 'appointment').forEach((item, i) => {
-      const patient = patients.find(patient => Number(patient.patientId) === Number(item.patientId))
+      const patient = patients.find(patient => Number(patient.id) === Number(item.patientId))
       const doctor = user.find(user => user.isStaff && Number(user.id) === Number(item.doctor))
       item = {...item, tags: item.tags.split(',')}
       const itemObj = {
@@ -131,7 +140,7 @@ export default function UserCards() {
   useEffect(() => {
     const items = []
     clinicalNotes?.forEach((item, i) => {
-      const patient = patients.find(patient => Number(patient.patientId) === Number(item.patientId))
+      const patient = patients.find(patient => Number(patient.id) === Number(item.patientId))
       const doctor = user.find(user => user.isStaff && Number(user.id) === Number(item.orderedBy))
       const itemObj = {
         id: item.id,
@@ -146,7 +155,13 @@ export default function UserCards() {
   },[clinicalNotes])
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
-    console.log(event, newValue)
+    if(id){
+      navigate(PATH_DASHBOARD.patient.selected( TAB_VALUE[newValue], selectedPatientId));
+      // navigate(PATH_DASHBOARD.patient.tab(TAB_VALUE[newValue]));
+    }else{
+      navigate(PATH_DASHBOARD.patient.tab(TAB_VALUE[newValue]));
+    }
+    console.log(event, newValue, event.target.value)
     setValue(newValue);
   };
   const findPatients = () => {
@@ -163,6 +178,12 @@ export default function UserCards() {
   const handleClose = () => {
     setDialogState(false)
   }
+
+  const selectedPatient = (selected) => {
+    navigate(PATH_DASHBOARD.patient.selected( TAB_VALUE[value], selected.id));
+    setSelectedPatientId(selected.id)
+    console.log(selected)
+  };
 
   return (
     <Page title="User: Cards">
@@ -186,10 +207,11 @@ export default function UserCards() {
         />
         <Box
           sx={{
-            display: 'flex', justifyContent: 'center', mb: 3
+            display: 'block', width: '50%' , m: '24px auto'
           }}
         >
-          <InputStyle
+          <PatientSearch selectedPatient={selectedPatient}/>
+          {/* <InputStyle
             stretchStart={240}
             value=""
             onChange={(event) => findPatients(event.target.value)}
@@ -201,14 +223,14 @@ export default function UserCards() {
                 </InputAdornment>
               ),
             }}
-          />
+          /> */}
         </Box>
         <Box
           sx={{
             display: 'flex', justifyContent: 'center', mb: 3
           }}
         >
-          <Tabs value={value} onChange={handleChange} aria-label="icon label tabs example">
+          <Tabs value={value} onChange={handleChange} aria-label="icon label tabs example" variant="scrollable"  scrollButtons="auto">
             <Tab icon={<Iconify icon={'eva:people-outline'} width={20} height={20} />} label="Profile" />
             <Tab icon={<Iconify icon={'eva:calendar-outline'} width={20} height={20} />} label="Appointments" />
             <Tab icon={<Iconify icon={'eva:book-outline'} width={20} height={20} />} label="Treatment Plans" />

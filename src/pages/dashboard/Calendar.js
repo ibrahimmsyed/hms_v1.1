@@ -11,7 +11,7 @@ import { Card, Button, Container, DialogTitle } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
 import { getCalendarEvents, openModal, closeModal, updateEvent, selectEvent, selectRange } from '../../redux/slices/calendar';
-import { getPatientsDetails, getTreatmentPlan } from '../../redux/slices/patient';
+import { getPatientsDetails, getProcedure } from '../../redux/slices/patient';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -69,7 +69,7 @@ export default function Calendar() {
   useEffect(() => {
     dispatch(getCalendarEvents());
     dispatch(getPatientsDetails());
-    dispatch(getTreatmentPlan());
+    dispatch(getProcedure());
   }, [dispatch]);
 
   useEffect(() => {

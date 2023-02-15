@@ -17,11 +17,13 @@ const initialState = {
   error: null,
   patients: [],
   currentPatient: {},
+  calendarEvents: [],
   patientHistory: [],
-  treatmentPlan: [],
+  procedure: [],
   prescriptions: [],
   medicalCertificate: [],
   clinicalNotes: [],
+  treatmentPlans: [],
   invoice: []
 };
 
@@ -69,17 +71,17 @@ const slice = createSlice({
       state.isLoading = false;
       state.patientHistory = state.patientHistory.filter(history => history.id !== action.payload)
     },
-    setTreatmentPlan(state, action) {
+    setProcedure(state, action) {
       state.isLoading = false;
-      state.treatmentPlan = action.payload;
+      state.procedure = action.payload;
     },
-    updateTreatmentPlan(state, action) {
+    updateProcedure(state, action) {
       state.isLoading = false;
-      state.treatmentPlan = [...state.treatmentPlan, action.payload]
+      state.procedure = [...state.procedure, action.payload]
     },
-    removeTreatmentPlan(state, action) {
+    removeProcedure(state, action) {
       state.isLoading = false;
-      state.treatmentPlan = state.treatmentPlan.filter(plan => plan.id !== action.payload)
+      state.procedure = state.procedure.filter(plan => plan.id !== action.payload)
     },
     setPrescription(state, action) {
       state.isLoading = false;
@@ -129,6 +131,26 @@ const slice = createSlice({
       state.isLoading = false;
       state.clinicalNotes = state.clinicalNotes.filter(plan => plan.id !== action.payload)
     },
+    setCalendarEvent(state, action) {
+      state.isLoading = false;
+      state.calendarEvents = action.payload;
+    },
+    updateCalendarEvents(state, action) {
+      state.isLoading = false;
+      state.calendarEvents = [...state.calendarEvents, action.payload]
+    },
+    removeCalendarEvents(state, action) {
+      state.isLoading = false;
+      state.calendarEvents = state.calendarEvents.filter(plan => plan.id !== action.payload)
+    },
+    getTreatmentPlansSuccess(state, action) {
+      state.isLoading = false;
+      state.treatmentPlans = action.payload
+    },
+    updateTreatmentPlans(state, action) {
+      state.isLoading = false;
+      state.treatmentPlans = [...state.treatmentPlans, action.payload]
+    },
     setInvoice(state, action) {
       state.isLoading = false;
       state.invoice = action.payload;
@@ -152,13 +174,14 @@ export const {
     getPatientsSuccess,
     setPatientHistory,
     setPatientDetails,
+    setCalendarEvents,
     updatePatientHistory,
     updatePatientDetails,
     deletePatientHistory,
     removePatientDetail,
-    setTreatmentPlan,
-    updateTreatmentPlan,
-    removeTreatmentPlan,
+    setProcedure,
+    updateProcedure,
+    removeProcedure,
     setPrescription,
     updatePrescription,
     removePrescription,
@@ -307,8 +330,8 @@ export function deleteMedicalHistory(id) {
     }
   };
 }
-// Treatment plan
-export function getTreatmentPlan() {
+// Procedure
+export function getProcedure() {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
@@ -319,13 +342,13 @@ export function getTreatmentPlan() {
             }
         }
       const response = await axios.get('http://localhost:8000/procedure/', headers);
-      dispatch(slice.actions.setTreatmentPlan(response.data));
+      dispatch(slice.actions.setProcedure(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
   };
 }
-export function addTreatmentPlan(plan) {
+export function addProcedure(plan) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
@@ -336,13 +359,13 @@ export function addTreatmentPlan(plan) {
             }
         }
       const response = await axios.post('http://localhost:8000/procedure/', plan, headers);
-      dispatch(slice.actions.updateTreatmentPlan(response.data));
+      dispatch(slice.actions.updateProcedure(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
   };
 }
-export function deleteTreatmentPlan(id) {
+export function deleteProcedure(id) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
@@ -353,7 +376,7 @@ export function deleteTreatmentPlan(id) {
             }
         }
       const response = await axios.delete(`http://localhost:8000/procedure/${id}/`, headers);
-      dispatch(slice.actions.removeTreatmentPlan(id));
+      dispatch(slice.actions.removeProcedure(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -609,6 +632,163 @@ export function deleteInvoice(id) {
         }
       const response = await axios.delete(`http://localhost:8000/invoice/${id}/`, headers);
       dispatch(slice.actions.removeInvoice(id));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+/** *****************Calendar Events***************************** */
+
+export function getCalendarEvents() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.get('http://localhost:8000/eventcalendar/', headers);
+      dispatch(slice.actions.setCalendarEvent(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function addCalendarEvents(plan) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.post('http://localhost:8000/eventcalendar/', plan, headers);
+      dispatch(slice.actions.updateCalendarEvents(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function updateCalendarEvents(data, id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.put(`http://localhost:8000/eventcalendar/${id}/`, data, headers);
+      dispatch(slice.actions.updateCalendarEvents(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function deleteCalendarEvents(id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.delete(`http://localhost:8000/eventcalendar/${id}/`, headers);
+      dispatch(slice.actions.removeCalendarEvents(id));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+// ------------------Treatment Plans------------------------------------
+export function getAllTreatmentPlans() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const res = await axios.get('http://localhost:8000/treatmentplans/', headers);
+      // const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
+      dispatch(slice.actions.getTreatmentPlansSuccess(res.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function addTreatmentPlans(data) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.post('http://localhost:8000/treatmentplans/', data, headers);
+      dispatch(slice.actions.updateTreatmentPlans(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+/** *****************Get All Patients Details************************** */
+
+export function getPatientDetails(id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const url = id ? `http://localhost:8000/patient/${id}/` : 'http://localhost:8000/patient/';
+      const response = await axios.get(url, headers);
+      let calendar = []
+      let plans = []
+      let notes = []
+      let prescription = []
+      let uploads = [];
+      if(id){
+        const patient = response.data
+        dispatch(slice.actions.setClinicalNotes(patient.notes));
+        dispatch(slice.actions.setFiles(patient.uploads));
+        dispatch(slice.actions.setPrescription(patient.prescription));
+        dispatch(slice.actions.getTreatmentPlansSuccess(patient.plans)); 
+        dispatch(slice.actions.setCalendarEvent(patient.calendar));
+        dispatch(slice.actions.getPatientsSuccess([patient]));
+      }else{
+        response.data.forEach(data => {
+          if(data.calendar.length){ calendar = [...data.calendar, ...calendar] }
+          if(data.plans.length){ plans = [...data.plans, ...plans] }
+          if(data.notes.length){ notes = [...data.notes, ...notes] }
+          if(data.prescription.length){ prescription = [...data.prescription, ...prescription] }
+          if(data.uploads.length){ uploads = [...data.uploads, ...uploads] }
+        })
+        dispatch(slice.actions.setClinicalNotes(notes));
+        dispatch(slice.actions.setFiles(uploads));
+        dispatch(slice.actions.setPrescription(prescription));
+        dispatch(slice.actions.getTreatmentPlansSuccess(plans)); 
+        dispatch(slice.actions.setCalendarEvent(calendar));
+        console.log(calendar, plans, notes, prescription, uploads)
+        dispatch(slice.actions.getPatientsSuccess(response.data));
+    }
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

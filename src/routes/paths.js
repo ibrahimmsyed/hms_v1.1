@@ -66,6 +66,8 @@ export const PATH_DASHBOARD = {
     root: path(ROOTS_DASHBOARD, '/patient'),
     new: path(ROOTS_DASHBOARD, '/patient/new'),
     profile: path(ROOTS_DASHBOARD, '/patient/profile'),
+    tab: (tab) => path(ROOTS_DASHBOARD, `/patient/${tab}`),
+    selected: (tab, id) => path(ROOTS_DASHBOARD, `/patient/${tab}/${id}`),
     appointments: path(ROOTS_DASHBOARD, '/patient/appointments'),
     newplans: path(ROOTS_DASHBOARD, '/patient/plans/new'),
     newprescription: path(ROOTS_DASHBOARD, '/patient/prescriptions/new'),
@@ -135,7 +137,8 @@ export const PATH_DASHBOARD = {
   invoice: {
     root: path(ROOTS_DASHBOARD, '/invoice'),
     list: path(ROOTS_DASHBOARD, '/invoice/list'),
-    new: path(ROOTS_DASHBOARD, '/invoice/new'),
+    /* new: path(ROOTS_DASHBOARD, '/invoice/new'), */
+    new: (id) => path(ROOTS_DASHBOARD, `/invoice/${id}/new`),
     view: (id) => path(ROOTS_DASHBOARD, `/invoice/${id}`),
     edit: (id) => path(ROOTS_DASHBOARD, `/invoice/${id}/edit`),
     demoEdit: path(ROOTS_DASHBOARD, '/invoice/e99f09a7-dd88-49d5-b1c8-1daf80c2d7b1/edit'),

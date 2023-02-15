@@ -39,7 +39,7 @@ export default function AppointmentForm({ isEdit, currentAppointment, range, onC
   const dispatch = useDispatch();
 
   const { user: staffList } = useUsers();
-  const { treatmentPlan: procedure } = useSelector((state) => state.patient);
+  const { procedure } = useSelector((state) => state.patient);
   const [staff, setStaff] = useState([])
   const [isPatientFieldDirty, setIsPatientFieldDirty] = useState(false)
   

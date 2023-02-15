@@ -93,7 +93,7 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice, appointment
 
   useEffect(() => {
     if(currentPatient){
-      setValue('invoiceTo', currentPatient.patientId)
+      setValue('invoiceTo', currentPatient.id)
     }
     if(appointment){
       setValue('appointmentId', appointment.id)

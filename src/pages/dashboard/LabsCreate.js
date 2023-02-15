@@ -61,8 +61,8 @@ export default function LabsCreate() {
           heading={!isEdit ? 'Create a new order' : 'Edit user'}
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Labs', href: PATH_DASHBOARD.user.list },
-            { name: !isEdit ? 'New Order' : capitalCase(name) },
+            { name: 'Labs', href: PATH_DASHBOARD.labs.orders },
+            { name: !isEdit ? 'New Order' : capitalCase(currentPatient?.patientName) },
           ]}
         />
 

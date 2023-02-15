@@ -143,10 +143,10 @@ export default function NotesNewEditForm({ isEdit, currentNotes }) {
         console.log(data);
         const clonedData = {...data}
         delete clonedData.plannedOn
-        delete clonedData.patientId
+        delete clonedData.id
         delete clonedData.orderedBy
         const payload = {
-            patientId : currentPatient.patientId,
+            patientId : currentPatient.id,
             notes: JSON.stringify(clonedData),
             orderedBy: data.orderedBy,
             plannedOn: data.plannedOn

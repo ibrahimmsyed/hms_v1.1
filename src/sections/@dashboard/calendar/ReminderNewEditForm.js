@@ -57,7 +57,7 @@ export default function ReminderNewEditForm({ isEdit, staff, currentAppointment,
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const { treatmentPlan: procedure } = useSelector((state) => state.patient);
+  const { procedure } = useSelector((state) => state.patient);
 
   const [patient, setSelectedPatient] = useState({});
 
