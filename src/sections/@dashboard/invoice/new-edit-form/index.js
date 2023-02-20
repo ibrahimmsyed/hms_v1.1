@@ -10,7 +10,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
 import { Card, Stack } from '@mui/material';
 //
-import { addInvoice } from '../../../../redux/slices/patient';
+import { addInvoice, updateCalendarEvents } from '../../../../redux/slices/patient';
 import { useDispatch, useSelector } from '../../../../redux/store';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
@@ -136,6 +136,9 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice, appointment
       newInvoice.dueDate = moment(newInvoice.dueDate).format('YYYY-MM-DD')
       console.log(newInvoice);
       dispatch(addInvoice(newInvoice))
+      const invoicedAppointment = {...appointment}
+      invoicedAppointment.status = 'Invoiced'
+      dispatch(updateCalendarEvents(invoicedAppointment, invoicedAppointment.id))
     } catch (error) {
       console.error(error);
     }
@@ -150,7 +153,7 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice, appointment
       </Card>
 
       <Stack justifyContent="flex-end" direction="row" spacing={2} sx={{ mt: 3 }}>
-        <LoadingButton
+        {/* <LoadingButton
           color="inherit"
           size="large"
           variant="contained"
@@ -158,7 +161,7 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice, appointment
           onClick={handleSubmit(handleSaveAsDraft)}
         >
           Save as Draft
-        </LoadingButton>
+        </LoadingButton> */}
 
         <LoadingButton
           size="large"
@@ -166,7 +169,7 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice, appointment
           loading={loadingSend && isSubmitting}
           onClick={handleSubmit(handleCreateAndSend)}
         >
-          {isEdit ? 'Update' : 'Create'} & Send
+          {isEdit ? 'Update' : 'Create'} & Submit
         </LoadingButton>
       </Stack>
     </FormProvider>

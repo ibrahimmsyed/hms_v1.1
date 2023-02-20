@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 // @mui
-import { Box, List, MenuItem, Button, Rating, Avatar, ListItem, Pagination, Typography, styled, Paper, TableRow, TableCell, TableBody, Table, DialogTitle  } from '@mui/material';
+import { Box, List, MenuItem, Alert, Button, Rating, Avatar, ListItem, Pagination, Typography, styled, Paper, TableRow, TableCell, TableBody, Table, DialogTitle  } from '@mui/material';
 // utils
 import { fDate } from '../../../../utils/formatTime';
 import { fShortenNumber } from '../../../../utils/formatNumber';
@@ -172,6 +172,11 @@ function AppointmentItem({ appointment }) {
       </Item>
       <DialogAnimate maxWidth={false}  open={isOpenModal} onClose={handleCloseModal} sx={{maxWidth: 860}}>
         <DialogTitle>{selectedEvent ? 'Edit Event' : 'Add Event'}</DialogTitle>
+        {selectedEvent.status === 'No Show' && 
+          <Alert variant="filled" severity="warning">
+            This Appointment is marked as "No-Show"
+          </Alert>
+        }
         <AppointmentForm isEdit={!!selectedEvent} currentAppointment={selectedEvent || null} range={selectedRange} onCancel={handleCloseModal} />
       </DialogAnimate>
     </>

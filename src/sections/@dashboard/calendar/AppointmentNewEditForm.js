@@ -187,6 +187,12 @@ export default function AppointmentNewEditForm({ isEdit, staff, currentAppointme
     reset({ ...resetDefaultValues });
   }
 
+  const handleNoShow = () => {
+    currentAppointment.tags = currentAppointment.tags.toString()
+    currentAppointment.status = 'No Show'
+    dispatch(updateCalendarEvents(currentAppointment, currentAppointment.id))
+  } 
+
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
               <Box
@@ -196,7 +202,7 @@ export default function AppointmentNewEditForm({ isEdit, staff, currentAppointme
                   rowGap: 3,
                   gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
                 }}
-              >
+              > 
                 <Stack spacing={3} sx={{ p: 1 }}>
                   {!isEdit && <PatientSearch selectedPatient={selectedPatient}/>}
                   {isEdit && <RHFTextField name="patientName" label="Patient Name" disabled />}
@@ -297,7 +303,7 @@ export default function AppointmentNewEditForm({ isEdit, staff, currentAppointme
                 )}
                 {isEdit && (
                   <Tooltip title="No Show">
-                    <IconButton>
+                    <IconButton onClick={handleNoShow}>
                       <Iconify icon="eva:person-delete-outline" width={20} height={20} />
                     </IconButton>
                   </Tooltip>

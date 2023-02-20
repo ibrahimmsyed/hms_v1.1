@@ -7,7 +7,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 //
 import { useState, useRef, useEffect } from 'react';
 // @mui
-import { Card, Button, Container, DialogTitle } from '@mui/material';
+import { Card, Button, Container, DialogTitle, Alert, InputLabel, MenuItem, Select, FormControl, Stack, Box } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
 import { getCalendarEvents, openModal, closeModal, updateEvent, selectEvent, selectRange } from '../../redux/slices/calendar';
@@ -17,6 +17,7 @@ import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
 import useSettings from '../../hooks/useSettings';
 import useResponsive from '../../hooks/useResponsive';
+import useUsers from '../../hooks/useUsers';
 // components
 import Page from '../../components/Page';
 import Iconify from '../../components/Iconify';
@@ -45,6 +46,19 @@ export default function Calendar() {
   const { themeStretch } = useSettings();
 
   const dispatch = useDispatch();
+
+  const { user: staffList } = useUsers();
+
+  const [staff, setStaff] = useState('all')
+
+  const [staffs, setStaffs] = useState([])
+
+  useEffect(() => {
+    const staff =  staffList.filter(user => user.isStaff)
+    if(staff.length){
+      setStaffs(staff)
+    }
+  },[staffList])
 
   const defaultRange = {
     start: new Date(),
@@ -89,7 +103,7 @@ export default function Calendar() {
 
   const handleEvent = (calendarEvents) => {
     let cloneCalendarEvents = [...calendarEvents]
-    let title = ''
+    let title = ''; let borderColor = ''
     cloneCalendarEvents = cloneCalendarEvents.map(events => {
       switch (events.eventType){
         case 'block':
@@ -102,7 +116,18 @@ export default function Calendar() {
           title = events.patientName;
           break;
       }
-      return {...events, title}
+      switch (events.status){
+        case 'No Show':
+          borderColor = 'red';
+          break;
+        case 'Invoiced':
+          borderColor = 'green';
+          break;
+        default:
+          borderColor = '';
+          break;
+      }
+      return {...events, title, borderColor}
     })
     setEvents(cloneCalendarEvents)
   }
@@ -192,6 +217,13 @@ export default function Calendar() {
     dispatch(closeModal());
   };
 
+  const handleChange = (e) => {
+    setStaff(e.target.value)
+    const events = [...calendarEvents]
+    console.log(events)
+    handleEvent(events.filter(event => Number(event.doctor) === e.target.value))
+  };
+
   return (
     <Page title="Calendar">
       <Container maxWidth={themeStretch ? false : 'xl'}>
@@ -199,13 +231,38 @@ export default function Calendar() {
           heading="Calendar"
           links={[{ name: 'Dashboard', href: PATH_DASHBOARD.root }, { name: 'Calendar' }]}
           action={
-            <Button
-              variant="contained"
-              startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
-              onClick={handleAddEvent}
+            <Box
+              sx={{
+                p:5,
+                display: 'grid',
+                columnGap: 1,
+                rowGap: 1,
+                gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(2, 1fr)' },
+              }}
             >
-              New Event
-            </Button>
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">Doctor</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={staff}
+                  label="Staff"
+                  onChange={handleChange}
+                >
+                    <MenuItem value='all'>All</MenuItem>
+                  {staffs?.length && staffs.map((staff) =>(
+                    <MenuItem key={staff.id} value={staff.id}>{staff.firstName} {staff.lastName}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Button
+                variant="contained"
+                startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
+                onClick={handleAddEvent}
+              >
+                New Event
+              </Button>
+            </Box>
           }
         />
 
@@ -250,6 +307,11 @@ export default function Calendar() {
 
         <DialogAnimate maxWidth={false}  open={isOpenModal} onClose={handleCloseModal} sx={{maxWidth: 860}}>
           <DialogTitle>{selectedEvent ? 'Edit Event' : 'Add Event'}</DialogTitle>
+          {selectedEvent?.status === 'No Show' && 
+            <Alert variant="filled" severity="warning">
+              This Appointment is marked as "No-Show"
+            </Alert>
+          }
           <AppointmentForm isEdit={!!selectedEvent} currentAppointment={selectedEvent || null} range={selectedRange || defaultRange} onCancel={handleCloseModal} />
         </DialogAnimate>
       </Container>
