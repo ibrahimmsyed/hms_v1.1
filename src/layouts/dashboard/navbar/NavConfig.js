@@ -54,11 +54,12 @@ const navConfig = [
         path: PATH_DASHBOARD.user.root,
         icon: ICONS.dashboard,
         children: [
-          { title: 'Practice Details', path: PATH_DASHBOARD.settings.practicedetails },
+          { title: 'Practice Details', path: PATH_DASHBOARD.settings.practicedetails, access: ['admin', 'doctor'] },
           { title: 'Practice Staff', path: PATH_DASHBOARD.settings.practicestaff },
           { title: 'Inventory', path: PATH_DASHBOARD.settings.inventory },
           { title: 'Lab Work', path: PATH_DASHBOARD.settings.labwork },
         ],
+        access: ['admin', 'doctor']
       },
       // INVOICE
       {
@@ -68,6 +69,7 @@ const navConfig = [
         children: [
           { title: 'list', path: PATH_DASHBOARD.invoice.list },
         ],
+        access: ['admin', 'doctor']
       }
     ],
   }

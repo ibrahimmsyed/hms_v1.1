@@ -7,7 +7,7 @@ import LogoOnlyLayout from '../layouts/LogoOnlyLayout';
 // guards
 import GuestGuard from '../guards/GuestGuard';
 import AuthGuard from '../guards/AuthGuard';
-// import RoleBasedGuard from '../guards/RoleBasedGuard';
+import RoleBasedGuard from '../guards/RoleBasedGuard';
 // config
 import { PATH_AFTER_LOGIN } from '../config';
 // components
@@ -19,7 +19,7 @@ import LoadingScreen from '../components/LoadingScreen';
 const Loadable = (Component) => (props) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const { pathname } = useLocation();
-
+  
   return (
     <Suspense fallback={<LoadingScreen isDashboard={pathname.includes('/dashboard')} />}>
       <Component {...props} />
@@ -28,6 +28,8 @@ const Loadable = (Component) => (props) => {
 };
 
 export default function Router() {
+  const adminDoctor = ['admin', 'doctor']
+  const frontOffice = ['front_office']
   return useRoutes([
     {
       path: 'auth',
@@ -175,7 +177,7 @@ export default function Router() {
           path: 'settings',
           children: [
             { element: <Navigate to="/dashboard/settings/practicedetails" replace />, index: true },
-            { path: 'practicedetails', element: <PracticeDetails /> },
+            { path: 'practicedetails', element: (<RoleBasedGuard accessibleRoles={frontOffice}><PracticeDetails /></RoleBasedGuard>)},
             { path: 'practicestaff', element: <PracticeStaff /> },
             { path: 'inventory', element: <Inventory /> },
             { path: 'labwork', element: <LabsWork /> },

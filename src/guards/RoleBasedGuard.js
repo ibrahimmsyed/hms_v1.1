@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { Container, Alert, AlertTitle } from '@mui/material';
-
+import {getCurrentUserRole} from '../utils/currentUserRole';
+import useAuth from '../hooks/useAuth';
 // ----------------------------------------------------------------------
 
 RoleBasedGuard.propTypes = {
@@ -8,14 +9,18 @@ RoleBasedGuard.propTypes = {
   children: PropTypes.node
 };
 
-const useCurrentRole = () => {
+const useCurrentRole = (user) => {
   // Logic here to get current user role
-  const role = 'admin';
+  const role = getCurrentUserRole(user)
+  
   return role;
 };
 
 export default function RoleBasedGuard({ accessibleRoles, children }) {
-  const currentRole = useCurrentRole();
+
+  const { user } = useAuth()
+  
+  const currentRole = getCurrentUserRole(user)
 
   if (!accessibleRoles.includes(currentRole)) {
     return (
