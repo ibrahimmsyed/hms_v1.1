@@ -1,8 +1,9 @@
 // @mui
-import { Container, Box, Button, Tabs, Tab, InputAdornment, Typography, Stack, IconButton } from '@mui/material';
+import { Container, Box, Button, Tabs, Tab, InputAdornment, Typography, Stack, IconButton, Dialog, DialogActions, Tooltip } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import {useState, SyntheticEvent, ReactNode, useEffect} from 'react';
+import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 import { sub } from 'date-fns';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
@@ -32,6 +33,7 @@ import CommunicationDetails from '../../sections/@dashboard/e-commerce/Communica
 import PatientsDialog from '../../components/PatientsDialog';
 import { RHFUploadSingleFile } from '../../components/hook-form';
 import { PatientSearch } from '../../sections/@dashboard/user/profile'
+import PrescriptionPDF from '../PrescriptionPDF'
 
 // ----------------------------------------------------------------------
 
@@ -50,8 +52,10 @@ export default function UserCards() {
   const [selectedPatientId, setSelectedPatientId] = useState(id);
   const [plans, setPlans] = useState([]);
   const [prescriptions, setPrescriptions] = useState([]);
+  const [prescription, setPrescription] = useState({})
   const [appointments, setAppointments] = useState([]);
   const [notes, setNotes] = useState([]);
+  const [isPrintOpen, setPrintOpen] = useState(false);
   const [isOpen, setDialogState] = useState(false);
   const [url , setRedirectURL] = useState('labs')
   const { currentTab: filterLabName, onChangeTab: onChangeFilterStatus } = useTabs('all');
@@ -90,7 +94,7 @@ export default function UserCards() {
     console.log(plans)
 
     setPlans(plans)
-  },[treatmentPlans]) 
+  },[treatmentPlans, patients]) 
 
   useEffect(() => {
     // const plan = treatmentPlan.map((plan, i) => {id: i, procedure: plan, })
@@ -109,7 +113,7 @@ export default function UserCards() {
     });
     console.log(items)
     setPrescriptions(items)
-  },[rawPrescriptions])
+  },[rawPrescriptions, patients])
 
   useEffect(() => {
     const items = []
@@ -135,7 +139,7 @@ export default function UserCards() {
     });
     console.log(items)
     setAppointments(items)
-  },[calendarEvents])
+  },[calendarEvents, patients])
 
   useEffect(() => {
     const items = []
@@ -152,7 +156,7 @@ export default function UserCards() {
     });
     console.log(items)
     setNotes(items)
-  },[clinicalNotes])
+  },[clinicalNotes, patients])
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     if(id){
@@ -184,6 +188,12 @@ export default function UserCards() {
     setSelectedPatientId(selected.id)
     console.log(selected)
   };
+
+  const onPrint = (id) => {
+    setPrintOpen(true)
+    setPrescription(prescriptions.filter(prescription => prescription.id === id)?.[0])
+    console.log('onPrint')
+  }
 
   return (
     <Page title="User: Cards">
@@ -306,7 +316,7 @@ export default function UserCards() {
             </Button>
           </Stack>
             
-          <AppointmentDetailsList prescriptions={prescriptions}/>
+          <AppointmentDetailsList prescriptions={prescriptions} onPrint={onPrint}/>
         </TabPanel>
         <TabPanel value={value} index={5}>
           <Stack
@@ -369,6 +379,28 @@ export default function UserCards() {
         </IconButton>
         <PatientsDialog patients={patients} url={url}/>
       </DialogAnimate>
+      <Dialog fullScreen open={isPrintOpen}>
+        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <DialogActions
+            sx={{
+              zIndex: 9,
+              padding: '12px !important',
+              boxShadow: (theme) => theme.customShadows.z8,
+            }}
+          >
+            <Tooltip title="Close">
+              <IconButton color="inherit" onClick={onClose}>
+                <Iconify icon={'eva:close-fill'} />
+              </IconButton>
+            </Tooltip>
+          </DialogActions>
+          <Box sx={{ flexGrow: 1, height: '100%', overflow: 'hidden' }}>
+            <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+              <PrescriptionPDF prescription={prescription} />
+            </PDFViewer>
+          </Box>
+        </Box>
+      </Dialog>
     </Page>
   );
 }

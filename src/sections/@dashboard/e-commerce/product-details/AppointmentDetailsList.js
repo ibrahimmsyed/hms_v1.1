@@ -28,7 +28,7 @@ AppointmentDetailsList.propTypes = {
   appointments: PropTypes.object,
 };
 
-export default function AppointmentDetailsList({ patients, appointments, plans, prescriptions, notes }) {
+export default function AppointmentDetailsList({ patients, appointments, plans, prescriptions, notes, onPrint }) {
   
   return (
     <Box sx={{ pt: 3, px: 2, pb: 5 }}>
@@ -40,7 +40,7 @@ export default function AppointmentDetailsList({ patients, appointments, plans, 
           <TreatmentPlanItem key={plan.id} plan={plan}/>
         ))}
         {prescriptions?.length > 0 && prescriptions.map((prescription, i) => (
-          <PrescriptionPlanItem key={i} prescription={prescription}/>
+          <PrescriptionPlanItem key={i} prescription={prescription} onPrint={onPrint}/>
         ))}
         {notes?.length > 0 && notes.map((note, i) => (
           <ClinicalNotesItem key={i} note={note} />
@@ -331,7 +331,7 @@ PrescriptionPlanItem.propTypes = {
   plan: PropTypes.object,
 };
 
-function PrescriptionPlanItem({ prescription }) {
+function PrescriptionPlanItem({ prescription, onPrint }) {
   const dispatch = useDispatch();
 
   const { inventory } = useSelector((state) => state.setting);
@@ -365,9 +365,6 @@ function PrescriptionPlanItem({ prescription }) {
     console.log(id)
   };
 
-  const onEditRow = () => {
-    
-  };
   const TABLE_HEAD = [
     { id: 'drug', label: 'Drug', align: 'left' },
     { id: 'frequency', label: 'Frequency', align: 'left' },
@@ -382,7 +379,6 @@ function PrescriptionPlanItem({ prescription }) {
   ]
 
   const getDuration = (id) => {
-    console.log(duration.filter(item => item.id === Number(id))[0].label)
     return duration.filter(item => item.id === Number(id))[0]?.label
   }
 
@@ -410,7 +406,7 @@ function PrescriptionPlanItem({ prescription }) {
             }}
           >
             <Avatar
-              src={patient.dop}
+              src={patient?.dop}
               sx={{
                 mr: { xs: 2, sm: 0 },
                 mb: { sm: 2 },
@@ -420,11 +416,11 @@ function PrescriptionPlanItem({ prescription }) {
             />
             <div>
               <Typography variant="subtitle2" noWrap>
-                {patient.patientName}
+                {patient?.patientName}
               </Typography>
               <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
                 
-                {patient.dob} / {patient.gender}
+                {patient?.dob} / {patient?.gender}
               </Typography>
             </div>
           </Box>
@@ -485,7 +481,7 @@ function PrescriptionPlanItem({ prescription }) {
                   </MenuItem>
                   <MenuItem
                     onClick={() => {
-                      onEditRow();
+                      onPrint(id);
                       handleCloseMenu();
                     }}
                   >
