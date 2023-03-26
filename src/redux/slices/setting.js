@@ -16,7 +16,8 @@ const initialState = {
   isLoading: false,
   error: null,
   inventory: [],
-  notes: []
+  notes: [],
+  practiceDetails: []
 };
 
 const slice = createSlice({
@@ -61,6 +62,10 @@ const slice = createSlice({
     removeNotes(state, action) {
       state.isLoading = false;
       state.notes = state.notes.filter(item => item.id !== action.payload)
+    },
+    setPracticeDetails(state, action) {
+      state.isLoading = false;
+      state.practiceDetails = action.payload;
     },
   },
 });
@@ -215,6 +220,26 @@ export function deleteNotes(id) {
         }
       const response = await axios.delete(`http://localhost:8000/notes/${id}/`, headers);
       dispatch(slice.actions.removeNotes(id));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+/** Practice Details ******************************************************** */
+
+export function getPracticeDetails() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.get('http://localhost:8000/practicedetails/', headers);
+      dispatch(slice.actions.setPracticeDetails(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

@@ -59,7 +59,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
       zipcode: currentUser?.zipcode || '',
       logo: currentUser?.logo || '',
       locality: currentUser?.locality || '',
-      tag: currentUser?.tag,
+      tag: currentUser?.tag || '',
       website: currentUser?.website || '',
       gstin: currentUser?.gstin || '',
     }),

@@ -177,7 +177,7 @@ export default function Router() {
           path: 'settings',
           children: [
             { element: <Navigate to="/dashboard/settings/practicedetails" replace />, index: true },
-            { path: 'practicedetails', element: (<RoleBasedGuard accessibleRoles={frontOffice}><PracticeDetails /></RoleBasedGuard>)},
+            { path: 'practicedetails', element: (<RoleBasedGuard accessibleRoles={adminDoctor}><PracticeDetails /></RoleBasedGuard>)},
             { path: 'practicestaff', element: <PracticeStaff /> },
             { path: 'inventory', element: <Inventory /> },
             { path: 'labwork', element: <LabsWork /> },

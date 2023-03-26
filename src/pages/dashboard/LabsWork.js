@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState, SyntheticEvent } from 'react
 import * as Yup from 'yup';
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Container, Box, Card, Grid, Stack, Switch, Typography, FormControlLabel, TextField, TableContainer, Table, TableBody, InputAdornment, Checkbox, Button, Avatar, Accordion, AccordionSummary, AccordionDetails, MenuList, MenuItem, ListItemIcon, ListItemText, IconButton, DialogActions } from '@mui/material';
+import { Container, Alert, Box, Card, Grid, Stack, Switch, Typography, FormControlLabel, TextField, TableContainer, Table, TableBody, InputAdornment, Checkbox, Button, Avatar, Accordion, AccordionSummary, AccordionDetails, MenuList, MenuItem, ListItemIcon, ListItemText, IconButton, DialogActions } from '@mui/material';
 // form
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -256,7 +256,7 @@ export default function LabsWork() {
                 </LoadingButton>
               </Box>
             </FormProvider>)}
-            {labTreatments?.length && labTreatments.map((accordion) => (
+            {labTreatments?.length > 0 && labTreatments.map((accordion) => (
               <Accordion onChange={handleChange(`panel${accordion.id}`)} expanded={expanded === `panel${accordion.id}`} key={accordion.id}>
                 <AccordionSummary
                   expandIcon={<Iconify icon={'eva:arrow-ios-downward-fill'} width={20} height={20} />}
@@ -288,6 +288,7 @@ export default function LabsWork() {
                 </AccordionDetails>
               </Accordion>
             ))}
+            {!labTreatments?.length > 0 && <Alert severity="info">Add data to show!</Alert>}
           </Scrollbar>
       </Container>
       {/* <ConfirmationDialog openDialog={openDialog} value={value} handleDeleteRow={handleDeleteRow} /> */}
