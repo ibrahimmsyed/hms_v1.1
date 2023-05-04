@@ -22,7 +22,7 @@ import useUsers from '../../../hooks/useUsers';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
 import { getProducts } from '../../../redux/slices/product';
-import { getMedicalHistory, addMedicalHistory, deleteMedicalHistory, addPatientsDetail } from '../../../redux/slices/patient';
+import { getMedicalHistory, addMedicalHistory, deleteMedicalHistory, addPatientsDetail, updatePatientsDetail } from '../../../redux/slices/patient';
 // Service
 import PatientApiService from '../../../services/Patient'
 // components
@@ -123,7 +123,6 @@ export default function PatientNewEditForm({ isEdit, currentPatient, newPatientI
   const [newHistory, setNewHistory] = useState('');
   const NewUserSchema = Yup.object().shape({
     patientName: Yup.string().required('patientName is required'),
-    patientId: Yup.string().required('patientId is required'),
     aadharId: Yup.string().required('AadharId is required'),
     gender: Yup.string().required('Gender is required'),
     dob: Yup.string().required('date of birth is required'),
@@ -139,7 +138,6 @@ export default function PatientNewEditForm({ isEdit, currentPatient, newPatientI
     street: Yup.string().required('Street is required'),
     city: Yup.string().required('City is required'),
     pinCode: Yup.string().required('Pincode is required'),
-    dop: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
     locality: Yup.string().required('Locality is required'),
     // otherHistory: Yup.string().required('Other History is required'),
     // medicalHistory: Yup.string().required('Medical History is required'),
@@ -147,7 +145,7 @@ export default function PatientNewEditForm({ isEdit, currentPatient, newPatientI
   const defaultValues = useMemo(
     () => ({
       patientName: currentPatient?.patientName || '',
-      patientId: currentPatient?.patientId || String(newPatientId),
+      patientId: currentPatient?.id || 'N/A',
       aadharId: currentPatient?.aadharId || '',
       gender: currentPatient?.gender || '',
       dob: currentPatient?.dob || new Date(),
@@ -192,9 +190,9 @@ export default function PatientNewEditForm({ isEdit, currentPatient, newPatientI
 
   const values = watch();
 
-  useEffect(() => {
+  /* useEffect(() => {
     if(!isEdit) setValue('patientId', String(newPatientId))
-  }, [newPatientId])
+  }, [newPatientId]) */
 
 
   useEffect(() => {
@@ -217,8 +215,7 @@ export default function PatientNewEditForm({ isEdit, currentPatient, newPatientI
       data.dob = moment(data.dob).format('YYYY-MM-DD');
       data.anniversary = moment(data.anniversary).format('YYYY-MM-DD');
       data.medicalHistory = selected.toString();
-      const response = isEdit ? await patientApiService.updatePatient(data, currentPatient.id) : dispatch(addPatientsDetail(data))
-      setPatientDetails(response)
+      if(isEdit) { dispatch(updatePatientsDetail(data, currentPatient.id))} else { dispatch(addPatientsDetail(data))}
       reset();
       enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
       navigate(PATH_DASHBOARD.patient.profile);

@@ -20,6 +20,8 @@ const initialState = {
   practiceDetails: []
 };
 
+const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
+
 const slice = createSlice({
   name: 'setting',
   initialState,
@@ -96,7 +98,7 @@ export function getAllInventory() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/inventorydetails/', headers);
+      const response = await axios.get(`${API_ENDPOINT}/inventorydetails/`, headers);
       dispatch(slice.actions.setInventory(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -113,7 +115,7 @@ export function getInventory(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get(`http://localhost:8000/inventorydetails/${id}/`, headers);
+      const response = await axios.get(`${API_ENDPOINT}/inventorydetails/${id}/`, headers);
       dispatch(slice.actions.setCurrentInventory(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -130,7 +132,7 @@ export function addInventory(item) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/inventorydetails/', item, headers);
+      const response = await axios.post(`${API_ENDPOINT}/inventorydetails/`, item, headers);
       dispatch(slice.actions.updateInventory(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -147,7 +149,7 @@ export function modifyInventory(data, id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.put(`http://localhost:8000/inventorydetails/${id}/`, data, headers);
+      const response = await axios.put(`${API_ENDPOINT}/inventorydetails/${id}/`, data, headers);
       dispatch(slice.actions.setCurrentInventory(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -164,7 +166,7 @@ export function deleteInventory(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/inventorydetails/${id}/`, headers);
+      const response = await axios.delete(`${API_ENDPOINT}/inventorydetails/${id}/`, headers);
       dispatch(slice.actions.removeInventory(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -184,7 +186,7 @@ export function getNotes() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/notes/', headers);
+      const response = await axios.get(`${API_ENDPOINT}/notes/`, headers);
       dispatch(slice.actions.setNotes(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -201,7 +203,7 @@ export function addNotes(plan) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/notes/', plan, headers);
+      const response = await axios.post(`${API_ENDPOINT}/notes/`, plan, headers);
       dispatch(slice.actions.updateNotes(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -218,7 +220,7 @@ export function deleteNotes(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/notes/${id}/`, headers);
+      const response = await axios.delete(`${API_ENDPOINT}/notes/${id}/`, headers);
       dispatch(slice.actions.removeNotes(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -238,7 +240,7 @@ export function getPracticeDetails() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/practicedetails/', headers);
+      const response = await axios.get(`${API_ENDPOINT}/practicedetails/`, headers);
       dispatch(slice.actions.setPracticeDetails(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -246,3 +248,50 @@ export function getPracticeDetails() {
   };
 }
 
+export function addPracticeDetails(data) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const formData = new FormData();
+          Object.keys(data).forEach(key => { 
+              formData.append(key, data[key]);
+          })
+        const headers = {
+          headers: {
+            Authorization: `JWT ${accessToken}`,
+            'Content-type':'multipart/form-data',
+            'Content-Disposition': `attachment; filename=${data?.logo?.name}`,
+            }
+        }
+      const response = await axios.post(`${API_ENDPOINT}/practicedetails/`, formData, headers);
+      dispatch(slice.actions.updatePracticeDetails(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+export function updatePracticeDetails(data, id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const formData = new FormData();
+            Object.keys(data).forEach(key => { 
+                formData.append(key, data[key]);
+            })
+        const headers = {
+          headers: {
+            Authorization: `JWT ${accessToken}`,
+            'Content-type':'multipart/form-data',
+            'Content-Disposition': `attachment; filename=${data?.logo?.name}`,
+            }
+        }
+      const response = await axios.put(`${API_ENDPOINT}/practicedetails/${id}/`, formData, headers);
+      dispatch(slice.actions.setPracticeDetails([...response.data]));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}

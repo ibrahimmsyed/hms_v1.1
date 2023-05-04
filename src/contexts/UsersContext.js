@@ -18,6 +18,8 @@ const initialState = {
   inventorydetails: []
 };
 
+const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
+
 const handlers = {
   INITIALIZE: (state, action) => {
     const { isAuthenticated, user } = action.payload;
@@ -85,7 +87,7 @@ function UsersProvider({ children }) {
 
   const userDetails = async () => {
     const accessToken = window.localStorage.getItem('accessToken');
-    const userresponse = await axios.get('http://localhost:8000/users/', {
+    const userresponse = await axios.get(`${API_ENDPOINT}/users/`, {
       headers: {
         Authorization: `JWT ${accessToken}`
       }
@@ -101,7 +103,7 @@ function UsersProvider({ children }) {
 
   const patientsDetails = async () => {
     const accessToken = window.localStorage.getItem('accessToken');
-    const patientsresponse = await axios.get('http://localhost:8000/patientdetails/', {
+    const patientsresponse = await axios.get(`${API_ENDPOINT}/patientdetails/`, {
       headers: {
         Authorization: `JWT ${accessToken}`
       }
@@ -117,7 +119,7 @@ function UsersProvider({ children }) {
 
   const practiceDetails = async () => {
     const accessToken = window.localStorage.getItem('accessToken');
-    const pdetails = await axios.get('http://localhost:8000/practicedetails/2/', {
+    const pdetails = await axios.get(`${API_ENDPOINT}/practicedetails/2/`, {
       headers: {
         Authorization: `JWT ${accessToken}`
       }
@@ -139,7 +141,7 @@ function UsersProvider({ children }) {
 
   const inventoryDetails = async () => {
     const accessToken = window.localStorage.getItem('accessToken');
-    const idetails = await axios.get('http://localhost:8000/inventorydetails/', {
+    const idetails = await axios.get(`${API_ENDPOINT}/inventorydetails/`, {
       headers: {
         Authorization: `JWT ${accessToken}`
       }

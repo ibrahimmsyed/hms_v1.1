@@ -16,6 +16,8 @@ const initialState = {
   selectedRange: null,
 };
 
+const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
+
 const slice = createSlice({
   name: 'calendar',
   initialState,
@@ -206,7 +208,7 @@ export function getCalendarEvents() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/eventcalendar/', headers);
+      const response = await axios.get(`${API_ENDPOINT}/eventcalendar/`, headers);
       dispatch(slice.actions.getCalendarEventsSuccess(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -223,7 +225,7 @@ export function addCalendarEvents(plan) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/eventcalendar/', plan, headers);
+      const response = await axios.post(`${API_ENDPOINT}/eventcalendar/`, plan, headers);
       dispatch(slice.actions.setCalendarEvents(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -240,7 +242,7 @@ export function deleteCalendarEvents(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/eventcalendar/${id}/`, headers);
+      const response = await axios.delete(`${API_ENDPOINT}/eventcalendar/${id}/`, headers);
       dispatch(slice.actions.removeCalendarEvents(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -257,7 +259,7 @@ export function updateCalendarEvents(data, id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.put(`http://localhost:8000/eventcalendar/${id}/`, data, headers);
+      const response = await axios.put(`${API_ENDPOINT}/eventcalendar/${id}/`, data, headers);
       dispatch(slice.actions.modifyCalendarEvents(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));

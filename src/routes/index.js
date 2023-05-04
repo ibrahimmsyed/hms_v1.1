@@ -196,7 +196,7 @@ export default function Router() {
             { path: ':id', element: <InvoiceDetails /> },
             { path: ':id/edit', element: <InvoiceEdit /> },
             { path: 'new', element: <InvoiceCreate /> },
-            { path: ':id/new', element: <InvoiceCreate /> },
+            { path: ':id/:name/new', element: <InvoiceCreate /> },
           ],
         },
         {

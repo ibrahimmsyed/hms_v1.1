@@ -36,7 +36,7 @@ export default function PracticeDetails() {
 
   const { name = '' } = useParams();
 
-  const isEdit = true;
+  const isEdit = !!practiceDetails.length;
 
   return (
     <Page title="Practice Details">

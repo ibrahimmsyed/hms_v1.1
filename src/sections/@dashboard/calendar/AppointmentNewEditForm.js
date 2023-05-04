@@ -128,8 +128,8 @@ export default function AppointmentNewEditForm({ isEdit, staff, currentAppointme
         dispatch(addCalendarEvents(data))
         enqueueSnackbar('Create success!');
       }
-      // onCancel();
-      // reset();
+      onCancel();
+      reset();
     } catch (error) {
       console.error(error);
     }

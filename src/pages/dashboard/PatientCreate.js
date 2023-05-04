@@ -57,7 +57,7 @@ export default function PatientCreate() {
           heading={!isEdit ? 'Create a new patient' : 'Edit user'}
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Patient', href: PATH_DASHBOARD.user.list },
+            { name: 'Patient', href: PATH_DASHBOARD.patient.profile },
             { name: !isEdit ? 'New user' : '' },
           ]}
         />

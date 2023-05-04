@@ -39,6 +39,9 @@ export default function InvoiceCreate() {
     if(patients && appointment){
       const patient = patients.find((user) => Number(user.id) === Number(appointment.patientId));
       setCurrentPatient(patient);
+    }else if (patients && id) {
+      const patient = patients.find((user) => Number(user.id) === Number(id));
+      setCurrentPatient(patient);
     }
   },[patients, appointment])
 

@@ -9,6 +9,7 @@ import mapKeys from 'lodash/mapKeys';
 import axios from '../utils/axios';
 
 
+const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
 
 const baseUrl = 'http:/.../WebServices/api';
 
@@ -25,7 +26,7 @@ class InventoryApiService extends EventEmitter {
         try {
             const accessToken = window.localStorage.getItem('accessToken');
             this.inventory = item
-            const response = await axios.post('http://localhost:8000/inventorydetails/', this.inventory,{
+            const response = await axios.post(`${API_ENDPOINT}/inventorydetails/`, this.inventory,{
                 headers: {
                 Authorization: `JWT ${accessToken}`
                 }
@@ -43,7 +44,7 @@ class InventoryApiService extends EventEmitter {
             let message;
             
             this.inventoryDetail = item
-            const response = await axios.put(`http://localhost:8000/inventorydetails/${id}/`, this.inventoryDetail,{
+            const response = await axios.put(`${API_ENDPOINT}/inventorydetails/${id}/`, this.inventoryDetail,{
                 headers: {
                 Authorization: `JWT ${accessToken}`
                 }
@@ -61,7 +62,7 @@ class InventoryApiService extends EventEmitter {
         try {
             this.accessToken = window.localStorage.getItem('accessToken');
             let message;
-            const response = await axios.delete(`http://localhost:8000/inventorydetails/${id}/`, 
+            const response = await axios.delete(`${API_ENDPOINT}/inventorydetails/${id}/`, 
             {
                 headers: {
                 Authorization: `JWT ${this.accessToken}`

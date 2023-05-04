@@ -158,6 +158,9 @@ export default function UserCards() {
     setNotes(items)
   },[clinicalNotes, patients])
 
+  
+  
+
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     if(id){
       navigate(PATH_DASHBOARD.patient.selected( TAB_VALUE[newValue], selectedPatientId));
@@ -193,6 +196,11 @@ export default function UserCards() {
     setPrintOpen(true)
     setPrescription(prescriptions.filter(prescription => prescription.id === id)?.[0])
     console.log('onPrint')
+  }
+
+  const handleAddNewInvoice = (url) => {
+    setRedirectURL(url)
+    setDialogState(true)
   }
 
   return (
@@ -326,9 +334,9 @@ export default function UserCards() {
             <Button
               variant="contained"
               startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
-              component={RouterLink} to={PATH_DASHBOARD.invoice.new}
+              onClick={() => handleAddNew('invoice')}
             >
-              Add Prescription
+              Add Payment
             </Button>
           </Stack>
           <PatientInvoiceList/>

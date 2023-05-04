@@ -24,6 +24,8 @@ const PopperStyle = styled((props) => <Popper placement="bottom-start" {...props
   width: '280px !important',
 });
 
+const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
+
 // ----------------------------------------------------------------------
 
 export default function PatientSearch({selectedPatient}) {
@@ -48,7 +50,7 @@ export default function PatientSearch({selectedPatient}) {
             },
             params: { search: value }
         }
-        const response = await axios.get('http://localhost:8000/patientdetails/', headers);
+        const response = await axios.get(`${API_ENDPOINT}/patientdetails/`, headers);
 
         if (isMountedRef.current) {
           setSearchResults(response.data);

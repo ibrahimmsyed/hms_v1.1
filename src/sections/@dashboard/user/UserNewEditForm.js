@@ -37,18 +37,6 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
   const userApiService = new UserApiService();
   const { setUserDetails } = useUsers();
   const { enqueueSnackbar } = useSnackbar();
-  if(isEdit && currentUser){
-    Object.entries(currentUser).forEach(
-      ([key, value]) => {
-        ['isBackOffice','isFrontOffice','isStaff'].forEach(role=>{
-          if(key === role && value){
-            currentUser.userRole = key
-          }
-        })
-        console.log(key, value)
-    });
-  }
-  
 
   const NewUserSchema = Yup.object().shape({
     username: Yup.string().required('username is required'),
@@ -77,9 +65,9 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
   });
 
   const userRole = [
-    {id: 1,code: 'isStaff', name:'Doctor'},
-    {id: 2,code: 'isFrontOffice', name:'Front Office'},
-    {id: 3,code: 'isBackOffice', name:'Back Office'},
+    {id: 1,code: 'is_staff', name:'Doctor'},
+    {id: 2,code: 'is_front_office', name:'Front Office'},
+    {id: 3,code: 'is_back_office', name:'Back Office'},
   ]
 
   const colorCode = [
@@ -103,19 +91,36 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     {id: 18,code: '#607d8b', name:'blueGrey'}
   ]
 
+  const savedUserRole = (code) => {
+    let roleOfUser = '';
+    if (isEdit && currentUser) {
+      Object.entries(currentUser).forEach(
+        ([key, value]) => {
+          ['is_back_office','is_front_office','is_staff'].forEach(role=>{
+            if(key === role && value){
+              roleOfUser = key
+            }
+          })
+      });
+    }
+    console.log(roleOfUser)
+    return roleOfUser
+    
+  }
+
   const defaultValues = useMemo(
     () => ({
       username: currentUser?.username || '',
-      firstName: currentUser?.firstName || '',
+      firstName: currentUser?.first_name || '',
       email: currentUser?.email || '',
-      phoneNumber: currentUser?.phoneNumber || '',
-      lastName: currentUser?.lastName || '',
-      registrationNumber: currentUser?.registrationNumber || '',
-      calendarColor: currentUser?.calendarColor || '',
-      displayPicture: currentUser?.displayPicture || '',
-      isActive: currentUser?.isActive || true,
-      userRole: currentUser?.userRole || '',
-      isSuperuser: currentUser?.isSuperuser || false,
+      phoneNumber: currentUser?.phone_number || '',
+      lastName: currentUser?.last_name || '',
+      registrationNumber: currentUser?.registration_number || '',
+      calendarColor: currentUser?.calendar_color || '',
+      displayPicture: currentUser?.display_picture || '',
+      isActive: currentUser?.is_active || true,
+      userRole: savedUserRole(currentUser?.userRole) || '',
+      isSuperuser: currentUser?.is_superuser || false,
       newPassword: '',
       confirmNewPassword: '',
     }),
@@ -154,6 +159,9 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
       data = await handleUserRole(data)
       if (data){
         if(isEdit){
+          if(data.displayPicture === currentUser.display_picture){
+            delete data.displayPicture;
+          }
           dispatch(updateUser(data, currentUser.id))  
         }else{
           dispatch(addUser(data))  
@@ -208,10 +216,10 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
           <Card sx={{ py: 10, px: 3 }}>
             {isEdit && (
               <Label
-                color={!currentUser?.isActive ? 'error' : 'success'}
+                color={!currentUser?.is_active ? 'error' : 'success'}
                 sx={{ textTransform: 'uppercase', position: 'absolute', top: 24, right: 24 }}
               >
-                {currentUser?.isActive ? 'Active':'Not Active'}
+                {currentUser?.is_active ? 'Active':'Not Active'}
               </Label>
             )}
 

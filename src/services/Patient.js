@@ -7,6 +7,7 @@ import mapKeys from 'lodash/mapKeys';
 
 import axios from '../utils/axios';
 
+const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
 
 class PatientApiService {
     
@@ -14,7 +15,7 @@ class PatientApiService {
         try {
             this.patient = item
             const accessToken = window.localStorage.getItem('accessToken');
-            const response = await axios.post('http://localhost:8000/patientdetails/', this.patient,{
+            const response = await axios.post(`${API_ENDPOINT}/patientdetails/`, this.patient,{
                 headers: {
                 Authorization: `JWT ${accessToken}`
                 }
@@ -34,7 +35,7 @@ class PatientApiService {
                 formData.append(key, item[key]);
             })
             this.patient = item
-            const response = await axios.put(`http://localhost:8000/patientdetails/${id}/`, formData,{
+            const response = await axios.put(`${API_ENDPOINT}/patientdetails/${id}/`, formData,{
                 headers: {
                 Authorization: `JWT ${accessToken}`,
                 'Content-type':'multipart/form-data',
@@ -54,7 +55,7 @@ class PatientApiService {
         try {
             this.accessToken = window.localStorage.getItem('accessToken');
             let message;
-            const response = await axios.delete(`http://localhost:8000/inventorydetails/${id}/`, 
+            const response = await axios.delete(`${API_ENDPOINT}/inventorydetails/${id}/`, 
             {
                 headers: {
                 Authorization: `JWT ${this.accessToken}`

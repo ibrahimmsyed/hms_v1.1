@@ -39,6 +39,8 @@ import Label from '../../components/Label';
 import Iconify from '../../components/Iconify';
 import Scrollbar from '../../components/Scrollbar';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
+import { DialogAnimate } from '../../components/animate';
+import PatientsDialog from '../../components/PatientsDialog';
 import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } from '../../components/table';
 // sections
 import InvoiceAnalytic from '../../sections/@dashboard/invoice/InvoiceAnalytic';
@@ -78,6 +80,8 @@ export default function InvoiceList() {
   const navigate = useNavigate();
 
   const { patients } = useUsers();
+
+  const [isOpen, setDialogState] = useState(false);
 
   const {
     dense,
@@ -165,6 +169,18 @@ export default function InvoiceList() {
     filterEndDate,
   });
 
+  const onClose = () => {
+    setDialogState(true)
+  }
+
+  const handleClose = () => {
+    setDialogState(false)
+  }
+
+  const handleAddNew = () => {
+    setDialogState(true)
+  }
+
   const denseHeight = dense ? 56 : 76;
 
   const isNotFound =
@@ -205,8 +221,7 @@ export default function InvoiceList() {
           action={
             <Button
               variant="contained"
-              component={RouterLink}
-              to={PATH_DASHBOARD.invoice.new}
+              onClick={handleAddNew}
               startIcon={<Iconify icon={'eva:plus-fill'} />}
             >
               New Invoice
@@ -405,6 +420,22 @@ export default function InvoiceList() {
           </Box>
         </Card>
       </Container>
+      <DialogAnimate fullWidth maxWidth="md" open={isOpen} onClose={onClose}>
+        <IconButton
+            size="small"
+            onClick={() => handleClose()}
+            sx={{
+                top: 6,
+                p: '2px',
+                right: 6,
+                position: 'absolute',
+                color: 'common.white'
+            }}
+            >
+            <Iconify icon={'eva:close-fill'} />
+        </IconButton>
+        <PatientsDialog patients={patients} url={'invoice'}/>
+      </DialogAnimate>
     </Page>
   );
 }

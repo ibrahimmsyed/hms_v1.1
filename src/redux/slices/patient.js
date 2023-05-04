@@ -27,6 +27,8 @@ const initialState = {
   invoice: []
 };
 
+const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
+
 const slice = createSlice({
   name: 'patient',
   initialState,
@@ -201,7 +203,7 @@ export function getPatientsDetails() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const res = await axios.get('http://localhost:8000/patientdetails/', headers);
+      const res = await axios.get(`${API_ENDPOINT}/patientdetails/`, headers);
       // const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
       dispatch(slice.actions.getPatientsSuccess(res.data));
     } catch (error) {
@@ -219,7 +221,7 @@ export function getCurrentPatientsDetails(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const res = await axios.get(`http://localhost:8000/patientdetails/${id}/`, headers);
+      const res = await axios.get(`${API_ENDPOINT}/patientdetails/${id}/`, headers);
       // const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
       dispatch(slice.actions.setPatientDetails(res.data));
     } catch (error) {
@@ -232,36 +234,50 @@ export function addPatientsDetail(data) {
       dispatch(slice.actions.startLoading());
       try {
           const accessToken = window.localStorage.getItem('accessToken');
+          const formData = new FormData();
+            Object.keys(data).forEach(key => { 
+                formData.append(key, data[key]);
+            })
           const headers = {
-              headers: {
-              Authorization: `JWT ${accessToken}`
+            headers: {
+              Authorization: `JWT ${accessToken}`,
+              'Content-type':'multipart/form-data',
+              'Content-Disposition': `attachment; filename=${data?.dop?.name}`,
               }
           }
-        const response = await axios.post('http://localhost:8000/patientdetails/', data, headers);
+        const response = await axios.post(`${API_ENDPOINT}/patientdetails/`, formData, headers);
         dispatch(slice.actions.updatePatientDetails(response.data));
       } catch (error) {
         dispatch(slice.actions.hasError(error));
       }
     };
 }
+
 export function updatePatientsDetail(data, id) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
+        const formData = new FormData();
+            Object.keys(data).forEach(key => { 
+                formData.append(key, data[key]);
+            })
         const headers = {
-            headers: {
-            Authorization: `JWT ${accessToken}`
+          headers: {
+            Authorization: `JWT ${accessToken}`,
+            'Content-type':'multipart/form-data',
+            'Content-Disposition': `attachment; filename=${data?.dop?.name}`,
             }
         }
-      const response = await axios.put(`http://localhost:8000/patientdetails/${id}/`, data, headers);
+      const response = await axios.put(`${API_ENDPOINT}/patientdetails/${id}/`, formData, headers);
       dispatch(slice.actions.setPatientDetails(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
   };
 }
-export function deletePatientsDetail(data, id) {
+
+export function deletePatientsDetail( id) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
@@ -271,7 +287,7 @@ export function deletePatientsDetail(data, id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/patientdetails/${id}/`, data, headers);
+      const response = await axios.delete(`${API_ENDPOINT}/patientdetails/${id}/`, headers);
       dispatch(slice.actions.removePatientDetail(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -289,7 +305,7 @@ export function getMedicalHistory() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/medicalhistory/', headers);
+      const response = await axios.get(`${API_ENDPOINT}/medicalhistory/`, headers);
       dispatch(slice.actions.setPatientHistory(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -306,7 +322,7 @@ export function addMedicalHistory(history) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/medicalhistory/', history, headers);
+      const response = await axios.post(`${API_ENDPOINT}/medicalhistory/`, history, headers);
       dispatch(slice.actions.updatePatientHistory(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -323,7 +339,7 @@ export function deleteMedicalHistory(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/medicalhistory/${id}/`, headers);
+      const response = await axios.delete(`${API_ENDPOINT}/medicalhistory/${id}/`, headers);
       dispatch(slice.actions.deletePatientHistory(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -341,7 +357,7 @@ export function getProcedure() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/procedure/', headers);
+      const response = await axios.get(`${API_ENDPOINT}/procedure/`, headers);
       dispatch(slice.actions.setProcedure(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -358,7 +374,7 @@ export function addProcedure(plan) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/procedure/', plan, headers);
+      const response = await axios.post(`${API_ENDPOINT}/procedure/`, plan, headers);
       dispatch(slice.actions.updateProcedure(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -375,7 +391,7 @@ export function deleteProcedure(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/procedure/${id}/`, headers);
+      const response = await axios.delete(`${API_ENDPOINT}/procedure/${id}/`, headers);
       dispatch(slice.actions.removeProcedure(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -393,7 +409,7 @@ export function getPresciptions() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/precription/', headers);
+      const response = await axios.get(`${API_ENDPOINT}/precription/`, headers);
       dispatch(slice.actions.setPrescription(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -410,7 +426,7 @@ export function addPresciption(plan) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/precription/', plan, headers);
+      const response = await axios.post(`${API_ENDPOINT}/precription/`, plan, headers);
       dispatch(slice.actions.updatePrescription(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -427,7 +443,7 @@ export function deletePresciption(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/precription/${id}/`, headers);
+      const response = await axios.delete(`${API_ENDPOINT}/precription/${id}/`, headers);
       dispatch(slice.actions.removePrescription(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -446,7 +462,7 @@ export function getUploadFiles() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/fileUpload/', headers);
+      const response = await axios.get(`${API_ENDPOINT}/fileUpload/`, headers);
       dispatch(slice.actions.setFiles(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -468,7 +484,7 @@ export function uploadFiles(plan) {
             'Content-Disposition': `attachment; filename=${plan?.File_to_upload?.name}`,
             }
         }
-      const response = await axios.post('http://localhost:8000/fileUpload/', formData, headers);
+      const response = await axios.post(`${API_ENDPOINT}/fileUpload/`, formData, headers);
       dispatch(slice.actions.updateFiles(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -488,7 +504,7 @@ export function getMedicalCertificate() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/medicalcertificate/', headers);
+      const response = await axios.get(`${API_ENDPOINT}/medicalcertificate/`, headers);
       dispatch(slice.actions.setMedicalCertificate(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -505,7 +521,7 @@ export function addMedicalCertificate(plan) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/medicalcertificate/', plan, headers);
+      const response = await axios.post(`${API_ENDPOINT}/medicalcertificate/`, plan, headers);
       dispatch(slice.actions.updateMedicalCertificate(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -522,7 +538,7 @@ export function deleteMedicalCertificate(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/medicalcertificate/${id}/`, headers);
+      const response = await axios.delete(`${API_ENDPOINT}/medicalcertificate/${id}/`, headers);
       dispatch(slice.actions.removeMedicalCertificate(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -542,7 +558,7 @@ export function getClinicalNotes() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/clinicalnotes/', headers);
+      const response = await axios.get(`${API_ENDPOINT}/clinicalnotes/`, headers);
       dispatch(slice.actions.setClinicalNotes(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -559,7 +575,7 @@ export function addClinicalNotes(plan) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/clinicalnotes/', plan, headers);
+      const response = await axios.post(`${API_ENDPOINT}/clinicalnotes/`, plan, headers);
       dispatch(slice.actions.updateClinicalNotes(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -576,7 +592,7 @@ export function deleteClinicalNotes(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/clinicalnotes/${id}/`, headers);
+      const response = await axios.delete(`${API_ENDPOINT}/clinicalnotes/${id}/`, headers);
       dispatch(slice.actions.removeClinicalNotes(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -596,7 +612,7 @@ export function getInvoice() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/invoice/', headers);
+      const response = await axios.get(`${API_ENDPOINT}/invoice/`, headers);
       dispatch(slice.actions.setInvoice(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -613,7 +629,7 @@ export function addInvoice(plan) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/invoice/', plan, headers);
+      const response = await axios.post(`${API_ENDPOINT}/invoice/`, plan, headers);
       dispatch(slice.actions.updateInvoice(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -630,7 +646,7 @@ export function deleteInvoice(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/invoice/${id}/`, headers);
+      const response = await axios.delete(`${API_ENDPOINT}/invoice/${id}/`, headers);
       dispatch(slice.actions.removeInvoice(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -650,7 +666,7 @@ export function getCalendarEvents() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/eventcalendar/', headers);
+      const response = await axios.get(`${API_ENDPOINT}/eventcalendar/`, headers);
       dispatch(slice.actions.setCalendarEvent(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -667,7 +683,7 @@ export function addCalendarEvents(plan) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/eventcalendar/', plan, headers);
+      const response = await axios.post(`${API_ENDPOINT}/eventcalendar/`, plan, headers);
       dispatch(slice.actions.updateCalendarEvents(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -684,7 +700,7 @@ export function updateCalendarEvents(data, id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.put(`http://localhost:8000/eventcalendar/${id}/`, data, headers);
+      const response = await axios.put(`${API_ENDPOINT}/eventcalendar/${id}/`, data, headers);
       dispatch(slice.actions.updateCalendarEvents(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -701,7 +717,7 @@ export function deleteCalendarEvents(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/eventcalendar/${id}/`, headers);
+      const response = await axios.delete(`${API_ENDPOINT}/eventcalendar/${id}/`, headers);
       dispatch(slice.actions.removeCalendarEvents(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -720,7 +736,7 @@ export function getAllTreatmentPlans() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const res = await axios.get('http://localhost:8000/treatmentplans/', headers);
+      const res = await axios.get(`${API_ENDPOINT}/treatmentplans/`, headers);
       // const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
       dispatch(slice.actions.getTreatmentPlansSuccess(res.data));
     } catch (error) {
@@ -738,7 +754,7 @@ export function addTreatmentPlans(data) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.post('http://localhost:8000/treatmentplans/', data, headers);
+      const response = await axios.post(`${API_ENDPOINT}/treatmentplans/`, data, headers);
       dispatch(slice.actions.updateTreatmentPlans(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -758,13 +774,14 @@ export function getPatientDetails(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const url = id ? `http://localhost:8000/patient/${id}/` : 'http://localhost:8000/patient/';
+      const url = id ? `${API_ENDPOINT}/patient/${id}/` : `${API_ENDPOINT}/patient/`;
       const response = await axios.get(url, headers);
       let calendar = []
       let plans = []
       let notes = []
       let prescription = []
       let uploads = [];
+      let invoice = [];
       if(id){
         const patient = response.data
         dispatch(slice.actions.setClinicalNotes(patient.notes));
@@ -773,6 +790,7 @@ export function getPatientDetails(id) {
         dispatch(slice.actions.getTreatmentPlansSuccess(patient.plans)); 
         dispatch(slice.actions.setCalendarEvent(patient.calendar));
         dispatch(slice.actions.getPatientsSuccess([patient]));
+        // dispatch(slice.actions.setInvoice(patient.invoice));
       }else{
         response.data.forEach(data => {
           if(data.calendar.length){ calendar = [...data.calendar, ...calendar] }
@@ -780,12 +798,14 @@ export function getPatientDetails(id) {
           if(data.notes.length){ notes = [...data.notes, ...notes] }
           if(data.prescription.length){ prescription = [...data.prescription, ...prescription] }
           if(data.uploads.length){ uploads = [...data.uploads, ...uploads] }
+          if(data.invoice.length){ invoice = [...data.invoice, ...invoice] }
         })
         dispatch(slice.actions.setClinicalNotes(notes));
         dispatch(slice.actions.setFiles(uploads));
         dispatch(slice.actions.setPrescription(prescription));
         dispatch(slice.actions.getTreatmentPlansSuccess(plans)); 
         dispatch(slice.actions.setCalendarEvent(calendar));
+        // dispatch(slice.actions.setInvoice(invoice));
         console.log(calendar, plans, notes, prescription, uploads)
         dispatch(slice.actions.getPatientsSuccess(response.data));
     }

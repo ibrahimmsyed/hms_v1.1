@@ -75,7 +75,6 @@ export default function PracticeStaff() {
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
-  const { user: _userList } = useUsers();
   const { users } = useSelector((state) => state.user);
   
   const {
@@ -111,7 +110,7 @@ export default function PracticeStaff() {
 
   const [id, setDeleteId] = useState(false);
 
-  const [tableData, setTableData] = useState(_userList);
+  const [tableData, setTableData] = useState([]);
 
   const [filterName, setFilterName] = useState('');
 

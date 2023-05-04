@@ -19,6 +19,8 @@ const initialState = {
   currentUser: {}
 };
 
+const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
+
 const slice = createSlice({
   name: 'user',
   initialState,
@@ -79,7 +81,7 @@ export function getUsersDetails() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const res = await axios.get('http://localhost:8000/users/', headers);
+      const res = await axios.get(`${API_ENDPOINT}/users/`, headers);
       const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
       dispatch(slice.actions.getUsersSuccess(response));
     } catch (error) {
@@ -97,7 +99,7 @@ export function getCurrentUser() {
               Authorization: `JWT ${accessToken}`
               }
           }
-        const response = await axios.get('http://localhost:8000/users/me/', headers);
+        const response = await axios.get(`${API_ENDPOINT}/users/me`, headers);
         dispatch(slice.actions.setCurrentUser(response));
       } catch (error) {
         dispatch(slice.actions.hasError(error));
@@ -117,7 +119,7 @@ export function getUsers() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.get('http://localhost:8000/users/', headers);
+      const response = await axios.get(`${API_ENDPOINT}/practicestaff/`, headers);
       dispatch(slice.actions.setUsers(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -157,7 +159,7 @@ export function addUser(user) {
           'Content-Disposition': `attachment; filename=${user?.displayPicture?.name}`,
           }
       }
-      const response = await axios.post('http://localhost:8000/practicestaff/', formData, headers);
+      const response = await axios.post(`${API_ENDPOINT}/practicestaff/`, formData, headers);
       dispatch(slice.actions.updateUsers(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -174,7 +176,7 @@ export function deleteUser(id) {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const response = await axios.delete(`http://localhost:8000/deleteuser/${id}/`, headers);
+      const response = await axios.delete(`${API_ENDPOINT}/deleteuser/${id}/`, headers);
       dispatch(slice.actions.removeUsers(id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -186,6 +188,7 @@ export function updateUser(data, id) {
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
+        let headers = {}
         const userDetails = {
           username: data.username,
           first_name: data.firstName,
@@ -203,16 +206,25 @@ export function updateUser(data, id) {
         }
         const formData = new FormData();
         Object.keys(userDetails).forEach(key => { 
+            if(userDetails[key])
             formData.append(key, userDetails[key]);
         })
-        const headers = {
+        if(data.displayPicture){
+          headers = {
             headers: {
             Authorization: `JWT ${accessToken}`,
             'Content-type':'multipart/form-data',
             'Content-Disposition': `attachment; filename=${data?.displayPicture?.name}`,
+              }
             }
-       }
-      const response = await axios.put(`http://localhost:8000/updateuser/${id}/`, formData, headers);
+        }else{
+          headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+          }
+        }
+      const response = await axios.put(`${API_ENDPOINT}/updateuser/${id}/`, formData, headers);
       dispatch(slice.actions.setCurrentInventory(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));

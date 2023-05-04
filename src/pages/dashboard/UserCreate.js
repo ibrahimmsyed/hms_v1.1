@@ -1,15 +1,17 @@
 import { paramCase, capitalCase } from 'change-case';
 import { useParams, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 // @mui
 import { Container } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
+import { useDispatch, useSelector } from '../../redux/store';
 // hooks
 import useUsers from '../../hooks/useUsers';
 import useSettings from '../../hooks/useSettings';
 // _mock_
 import { _userList } from '../../_mock';
-
+import { getUsers } from '../../redux/slices/user';
 // components
 import Page from '../../components/Page';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
@@ -19,9 +21,18 @@ import UserNewEditForm from '../../sections/@dashboard/user/UserNewEditForm';
 // ----------------------------------------------------------------------
 
 export default function UserCreate() {
-  const { user: _userList } = useUsers();
+  
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getUsers());
+  }, [dispatch])
+
+  const { users } = useSelector((state) => state.user);
   
   const { themeStretch } = useSettings();
+
+  const [currentUser, setCurrentUser] = useState(null);
 
   const { pathname } = useLocation();
 
@@ -29,11 +40,14 @@ export default function UserCreate() {
 
   const isEdit = pathname.includes('edit');
 
-  const currentUser = _userList.find((user) => user.id === Number(id));
+  useEffect(() => {
+    const currentUser = users.find((user) => user.id === Number(id));
+    setCurrentUser(currentUser)
+  }, [users])  
 
   return (
     <Page title="User: Create a new user">
-      <Container maxWidth={themeStretch ? false : 'lg'}>
+      {currentUser?.id && <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
           heading={!isEdit ? 'Create a new user' : 'Edit user'}
           links={[
@@ -44,7 +58,7 @@ export default function UserCreate() {
         />
 
         <UserNewEditForm isEdit={isEdit} currentUser={currentUser} />
-      </Container>
+      </Container>}
     </Page>
   );
 }

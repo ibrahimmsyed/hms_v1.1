@@ -13,7 +13,7 @@ ConfirmationDialog.propTypes = {
   value: PropTypes.string,
 };
 
-export default function ConfirmationDialog({ openDialog, value, handleDeleteRow, ...other }) {
+export default function ConfirmationDialog({ openDialog, value, handleDeleteRow, handleClose, ...other }) {
 
   const [isOpen, setDialog] = useState(openDialog);
 
@@ -21,9 +21,7 @@ export default function ConfirmationDialog({ openDialog, value, handleDeleteRow,
     setDialog(openDialog)
   }, [openDialog])
 
-  const handleClose = (value: string) => {
-    setDialog(false);
-  };
+
   
   return (
     <DialogAnimate maxWidth={false}  open={isOpen} sx={{maxWidth: 860}}>
