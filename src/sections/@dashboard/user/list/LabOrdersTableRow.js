@@ -11,6 +11,7 @@ import SplitButton  from '../../../../components/SplitButton';
 
 //
 import useUsers from '../../../../hooks/useUsers';
+import { useDispatch, useSelector } from '../../../../redux/store';
 
 // ----------------------------------------------------------------------
 
@@ -25,7 +26,7 @@ LabOrdersTableRow.propTypes = {
 export default function LabOrdersTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onStatusSelected }) {
   const theme = useTheme();
 
-  const { user: _userList } = useUsers();
+  const { users } = useSelector((state) => state.user);
 
   const { jobId, patientName, orderedBy, labName, workName, status, labExpense, dueDate } = row;
 
@@ -52,9 +53,9 @@ export default function LabOrdersTableRow({ row, selected, onEditRow, onSelectRo
   },[_userList]) */
 
   const findDoctor = (id) => {
-    const user = _userList.filter(user => user.isStaff && user.id === Number(id))
+    const user = users.filter(user => user.is_staff && user.id === Number(id))
     if(user.length){
-      return `${user[0].firstName} ${user[0].lastName}`
+      return `${user[0].first_name} ${user[0].last_name}`
     }
     return 'NA'
   }

@@ -146,7 +146,7 @@ export default function LabsWork() {
       const newObj = {...p}
       Object.assign(newObj, {treatments:[], showForm: false})
       subCategory.forEach((c) => {
-          if(newObj.categoryID === c.parentId){
+          if(newObj.id === Number(c.parentId)){
             newObj.treatments.push(c) 
           }
       })

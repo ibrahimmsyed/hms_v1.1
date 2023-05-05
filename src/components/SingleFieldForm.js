@@ -57,6 +57,7 @@ export default function SingleFieldForm({ id, parentId, onSubSubmit }) {
   } = methods;
 
   const onSubmit = async (data) => {
+    data.parentId = id
     onSubSubmit(data)
     console.log(data)
   };

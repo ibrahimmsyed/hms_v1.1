@@ -12,6 +12,7 @@ import useSettings from '../../hooks/useSettings';
 // _mock_
 import { _userList } from '../../_mock';
 import { getLabDetails } from '../../redux/slices/lab';
+import { getPatientDetails } from '../../redux/slices/patient';
 // components
 import Page from '../../components/Page';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
@@ -27,13 +28,18 @@ export default function LabsCreate() {
 
   const [currentWork, setCurrentWork] = useState({});
 
-  const { patients:_userCards } = useUsers();
+  const [currentPatient, setCurrentPatient] = useState({});
+
+  const [userName, setUserName] = useState('');
 
   const { labs } = useSelector((state) => state.labs);
+
+  const { patients:_userCards } = useSelector((state) => state.patient);
 
   const { pathname } = useLocation();
 
   useEffect(() => {
+    dispatch(getPatientDetails());
     dispatch(getLabDetails());
   },[dispatch])
 
@@ -48,9 +54,15 @@ export default function LabsCreate() {
       currentWork.jobId = `0000${Math.max(...labs.map(o => o.id), 0) + 1}`;
     }
     setCurrentWork(currentWork)
-  },[labs])
 
-  const currentPatient = _userCards.find((user) => Number(user.id) === Number(id));
+    const currentPatient = _userCards.find((user) => Number(user.id) === Number(id));
+    if(currentPatient?.id){
+      setCurrentPatient(currentPatient)
+      setUserName(capitalCase(currentPatient?.patientName))
+    }
+  },[labs, _userCards])
+
+  
 
 
 
@@ -62,7 +74,7 @@ export default function LabsCreate() {
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
             { name: 'Labs', href: PATH_DASHBOARD.labs.orders },
-            { name: !isEdit ? 'New Order' : capitalCase(currentPatient?.patientName) },
+            { name: !isEdit ? 'New Order' : userName },
           ]}
         />
 

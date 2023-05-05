@@ -34,6 +34,8 @@ export default function UserCreate() {
 
   const [currentUser, setCurrentUser] = useState(null);
 
+  const [userName, setUserName] = useState(null);
+
   const { pathname } = useLocation();
 
   const { id = '' } = useParams();
@@ -42,23 +44,26 @@ export default function UserCreate() {
 
   useEffect(() => {
     const currentUser = users.find((user) => user.id === Number(id));
+    if(currentUser?.id){
+      setUserName(capitalCase(currentUser?.username))
+    }
     setCurrentUser(currentUser)
   }, [users])  
 
   return (
     <Page title="User: Create a new user">
-      {currentUser?.id && <Container maxWidth={themeStretch ? false : 'lg'}>
+      <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
           heading={!isEdit ? 'Create a new user' : 'Edit user'}
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
             { name: 'Practice Staff', href: PATH_DASHBOARD.settings.practicestaff },
-            { name: !isEdit ? 'New user' : capitalCase(currentUser?.username) },
+            { name: !isEdit ? 'New user' : userName },
           ]}
         />
 
         <UserNewEditForm isEdit={isEdit} currentUser={currentUser} />
-      </Container>}
+      </Container>
     </Page>
   );
 }

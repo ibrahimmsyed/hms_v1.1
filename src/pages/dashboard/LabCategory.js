@@ -112,7 +112,7 @@ export default function LabOrders() {
 
   const { labs } = useSelector((state) => state.labs);
 
-  const { patients } = useSelector((state) => state.patients);
+  const { patients } = useSelector((state) => state.patient);
 
   const { currentTab: filterStatus, onChangeTab: onChangeFilterStatus } = useTabs('all');
 

@@ -22,6 +22,7 @@ import { countries, _faqs, _labTreatments } from '../../../_mock';
 import { getAllLabWork, addLabName, getAllLabNames, addLabDetail, updateLabDetail } from '../../../redux/slices/lab';
 import { useDispatch, useSelector } from '../../../redux/store';
 import { getProducts, resetCart } from '../../../redux/slices/product';
+import { getUsers } from '../../../redux/slices/user';
 // components
 import Iconify from '../../../components/Iconify';
 import Scrollbar from '../../../components/Scrollbar';
@@ -52,7 +53,9 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
 
   const dispatch = useDispatch();
 
-  const { user: _userList } = useUsers();
+  const { users } = useSelector((state) => state.user);
+
+  const [userList, setUserList] = useState([]);
 
   const [newLabNames, setNewLabNames] = useState([]);
 
@@ -217,20 +220,17 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
   const values = watch();
 
   useEffect(() => {
+    dispatch(getUsers());
     dispatch(getAllLabWork());
     dispatch(getAllLabNames());
   },[dispatch])
 
-  const { labworks } = useSelector((state) => state.labs);
-  const { labNames } = useSelector((state) => state.labs);
-
+  const { labworks, labNames } = useSelector((state) => state.labs);
+  
   useEffect(() => {
-    console.log(_userList)
-    setUser(_userList.filter(user => user.isStaff))
     setLabTreatments(cookArrayForView(labworks))
     setNewLabNames(labNames)
-    setValue('orderedBy', user?.[0]?.id)
-  },[labworks, labNames, _userList])
+  },[labworks, labNames])
 
   const cookArrayForView = (labworks) => {
     const category = labworks.filter(a => !a.parentId);
@@ -272,6 +272,14 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
     setShowAddForm(!showAddForm)
   }
 
+  useEffect(() => {
+    if(users.length){
+      const _users = users.filter(user => user.is_staff)
+      setUserList(_users)
+      setValue('orderedBy', _users?.[0]?.id)
+    }
+  },[users, currentWork])
+
   const onSubmit = async (data) => {
     try {
       const payload = {
@@ -311,21 +319,6 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
     }
   };
 
-  const handleDrop = useCallback(
-    (acceptedFiles) => {
-      const file = acceptedFiles[0];
-
-      if (file) {
-        setValue(
-          'avatarUrl',
-          Object.assign(file, {
-            preview: URL.createObjectURL(file),
-          })
-        );
-      }
-    },
-    [setValue]
-  );
   const denseHeight = dense ? 60 : 80;
   const [filterName, setFilterName] = useState('');
   const dataFiltered = applySortFilter({
@@ -358,7 +351,10 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
     console.log(selected.filter(teeth => teeth.checked && teeth.id).map(teeth => teeth.id))
     let mappedArray = selectedTeeths.concat(',',selected.filter(teeth => teeth.checked && teeth.id).map(teeth => teeth.id).filter(i => selectedTeeths.indexOf(i)))
     // const mappedArray = [...selectedTeeths ,...selected.filter(teeth => teeth.checked && teeth.id).map(teeth => teeth.id)]
-    mappedArray = mappedArray.filter(arr => arr !== ',')
+    if (typeof mappedArray === 'string') {
+      mappedArray = mappedArray.split(",")
+    }
+    mappedArray = mappedArray?.filter(arr => arr !== ',')
     console.log(mappedArray);
     setSelectedTeeths(mappedArray)
     
@@ -487,10 +483,10 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
                   gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(3, 1fr)' },
                 }}
               >
-                {user && user.length && (<RHFSelect name="orderedBy" label="Ordered By" placeholder="Ordered By">
-                    {user.map((option) => (
+                {userList && userList.length && (<RHFSelect name="orderedBy" label="Ordered By" placeholder="Ordered By">
+                    {userList.map((option) => (
                       <option key={option.id} value={option.id}>
-                        {option.firstName} {option.lastName}
+                        {option.first_name} {option.last_name}
                       </option>
                     ))}
                   </RHFSelect>)}
@@ -514,7 +510,7 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Avatar alt='' src='' sx={{ mr: 2 }} />
             <Typography variant="subtitle2" noWrap>
-              {currentPatient.patientName}
+              {currentPatient?.patientName}
             </Typography>
           </Box>
             <Scrollbar>

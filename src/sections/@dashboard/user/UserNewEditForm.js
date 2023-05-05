@@ -47,7 +47,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     registrationNumber: Yup.string().required('registrationNumber is required'),
     calendarColor: Yup.string().required('calendarColor is required'),
     userRole: Yup.string().required('userRole is required'),
-    displayPicture: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
+    /* displayPicture: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''), */
     newPassword: Yup.string().min(6, 'Password must be at least 6 characters').required('New Password is required'),
     confirmNewPassword: Yup.string().oneOf([Yup.ref('newPassword'), null], 'Passwords must match'),
   });
@@ -61,7 +61,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     registrationNumber: Yup.string().required('registrationNumber is required'),
     calendarColor: Yup.string().required('calendarColor is required'),
     userRole: Yup.string().required('userRole is required'),
-    displayPicture: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
+    /* displayPicture: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''), */
   });
 
   const userRole = [
@@ -180,10 +180,10 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     data.isBackOffice = false;
     data.isStaff = false;
     switch(data.userRole){
-      case 'isFrontOffice':
+      case 'is_front_office':
         data.isFrontOffice = true;
         break;
-      case 'isBackOffice':
+      case 'is_back_office':
         data.isBackOffice = true;
         break;
       default:
