@@ -140,7 +140,7 @@ function AppointmentItem({ appointment }) {
             >
               {!isHelpful && (
                 <Typography variant="body2" sx={{ mr: 1 }}>
-                  With <b>{doctor.name}</b> at <b>{`${new Date(time.startTime).toDateString()} ${new Date(time.startTime).toTimeString()}`}</b>
+                  With <b>{doctor?.firstName} {doctor?.lastName}</b> at <b>{`${new Date(time.startTime).toDateString()} ${new Date(time.startTime).toTimeString()}`}</b>
                 </Typography>
               )}
             </Box>
@@ -554,7 +554,7 @@ function ClinicalNotesItem({ note }) {
           }}
         >
           <Avatar
-            src={patient.dop}
+            src={patient?.dop}
             sx={{
               mr: { xs: 2, sm: 0 },
               mb: { sm: 2 },
@@ -564,11 +564,11 @@ function ClinicalNotesItem({ note }) {
           />
           <div>
             <Typography variant="subtitle2" noWrap>
-              {patient.patientName}
+              {patient?.patientName}
             </Typography>
             <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
               
-              {patient.dob} / {patient.gender}
+              {patient?.dob} / {patient?.gender}
             </Typography>
           </div>
         </Box>

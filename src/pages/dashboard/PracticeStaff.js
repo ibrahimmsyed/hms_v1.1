@@ -36,7 +36,7 @@ import useSettings from '../../hooks/useSettings';
 import useTable, { getComparator, emptyRows } from '../../hooks/useTable';
 // _mock_
 import { useDispatch, useSelector } from '../../redux/store';
-import { getUsers, deleteUser } from '../../redux/slices/user';
+import { deleteUser } from '../../redux/slices/user';
 import { _userList } from '../../_mock';
 // components
 import Page from '../../components/Page';
@@ -75,7 +75,7 @@ export default function PracticeStaff() {
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
-  const { users } = useSelector((state) => state.user);
+  const { user: users } = useUsers();
   
   const {
     dense,
@@ -97,11 +97,9 @@ export default function PracticeStaff() {
   } = useTable();
 
   useEffect(() => {
-    dispatch(getUsers());
-  }, [dispatch])
-
-  useEffect(() => {
-    if(users) {setTableData(users)}
+    if(users?.length) { 
+      setTableData(users)
+    }
   }, [users])
 
   const { themeStretch } = useSettings();
@@ -320,26 +318,26 @@ function applySortFilter({ tableData, comparator, filterName, filterStatus, filt
   tableData = stabilizedThis.map((el) => el[0]);
 
   if (filterName) {
-    tableData = tableData.filter((item) => (`${item.first_name} ${item.last_name}`).toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
+    tableData = tableData.filter((item) => (`${item.firstName} ${item.lastName}`).toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
   }
 
   if (filterStatus !== 'all') {
-    tableData = filterStatus === 'active' ? tableData.filter((item) => item.is_active) : tableData.filter((item) => !item.is_active);
+    tableData = filterStatus === 'active' ? tableData.filter((item) => item.isActive) : tableData.filter((item) => !item.isActive);
   }
 
   if (filterRole !== 'all') {
     switch(filterRole){
       case 'front office':
-        tableData = tableData.filter((item) => item.is_front_office);
+        tableData = tableData.filter((item) => item.isFrontOffice);
         break;
       case 'back office':
-        tableData = tableData.filter((item) => item.is_back_office);
+        tableData = tableData.filter((item) => item.isBackOffice);
         break;
       case 'doctor':
-        tableData = tableData.filter((item) => item.is_staff);
+        tableData = tableData.filter((item) => item.isStaff);
         break;
       default:
-        tableData = tableData.filter((item) => item.is_superuser);
+        tableData = tableData.filter((item) => item.isSuperuser);
         break
     }
   }

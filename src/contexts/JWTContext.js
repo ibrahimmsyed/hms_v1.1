@@ -84,8 +84,8 @@ function AuthProvider({ children }) {
               Authorization: `JWT ${accessToken}`
             }
           })
-          // await useUsers.userDetails()
-          // await useUsers.patientsDetails()
+          await useUsers.userDetails()
+          await useUsers.patientsDetails()
           // await useUsers.practiceDetails()
           // await useUsers.inventoryDetails()
           // await useUsers.patientDetails()

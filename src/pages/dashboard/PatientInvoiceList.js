@@ -1,6 +1,7 @@
 import sumBy from 'lodash/sumBy';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import {
@@ -52,23 +53,25 @@ const SERVICE_OPTIONS = [
 ];
 
 const TABLE_HEAD = [
+  { id: '' },
   { id: 'invoiceNumber', label: 'Client', align: 'left' },
   { id: 'createDate', label: 'Create', align: 'left' },
   { id: 'dueDate', label: 'Due', align: 'left' },
   { id: 'price', label: 'Amount', align: 'center', width: 140 },
-  { id: 'sent', label: 'Sent', align: 'center', width: 140 },
   { id: 'status', label: 'Status', align: 'left' },
   { id: '' },
 ];
 
 // ----------------------------------------------------------------------
 
-export default function PatientInvoiceList() {
+export default function PatientInvoiceList({invoices}) {
   const theme = useTheme();
 
-  const { themeStretch } = useSettings();
-
   const navigate = useNavigate();
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  const { themeStretch } = useSettings();
 
   const {
     dense,
@@ -89,7 +92,13 @@ export default function PatientInvoiceList() {
     onChangeRowsPerPage,
   } = useTable({ defaultOrderBy: 'createDate' });
 
-  const [tableData, setTableData] = useState(_invoices);
+  useEffect(() => {
+    if(invoices?.length){
+      setTableData(invoices)
+    }
+  },[invoices])
+
+  const [tableData, setTableData] = useState([]);
 
   const [filterName, setFilterName] = useState('');
 
@@ -149,18 +158,18 @@ export default function PatientInvoiceList() {
     (!dataFiltered.length && !!filterEndDate) ||
     (!dataFiltered.length && !!filterStartDate);
 
-  const getLengthByStatus = (status) => tableData.filter((item) => item.status === status).length;
+  const getLengthByStatus = (status) => tableData?.filter((item) => item.status === status).length;
 
   const getTotalPriceByStatus = (status) =>
     sumBy(
-      tableData.filter((item) => item.status === status),
+      tableData?.filter((item) => item.status === status),
       'totalPrice'
     );
 
-  const getPercentByStatus = (status) => (getLengthByStatus(status) / tableData.length) * 100;
+  const getPercentByStatus = (status) => (getLengthByStatus(status) / tableData?.length) * 100;
 
   const TABS = [
-    { value: 'all', label: 'All', color: 'info', count: tableData.length },
+    { value: 'all', label: 'All', color: 'info', count: tableData?.length },
     { value: 'paid', label: 'Paid', color: 'success', count: getLengthByStatus('paid') },
     { value: 'unpaid', label: 'Unpaid', color: 'warning', count: getLengthByStatus('unpaid') },
     { value: 'overdue', label: 'Overdue', color: 'error', count: getLengthByStatus('overdue') },
@@ -217,11 +226,11 @@ export default function PatientInvoiceList() {
                 <TableSelectedActions
                   dense={dense}
                   numSelected={selected.length}
-                  rowCount={tableData.length}
+                  rowCount={tableData?.length}
                   onSelectAllRows={(checked) =>
                     onSelectAllRows(
                       checked,
-                      tableData.map((row) => row.id)
+                      tableData?.map((row) => row.id)
                     )
                   }
                   actions={
@@ -265,7 +274,7 @@ export default function PatientInvoiceList() {
                   onSelectAllRows={(checked) =>
                     onSelectAllRows(
                       checked,
-                      tableData.map((row) => row.id)
+                      tableData?.map((row) => row.id)
                     )
                   }
                 />
@@ -283,7 +292,7 @@ export default function PatientInvoiceList() {
                     />
                   ))}
 
-                  <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
+                  <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData?.length)} />
 
                   <TableNoData isNotFound={isNotFound} />
                 </TableBody>
@@ -325,7 +334,7 @@ function applySortFilter({
   filterStartDate,
   filterEndDate,
 }) {
-  const stabilizedThis = tableData.map((el, index) => [el, index]);
+  const stabilizedThis = tableData?.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
@@ -336,23 +345,23 @@ function applySortFilter({
   tableData = stabilizedThis.map((el) => el[0]);
 
   if (filterName) {
-    tableData = tableData.filter(
+    tableData = tableData?.filter(
       (item) =>
-        item.invoiceNumber.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 ||
-        item.invoiceTo.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
+        item.invoiceId.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 ||
+        item.patient.patientName.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
     );
   }
 
   if (filterStatus !== 'all') {
-    tableData = tableData.filter((item) => item.status === filterStatus);
+    tableData = tableData?.filter((item) => item.status === filterStatus);
   }
 
   if (filterService !== 'all') {
-    tableData = tableData.filter((item) => item.items.some((c) => c.service === filterService));
+    tableData = tableData?.filter((item) => item.items.some((c) => c.service === filterService));
   }
 
   if (filterStartDate && filterEndDate) {
-    tableData = tableData.filter(
+    tableData = tableData?.filter(
       (item) =>
         item.createDate.getTime() >= filterStartDate.getTime() && item.createDate.getTime() <= filterEndDate.getTime()
     );

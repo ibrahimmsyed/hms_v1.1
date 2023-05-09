@@ -11,7 +11,6 @@ import useUsers from '../../hooks/useUsers';
 import useSettings from '../../hooks/useSettings';
 // _mock_
 import { _userList } from '../../_mock';
-import { getUsers } from '../../redux/slices/user';
 // components
 import Page from '../../components/Page';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
@@ -24,12 +23,8 @@ export default function UserCreate() {
   
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(getUsers());
-  }, [dispatch])
+  const { user: users } = useUsers();
 
-  const { users } = useSelector((state) => state.user);
-  
   const { themeStretch } = useSettings();
 
   const [currentUser, setCurrentUser] = useState(null);

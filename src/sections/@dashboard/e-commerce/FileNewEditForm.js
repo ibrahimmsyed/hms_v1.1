@@ -55,6 +55,7 @@ FileNewEditForm.propTypes = {
 export default function FileNewEditForm() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const { patients } = useUsers();
   const { name = '', id = '' } = useParams();
   const currentPatient = patients.find((user) => Number(user.id) === Number(id));
@@ -101,6 +102,8 @@ export default function FileNewEditForm() {
     try {
       data.patientId = currentPatient.id
       dispatch(uploadFiles(data))
+      enqueueSnackbar('Upload success!');
+      navigate(PATH_DASHBOARD.patient.files);
       console.log(data);
     } catch (error) {
       console.error(error);
@@ -197,9 +200,9 @@ export default function FileNewEditForm() {
             <LoadingButton fullWidth type="submit" variant="contained" size="large" loading={isSubmitting}>
               Submit
             </LoadingButton>
-            <Button fullWidth variant="contained" onClick={onCancel}>
+            {/* <Button fullWidth variant="contained" onClick={onCancel}>
               Save
-            </Button>
+            </Button> */}
           </Stack>
           </Card>
         </Grid>

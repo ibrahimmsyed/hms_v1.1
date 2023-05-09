@@ -2,6 +2,8 @@ import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useCallback, useEffect, useMemo, useState, SyntheticEvent } from 'react';
 import moment from 'moment'
+import { useSnackbar } from 'notistack';
+import { useNavigate } from 'react-router-dom';
 //
 import { useForm, Controller, useFieldArray  } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -43,6 +45,7 @@ import { useDispatch, useSelector } from '../../../../redux/store';
 import { addPresciption } from '../../../../redux/slices/patient'; 
 import { modifyInventory } from '../../../../redux/slices/setting';
 // components
+import { PATH_DASHBOARD } from '../../../../routes/paths';
 import Image from '../../../../components/Image';
 import Iconify from '../../../../components/Iconify';
 import { FormProvider, RHFSelect, RHFSwitch, RHFTextField, RHFUploadAvatar, RHFRadioGroup } from '../../../../components/hook-form';
@@ -71,6 +74,8 @@ PrescriptionList.propTypes = {
 
 export default function PrescriptionList({ patient, drugs, onDelete, onIncreaseQuantity, onDecreaseQuantity }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const INTAKE_OPTION = ['Before Food', 'After Food'];
   const [currentPrescription, setCurrentPrescription] = useState([]);
   const { user: _userList } = useUsers();
@@ -179,6 +184,8 @@ export default function PrescriptionList({ patient, drugs, onDelete, onIncreaseQ
         if(drug.id === item.itemId && item.count){
           drug.quantity = `${Number(drug.quantity) - Number(item.count)}`
           dispatch(modifyInventory(drug, drug.id))
+          enqueueSnackbar('Update success!');
+          navigate(PATH_DASHBOARD.patient.prescription);
         }
       })
     })
@@ -191,6 +198,8 @@ export default function PrescriptionList({ patient, drugs, onDelete, onIncreaseQ
       updateInventory(cart)
       data.cart = JSON.stringify(cart)
       dispatch(addPresciption(data));
+      enqueueSnackbar('Create success!');
+      navigate(PATH_DASHBOARD.patient.prescription);
       console.log(data);
   }
 

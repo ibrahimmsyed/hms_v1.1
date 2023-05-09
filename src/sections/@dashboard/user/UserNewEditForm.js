@@ -96,7 +96,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     if (isEdit && currentUser) {
       Object.entries(currentUser).forEach(
         ([key, value]) => {
-          ['is_back_office','is_front_office','is_staff'].forEach(role=>{
+          ['isBackOffice','isFrontOffice','isStaff'].forEach(role=>{
             if(key === role && value){
               roleOfUser = key
             }
@@ -111,16 +111,16 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
   const defaultValues = useMemo(
     () => ({
       username: currentUser?.username || '',
-      firstName: currentUser?.first_name || '',
+      firstName: currentUser?.firstName || '',
       email: currentUser?.email || '',
-      phoneNumber: currentUser?.phone_number || '',
-      lastName: currentUser?.last_name || '',
-      registrationNumber: currentUser?.registration_number || '',
-      calendarColor: currentUser?.calendar_color || '',
-      displayPicture: currentUser?.display_picture || '',
-      isActive: currentUser?.is_active || true,
+      phoneNumber: currentUser?.phoneNumber || '',
+      lastName: currentUser?.lastName || '',
+      registrationNumber: currentUser?.registrationNumber || '',
+      calendarColor: currentUser?.calendarColor || '',
+      displayPicture: currentUser?.displayPicture || '',
+      isActive: currentUser?.isActive || true,
       userRole: savedUserRole(currentUser?.userRole) || '',
-      isSuperuser: currentUser?.is_superuser || false,
+      isSuperuser: currentUser?.isSuperuser || false,
       newPassword: '',
       confirmNewPassword: '',
     }),
@@ -159,7 +159,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
       data = await handleUserRole(data)
       if (data){
         if(isEdit){
-          if(data.displayPicture === currentUser.display_picture){
+          if(data.displayPicture === currentUser.displayPicture){
             delete data.displayPicture;
           }
           dispatch(updateUser(data, currentUser.id))  
@@ -180,10 +180,10 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     data.isBackOffice = false;
     data.isStaff = false;
     switch(data.userRole){
-      case 'is_front_office':
+      case 'isFrontOffice':
         data.isFrontOffice = true;
         break;
-      case 'is_back_office':
+      case 'isBackOffice':
         data.isBackOffice = true;
         break;
       default:
@@ -216,10 +216,10 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
           <Card sx={{ py: 10, px: 3 }}>
             {isEdit && (
               <Label
-                color={!currentUser?.is_active ? 'error' : 'success'}
+                color={!currentUser?.isActive ? 'error' : 'success'}
                 sx={{ textTransform: 'uppercase', position: 'absolute', top: 24, right: 24 }}
               >
-                {currentUser?.is_active ? 'Active':'Not Active'}
+                {currentUser?.isActive ? 'Active':'Not Active'}
               </Label>
             )}
 

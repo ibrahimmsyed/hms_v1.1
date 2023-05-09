@@ -46,20 +46,7 @@ export default function UserCards() {
   const navigate = useNavigate();
   const { tab, id } = useParams();
   const dispatch = useDispatch();
-  // const { patients } = useUsers();
-  const { user } = useUsers();
-  const [value, setValue] = useState(TAB_VALUE.indexOf(tab));
-  const [selectedPatientId, setSelectedPatientId] = useState(id);
-  const [plans, setPlans] = useState([]);
-  const [prescriptions, setPrescriptions] = useState([]);
-  const [prescription, setPrescription] = useState({})
-  const [appointments, setAppointments] = useState([]);
-  const [notes, setNotes] = useState([]);
-  const [isPrintOpen, setPrintOpen] = useState(false);
-  const [isOpen, setDialogState] = useState(false);
-  const [url , setRedirectURL] = useState('labs')
-  const { currentTab: filterLabName, onChangeTab: onChangeFilterStatus } = useTabs('all');
-  
+
   useEffect(() => {
     if(!id){
       dispatch(getPatientDetails())
@@ -74,7 +61,20 @@ export default function UserCards() {
     }
   }, [id])
 
-  const { prescriptions: rawPrescriptions, files, medicalCertificate, clinicalNotes, treatmentPlans, calendarEvents, patients } = useSelector((state) => state.patient);
+  const { user } = useUsers();
+  const [value, setValue] = useState(TAB_VALUE.indexOf(tab));
+  const [selectedPatientId, setSelectedPatientId] = useState(id);
+  const [plans, setPlans] = useState([]);
+  const [prescriptions, setPrescriptions] = useState([]);
+  const [prescription, setPrescription] = useState({})
+  const [appointments, setAppointments] = useState([]);
+  const [notes, setNotes] = useState([]);
+  const [invoices, setInvoices] = useState([]);
+  const [isPrintOpen, setPrintOpen] = useState(false);
+  const [isOpen, setDialogState] = useState(false);
+  const [url , setRedirectURL] = useState('labs')
+  const { currentTab: filterLabName, onChangeTab: onChangeFilterStatus } = useTabs('all');
+  const { prescriptions: rawPrescriptions, files, medicalCertificate, clinicalNotes, treatmentPlans, calendarEvents, patients, invoice } = useSelector((state) => state.patient);
 
   useEffect(() => {
     // const plan = treatmentPlan.map((plan, i) => {id: i, procedure: plan, })
@@ -117,26 +117,28 @@ export default function UserCards() {
 
   useEffect(() => {
     const items = []
-
-    calendarEvents?.filter(events => events.eventType === 'appointment').forEach((item, i) => {
-      const patient = patients.find(patient => Number(patient.id) === Number(item.patientId))
-      const doctor = user.find(user => user.isStaff && Number(user.id) === Number(item.doctor))
-      item = {...item, tags: item.tags.split(',')}
-      const itemObj = {
-        id: item.id,
-        patient,
-        doctor,
-        appointments: item,
-        description: item.description,
-        procedure: item.tags,
-        time: {
-          // date: sub(new Date(), { days: 3, hours: 5 }),
-          startTime: item.start,
-          endTime: item.end
-        } 
-      }
-      items.push(itemObj)
-    });
+    if(calendarEvents.length && patients.length && user.length){
+      calendarEvents?.filter(events => events.eventType === 'appointment').forEach((item, i) => {
+        const patient = patients.find(patient => Number(patient.id) === Number(item.patientId))
+        const doctor = user.find(user => user.isStaff && Number(user.id) === Number(item.doctor))
+        item = {...item, tags: item.tags.split(',')}
+        const itemObj = {
+          id: item.id,
+          patient,
+          doctor,
+          appointments: item,
+          description: item.description,
+          procedure: item.tags,
+          time: {
+            // date: sub(new Date(), { days: 3, hours: 5 }),
+            startTime: item.start,
+            endTime: item.end
+          } 
+        }
+        items.push(itemObj)
+      });
+    }
+    
     console.log(items)
     setAppointments(items)
   },[calendarEvents, patients])
@@ -158,8 +160,20 @@ export default function UserCards() {
     setNotes(items)
   },[clinicalNotes, patients])
 
-  
-  
+  useEffect(() => {
+    const items = []
+    invoice?.forEach((item, i) => {
+      const patient = patients.find(patient => Number(patient.id) === Number(item.patientId))
+      const itemObj = {
+        id: item.id,
+        patient,
+        ...item
+      }
+      items.push(itemObj)
+    });
+    console.log(items)
+    setInvoices(items)
+  },[invoice, patients])
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     if(id){
@@ -339,7 +353,7 @@ export default function UserCards() {
               Add Payment
             </Button>
           </Stack>
-          <PatientInvoiceList/>
+          <PatientInvoiceList invoices={invoices}/>
         </TabPanel>
         <TabPanel value={value} index={6}>
         <Stack

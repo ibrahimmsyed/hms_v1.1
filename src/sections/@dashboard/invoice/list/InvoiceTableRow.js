@@ -27,7 +27,7 @@ InvoiceTableRow.propTypes = {
 export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow, onEditRow, onDeleteRow }) {
   const theme = useTheme();
 
-  const { sent, invoiceId, createDate, dueDate, status, invoiceTo, grandTotal } = row;
+  const { sent, invoiceId, createDate, dueDate, status, invoiceTo, grandTotal, patient } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -46,13 +46,13 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
       </TableCell>
 
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={invoiceTo?.patientName} color={createAvatar(invoiceTo?.patientName)?.color} sx={{ mr: 2 }}>
-          {createAvatar(invoiceTo?.patientName)?.patientName}
+        <Avatar alt={patient?.patientName} color={createAvatar(patient?.patientName)?.color} sx={{ mr: 2 }}>
+          {createAvatar(patient?.patientName)?.patientName}
         </Avatar>
 
         <Stack>
           <Typography variant="subtitle2" noWrap>
-            {invoiceTo?.patientName}
+            {patient?.patientName}
           </Typography>
 
           <Link noWrap variant="body2" onClick={onViewRow} sx={{ color: 'text.disabled', cursor: 'pointer' }}>

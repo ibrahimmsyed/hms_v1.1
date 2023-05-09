@@ -3,6 +3,7 @@ import * as Yup from 'yup';
 import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment'
+import { useSnackbar } from 'notistack';
 // form
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -23,6 +24,7 @@ import { FormProvider } from '../../../../components/hook-form';
 import InvoiceNewEditDetails from './InvoiceNewEditDetails';
 import InvoiceNewEditAddress from './InvoiceNewEditAddress';
 import InvoiceNewEditStatusDate from './InvoiceNewEditStatusDate';
+import { getPracticeDetails } from '../../../../redux/slices/setting';
 
 
 // ----------------------------------------------------------------------
@@ -35,15 +37,29 @@ InvoiceNewEditForm.propTypes = {
 export default function InvoiceNewEditForm({ isEdit, currentInvoice, appointment,  currentPatient}) {
   const dispatch = useDispatch();
 
+  const { enqueueSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    dispatch(getPracticeDetails())
+  },[dispatch])
+
   const toAddress = currentPatient
 
-  const { practicedetails: fromAddress } = useUsers();
+  const { practiceDetails } = useSelector((state) => state.setting)
 
   const navigate = useNavigate();
+
+  const [fromAddress, setFromAddress] = useState(false);
 
   const [loadingSave, setLoadingSave] = useState(false);
 
   const [loadingSend, setLoadingSend] = useState(false);
+
+  useEffect(() => {
+    if(practiceDetails?.length){
+      setFromAddress(practiceDetails[0])
+    }
+  },[practiceDetails])
 
   const NewUserSchema = Yup.object().shape({
     createDate: Yup.string().nullable().required('Create date is required'),
@@ -115,7 +131,7 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice, appointment
       await new Promise((resolve) => setTimeout(resolve, 500));
       reset();
       setLoadingSave(true);
-      navigate(PATH_DASHBOARD.invoice.list);
+      navigate(PATH_DASHBOARD.patient.payments);
       console.log(JSON.stringify(newInvoice, null, 2));
     } catch (error) {
       console.error(error);
@@ -134,11 +150,14 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice, appointment
       newInvoice.items = JSON.stringify(newInvoice.items)
       newInvoice.createDate = moment(newInvoice.createDate).format('YYYY-MM-DD')
       newInvoice.dueDate = moment(newInvoice.dueDate).format('YYYY-MM-DD')
+      newInvoice.patientId = currentPatient.id
       console.log(newInvoice);
       dispatch(addInvoice(newInvoice))
       const invoicedAppointment = {...appointment}
       invoicedAppointment.status = 'Invoiced'
       dispatch(updateCalendarEvents(invoicedAppointment, invoicedAppointment.id))
+      enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
+      navigate(PATH_DASHBOARD.patient.payments);
     } catch (error) {
       console.error(error);
     }

@@ -22,7 +22,6 @@ import { countries, _faqs, _labTreatments } from '../../../_mock';
 import { getAllLabWork, addLabName, getAllLabNames, addLabDetail, updateLabDetail } from '../../../redux/slices/lab';
 import { useDispatch, useSelector } from '../../../redux/store';
 import { getProducts, resetCart } from '../../../redux/slices/product';
-import { getUsers } from '../../../redux/slices/user';
 // components
 import Iconify from '../../../components/Iconify';
 import Scrollbar from '../../../components/Scrollbar';
@@ -53,7 +52,7 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
 
   const dispatch = useDispatch();
 
-  const { users } = useSelector((state) => state.user);
+  const { user: users } = useUsers();
 
   const [userList, setUserList] = useState([]);
 
@@ -220,7 +219,6 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
   const values = watch();
 
   useEffect(() => {
-    dispatch(getUsers());
     dispatch(getAllLabWork());
     dispatch(getAllLabNames());
   },[dispatch])
@@ -273,8 +271,8 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
   }
 
   useEffect(() => {
-    if(users.length){
-      const _users = users.filter(user => user.is_staff)
+    if(users?.length){
+      const _users = users.filter(user => user.isStaff)
       setUserList(_users)
       setValue('orderedBy', _users?.[0]?.id)
     }
@@ -486,7 +484,7 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
                 {userList && userList.length && (<RHFSelect name="orderedBy" label="Ordered By" placeholder="Ordered By">
                     {userList.map((option) => (
                       <option key={option.id} value={option.id}>
-                        {option.first_name} {option.last_name}
+                        {option.firstName} {option.lastName}
                       </option>
                     ))}
                   </RHFSelect>)}

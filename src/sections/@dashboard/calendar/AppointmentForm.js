@@ -39,6 +39,7 @@ export default function AppointmentForm({ isEdit, currentAppointment, range, onC
   const dispatch = useDispatch();
 
   const { user: staffList } = useUsers();
+
   const { procedure } = useSelector((state) => state.patient);
   const [staff, setStaff] = useState([])
   const [isPatientFieldDirty, setIsPatientFieldDirty] = useState(false)
@@ -48,7 +49,6 @@ export default function AppointmentForm({ isEdit, currentAppointment, range, onC
   useEffect(() => {
     console.log(procedure)
   }, [procedure])
-
 
   useEffect(() => {
     const staff =  staffList.filter(user => user.isStaff)

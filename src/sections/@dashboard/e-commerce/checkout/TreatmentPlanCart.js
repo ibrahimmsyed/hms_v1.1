@@ -1,9 +1,8 @@
 import {Fragment, useState, useMemo, useEffect} from 'react';
 import sum from 'lodash/sum';
 import * as Yup from 'yup';
-import { Link as RouterLink, useParams, useLocation } from 'react-router-dom';
-
-
+import { Link as RouterLink, useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 // @mui
 import { LoadingButton, DatePicker, MobileDateTimePicker } from '@mui/lab';
 import InputLabel from '@mui/material/InputLabel';
@@ -43,6 +42,8 @@ import TreatmentPlansList from './TreatmentPlansList';
 
 export default function TreatmentPlanCart() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
 
   const { checkout } = useSelector((state) => state.product);
 
@@ -200,6 +201,8 @@ export default function TreatmentPlanCart() {
       data.selection = updatedProcedure
       data.patientId = `${currentPatient.id}`
       dispatch(addTreatmentPlans(data));
+      enqueueSnackbar('Create success!');
+      navigate(PATH_DASHBOARD.labs.plans);
       console.log(data)
     } catch (error) {
       console.error(error);
@@ -238,7 +241,7 @@ export default function TreatmentPlanCart() {
               <Typography variant="h6">
                 Treatment Plans
                 <Typography component="span" sx={{ color: 'text.secondary' }}>
-                  &nbsp;({selectedProcedure.length} item)
+                  &nbsp;({selectedProcedure?.length} item)
                 </Typography>
               </Typography>
             }
@@ -269,7 +272,7 @@ export default function TreatmentPlanCart() {
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-evenly', m: 2 }}>
               <Avatar alt='' src='' sx={{ mr: 2 }} />
               <Typography variant="subtitle2" noWrap>
-                {currentPatient.patientName}
+                {currentPatient?.patientName}
               </Typography>
             </Box>
             <Stack direction="row" alignItems="center" justifyContent="space-between" px={1} py={1.5}>
@@ -317,12 +320,12 @@ export default function TreatmentPlanCart() {
               />
             </Box>
             <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-              {procedure?.length && procedure.map((value, index) => {
+              {!!procedure?.length && procedure.map((value, index) => {
                 const labelId = `checkbox-list-label-${value}`;
 
                 return (
                   <Fragment key={index}>
-                  {value.isVisible && <ListItem
+                  {value?.isVisible && <ListItem
                     key={value.cost}
                     secondaryAction={
                       <IconButton edge="end" aria-label="comments">
@@ -355,7 +358,7 @@ export default function TreatmentPlanCart() {
         <FormProvider methods={labMethods} onSubmit={handleSubmitForm(handleSubmitPlan)}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-evenly', p: 2, position: 'fixed', bottom: 0, left: '10%', right: '10%', background: '#FFF', width: '80%', gap: '20px' }}>
           <RHFSelect name="orderedBy" label="Ordered By" placeholder="Ordered By">
-            {user.map((option) => (
+            {user?.map((option) => (
               <option key={option.id} value={option.id}>
                 {option.firstName} {option.lastName}
               </option>

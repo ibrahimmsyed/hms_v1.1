@@ -38,7 +38,6 @@ import { useDispatch, useSelector } from '../../redux/store';
 import { _userList, _userCards } from '../../_mock';
 import { getLabDetails, updateLabDetail, deleteLabDetail } from '../../redux/slices/lab';
 import { getPatientDetails } from '../../redux/slices/patient';
-import { getUsers } from '../../redux/slices/user';
 // components
 import Page from '../../components/Page';
 import Iconify from '../../components/Iconify';
@@ -130,7 +129,6 @@ export default function LabOrders() {
   useEffect(() => {
     dispatch(getPatientDetails());
     dispatch(getLabDetails());
-    dispatch(getUsers());
   },[dispatch])
 
   useEffect(() => {

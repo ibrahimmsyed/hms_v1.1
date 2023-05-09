@@ -790,7 +790,7 @@ export function getPatientDetails(id) {
         dispatch(slice.actions.getTreatmentPlansSuccess(patient.plans)); 
         dispatch(slice.actions.setCalendarEvent(patient.calendar));
         dispatch(slice.actions.getPatientsSuccess([patient]));
-        // dispatch(slice.actions.setInvoice(patient.invoice));
+        dispatch(slice.actions.setInvoice(patient.invoice));
       }else{
         response.data.forEach(data => {
           if(data.calendar.length){ calendar = [...data.calendar, ...calendar] }
@@ -805,7 +805,7 @@ export function getPatientDetails(id) {
         dispatch(slice.actions.setPrescription(prescription));
         dispatch(slice.actions.getTreatmentPlansSuccess(plans)); 
         dispatch(slice.actions.setCalendarEvent(calendar));
-        // dispatch(slice.actions.setInvoice(invoice));
+        dispatch(slice.actions.setInvoice(invoice));
         console.log(calendar, plans, notes, prescription, uploads)
         dispatch(slice.actions.getPatientsSuccess(response.data));
     }

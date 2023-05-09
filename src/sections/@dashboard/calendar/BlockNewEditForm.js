@@ -187,7 +187,7 @@ export default function BlockNewEditForm({ isEdit, staff, currentAppointment, ra
                   <RHFSelect name="doctor" label="Doctor" placeholder="Doctor">
                     {staff.map((option) => (
                       <option key={option.id} value={option.id}>
-                        {option.firstName} {option.lastName}
+                        {option.first_name} {option.last_name}
                       </option>
                     ))}
                   </RHFSelect>

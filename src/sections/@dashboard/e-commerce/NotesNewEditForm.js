@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import capitalize from 'lodash/capitalize';
 // form
@@ -44,6 +44,8 @@ NotesNewEditForm.propTypes = {
 
 export default function NotesNewEditForm({ isEdit, currentNotes }) {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { enqueueSnackbar } = useSnackbar();
     const { patients, user: _userList } = useUsers();
     
     const { name = '', id = '' } = useParams();
@@ -152,6 +154,8 @@ export default function NotesNewEditForm({ isEdit, currentNotes }) {
             plannedOn: data.plannedOn
         }
         dispatch(addClinicalNotes(payload))
+        enqueueSnackbar('Create success!');
+        navigate(PATH_DASHBOARD.patient.notes);
         console.log(payload)
     }
 
@@ -293,7 +297,7 @@ export default function NotesNewEditForm({ isEdit, currentNotes }) {
                 
                 <Scrollbar>
                     <MenuList>
-                        {filteredNotes?.length && filteredNotes.map((note) => (
+                        {!!filteredNotes?.length && filteredNotes.map((note) => (
                             <MenuItem key={note.id} onClick={() => selectedNotes(note)}>
                                 <ListItemText>{note.name}</ListItemText>
                             </MenuItem>

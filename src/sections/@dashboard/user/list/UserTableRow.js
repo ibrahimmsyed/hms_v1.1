@@ -23,8 +23,8 @@ UserTableRow.propTypes = {
 export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const theme = useTheme();
 
-  const { first_name: firstName, last_name: lastName, display_picture: displayPicture, is_staff: isStaff, is_active: isActive, is_superuser: isSuperuser, is_front_office: isFrontOffice, is_back_office: isBackOffice, last_login: lastLogin } = row
-  // const { firstName, lastName, displayPicture, isActive, isSuperuser, isFrontOffice, isBackOffice, isStaff, lastLogin, status } = row;
+  // const { first_name: firstName, last_name: lastName, display_picture: displayPicture, is_staff: isStaff, is_active: isActive, is_superuser: isSuperuser, is_front_office: isFrontOffice, is_back_office: isBackOffice, last_login: lastLogin } = row
+  const { firstName, lastName, displayPicture, isActive, isSuperuser, isFrontOffice, isBackOffice, isStaff, lastLogin, status } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
