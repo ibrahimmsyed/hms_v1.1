@@ -37,7 +37,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
   const userApiService = new UserApiService();
   const { setUserDetails } = useUsers();
   const { enqueueSnackbar } = useSnackbar();
-
+  
   const NewUserSchema = Yup.object().shape({
     username: Yup.string().required('username is required'),
     firstName: Yup.string().required('firstName is required'),
@@ -65,9 +65,9 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
   });
 
   const userRole = [
-    {id: 1,code: 'is_staff', name:'Doctor'},
-    {id: 2,code: 'is_front_office', name:'Front Office'},
-    {id: 3,code: 'is_back_office', name:'Back Office'},
+    {id: 1,code: 'isStaff', name:'Doctor'},
+    {id: 2,code: 'isFrontOffice', name:'Front Office'},
+    {id: 3,code: 'isBackOffice', name:'Back Office'},
   ]
 
   const colorCode = [

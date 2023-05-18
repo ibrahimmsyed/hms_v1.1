@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from '../../redux/store';
 // hooks
 import useUsers from '../../hooks/useUsers';
 import useSettings from '../../hooks/useSettings';
+import { getUsers } from '../../redux/slices/user';
 // _mock_
 import { _userList } from '../../_mock';
 // components
@@ -23,9 +24,17 @@ export default function UserCreate() {
   
   const dispatch = useDispatch();
 
-  const { user: users } = useUsers();
+  useEffect(() => {
+    dispatch(getUsers());
+  },[dispatch])
+
+  const { user } = useUsers();
+
+  const { users: stateUser } = useSelector((state) => state.user);
 
   const { themeStretch } = useSettings();
+
+  const [users, setUsers] = useState(null);
 
   const [currentUser, setCurrentUser] = useState(null);
 
@@ -38,11 +47,23 @@ export default function UserCreate() {
   const isEdit = pathname.includes('edit');
 
   useEffect(() => {
-    const currentUser = users.find((user) => user.id === Number(id));
-    if(currentUser?.id){
-      setUserName(capitalCase(currentUser?.username))
+    if(user.length)
+      setUsers(user)
+  }, [user])  
+
+  useEffect(() => {
+    if(stateUser.length)
+      setUsers(stateUser)
+  }, [stateUser])  
+
+  useEffect(() => {
+    if(users?.length){
+      const currentUser = users.find((user) => user.id === Number(id));
+      if(currentUser?.id){
+        setUserName(capitalCase(currentUser?.username))
+      }
+      setCurrentUser(currentUser)
     }
-    setCurrentUser(currentUser)
   }, [users])  
 
   return (

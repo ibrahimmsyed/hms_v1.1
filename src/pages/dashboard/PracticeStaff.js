@@ -75,8 +75,17 @@ export default function PracticeStaff() {
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
-  const { user: users } = useUsers();
-  
+  const { user } = useUsers();
+  const { users: stateUser } = useSelector((state) => state.user);
+  const [users, setUsers] = useState(null);
+
+  useEffect(() => {
+    if(user.length)
+      setUsers(user)
+    if(stateUser.length)
+      setUsers(stateUser)
+  }, [user, stateUser])  
+
   const {
     dense,
     page,

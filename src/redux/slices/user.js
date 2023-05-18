@@ -120,33 +120,34 @@ export function getUsers() {
             }
         }
       const response = await axios.get(`${API_ENDPOINT}/practicestaff/`, headers);
-      dispatch(slice.actions.setUsers(response.data));
+      const user = response.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
+      dispatch(slice.actions.setUsers(user));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
   };
 }
-export function addUser(user) {
+export function addUser(data) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
         const userDetails = {
-          username: user.username,
-          first_name: user.firstName,
-          last_name: user.lastName,
-          email: user.email,
-          registration_number: user.registrationNumber,
-          calendar_color: user.calendarColor,
-          display_picture: user.displayPicture,
-          phone_number: user.phoneNumber,
-          is_staff: user.isStaff,
-          is_active: user.isActive,
-          is_superuser: user.isSuperuser,
-          is_front_office: user.isFrontOffice,
-          is_back_office: user.isBackOffice,
-          password: user.newPassword,
-          re_password: user.confirmNewPassword
+          username: data.username,
+          first_name: data.firstName,
+          last_name: data.lastName,
+          email: data.email,
+          registration_number: data.registrationNumber,
+          calendar_color: data.calendarColor,
+          display_picture: data.displayPicture,
+          phone_number: data.phoneNumber,
+          is_staff: data.isStaff,
+          is_active: data.isActive,
+          is_superuser: data.isSuperuser,
+          is_front_office: data.isFrontOffice,
+          is_back_office: data.isBackOffice,
+          password: data.newPassword,
+          re_password: data.confirmNewPassword
       }
       const formData = new FormData();
       Object.keys(userDetails).forEach(key => { 
@@ -156,11 +157,13 @@ export function addUser(user) {
           headers: {
           Authorization: `JWT ${accessToken}`,
           'Content-type':'multipart/form-data',
-          'Content-Disposition': `attachment; filename=${user?.displayPicture?.name}`,
+          'Content-Disposition': `attachment; filename=${data?.displayPicture?.name}`,
           }
       }
       const response = await axios.post(`${API_ENDPOINT}/practicestaff/`, formData, headers);
-      dispatch(slice.actions.updateUsers(response.data));
+      const arrResponse = [response.data]
+      const user = arrResponse.map(res=> mapKeys(res, (v, k) => camelCase(k)))
+      dispatch(slice.actions.updateUsers(user[0]));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
