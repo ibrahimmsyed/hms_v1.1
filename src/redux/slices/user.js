@@ -160,7 +160,7 @@ export function addUser(data) {
           'Content-Disposition': `attachment; filename=${data?.displayPicture?.name}`,
           }
       }
-      const response = await axios.post(`${API_ENDPOINT}/practicestaff/`, formData, headers);
+      const response = await axios.post(`${API_ENDPOINT}/createuser/`, formData, headers);
       const arrResponse = [response.data]
       const user = arrResponse.map(res=> mapKeys(res, (v, k) => camelCase(k)))
       dispatch(slice.actions.updateUsers(user[0]));

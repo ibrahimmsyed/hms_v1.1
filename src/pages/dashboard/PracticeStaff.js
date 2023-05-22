@@ -25,7 +25,8 @@ import {
   FormControlLabel,
   DialogTitle,
   DialogActions,
-  Typography
+  Typography,
+  Alert
 } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
@@ -72,6 +73,7 @@ const TABLE_HEAD = [
 
 export default function PracticeStaff() {
   const userApiService = new UserApiService();
+  const SUPER_USER = process.env.REACT_APP_SUPER_USER
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
@@ -117,6 +119,10 @@ export default function PracticeStaff() {
 
   const [id, setDeleteId] = useState(false);
 
+  const [alert, setAlert] = useState(false);
+
+  const [itsSuperUser, setItsSuperUser] = useState(false);
+
   const [tableData, setTableData] = useState([]);
 
   const [filterName, setFilterName] = useState('');
@@ -135,6 +141,13 @@ export default function PracticeStaff() {
   };
   
   const openDialog = (id) => {
+    if(tableData.find(user => user.id === id && user.isSuperuser)){
+      setAlert(true)
+    }
+    if(Number(SUPER_USER) === id){
+      setAlert(false)
+      setItsSuperUser(true)
+    }
     setOpen(true);
     setDeleteId(id)
   };
@@ -143,12 +156,11 @@ export default function PracticeStaff() {
     console.log(id)
     dispatch(deleteUser(id));
     enqueueSnackbar('Deleted successfully');
-    // const deleteRow = tableData.filter((row) => row.id !== id);
-    // setSelected([]);
-    // setTableData(deleteRow);
     setOpen(false);
   };
   const handleClose = (value: string) => {
+    setItsSuperUser(false)
+    setAlert(false)
     setOpen(false);
   };
 
@@ -300,12 +312,18 @@ export default function PracticeStaff() {
           </Box>
         </Card>
         <DialogAnimate maxWidth={false}  open={open} onClose={handleClose} sx={{maxWidth: 860}}>
+          {alert && <Alert variant="filled" severity="warning">
+            You are deleting an admin user.
+          </Alert>}
+          {itsSuperUser && <Alert variant="filled" severity="error">
+            You are trying to delete Super Admin, You can't delete the Super Admin.
+          </Alert>}
           <DialogActions sx={{ py: 2, px: 3 }}>
             <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
               You are deleting the user. Once deleted you can't retrieve.
               Please confirm.
             </Typography>
-            <Button onClick={handleDeleteRow} variant="contained">Confirm</Button>
+            <Button onClick={handleDeleteRow} variant="contained" disabled={itsSuperUser}>Confirm</Button>
             <Button onClick={handleClose}>Cancel</Button>
           </DialogActions>          
         </DialogAnimate>
