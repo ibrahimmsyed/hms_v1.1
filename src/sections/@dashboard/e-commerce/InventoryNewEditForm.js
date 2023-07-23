@@ -22,32 +22,48 @@ import {
   RHFRadioGroup,
   RHFUploadMultiFile,
 } from '../../../components/hook-form';
+import InventoryApiService from '../../../services/Inventory'
+import useUsers from '../../../hooks/useUsers';
 
+// redux
+import { useDispatch, useSelector } from '../../../redux/store';
+import { addInventory, modifyInventory } from '../../../redux/slices/setting';
 // ----------------------------------------------------------------------
 
-const GENDER_OPTION = ['Men', 'Women', 'Kids'];
-
-const CATEGORY_OPTION = [
-  { group: 'Clothing', classify: ['Shirts', 'T-shirts', 'Jeans', 'Leather'] },
-  { group: 'Tailored', classify: ['Suits', 'Blazers', 'Trousers', 'Waistcoats'] },
-  { group: 'Accessories', classify: ['Shoes', 'Backpacks and bags', 'Bracelets', 'Face masks'] },
+const ITEMTYPE_OPTION = [
+  { id: 1, name: 'drug', label: 'Drug' },
+  { id: 2, name: 'equipment', label: 'Equipment' },
+  { id: 3, name: 'supplies', label: 'Supplies' },
 ];
 
-const TAGS_OPTION = [
-  'Toy Story 3',
-  'Logan',
-  'Full Metal Jacket',
-  'Dangal',
-  'The Sting',
-  '2001: A Space Odyssey',
-  "Singin' in the Rain",
-  'Toy Story',
-  'Bicycle Thieves',
-  'The Kid',
-  'Inglourious Basterds',
-  'Snatch',
-  '3 Idiots',
+const MONTH_OPTION = [
+  { id: 1, name: '01' },
+  { id: 2, name: '02' },
+  { id: 3, name: '03' },
+  { id: 4, name: '04' },
+  { id: 5, name: '05' },
+  { id: 6, name: '06' },
+  { id: 7, name: '07' },
+  { id: 8, name: '08' },
+  { id: 9, name: '09' },
+  { id: 10, name: '10' },
+  { id: 11, name: '11' },
+  { id: 12, name: '12' }
 ];
+
+const YEAR_OPTION = [
+  { id: 1, code: 2022, name: '2022' },
+  { id: 2, code: 2023, name: '2023' },
+  { id: 3, code: 2024,  name: '2024' },
+  { id: 4, code: 2025,  name: '2025' },
+  { id: 5, code: 2026,  name: '2026' },
+  { id: 6, code: 2027,  name: '2027' },
+  { id: 7, code: 2028,  name: '2028' },
+  { id: 8, code: 2029,  name: '2029' },
+  { id: 9, code: 2030,  name: '2030' },
+  { id: 10, code: 2031,  name: '2031' },
+  { id: 11, code: 2032,  name: '2032' }
+]
 
 const LabelStyle = styled(Typography)(({ theme }) => ({
   ...theme.typography.subtitle2,
@@ -59,38 +75,56 @@ const LabelStyle = styled(Typography)(({ theme }) => ({
 
 InventoryNewEditForm.propTypes = {
   isEdit: PropTypes.bool,
-  currentProduct: PropTypes.object,
+  currentItem: PropTypes.object,
 };
 
-export default function InventoryNewEditForm({ isEdit, currentProduct }) {
+export default function InventoryNewEditForm({ isEdit, currentItem }) {
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
+  const inventoryApiService = new InventoryApiService();
   const { enqueueSnackbar } = useSnackbar();
+  const { setInventoryDetails } = useUsers();
+
+  const units = [
+    {id: 1, name: 'mg' },
+    {id: 2, name: 'gm' },
+    {id: 3, name: 'units' },
+    {id: 4, name: 'IU' },
+    {id: 5, name: 'ml' },
+  ]
+  const drugType = [
+    {id: 1, name: 'Tablets' },
+    {id: 2, name: 'Capsule' },
+    {id: 3, name: 'Cream' },
+    {id: 4, name: 'Injection' },
+    {id: 5, name: 'Mouth wash' },
+  ]
 
   const NewProductSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    description: Yup.string().required('Description is required'),
-    images: Yup.array().min(1, 'Images is required'),
-    price: Yup.number().moreThan(0, 'Price should not be $0.00'),
+    itemName: Yup.string().required('Name is required'),
+    stockingUnit: Yup.string().required('Stocking Unit is required'),
+    itemType: Yup.string().required('Stocking Unit is required'),
+    // price: Yup.number().moreThan(0, 'Price should not be $0.00'),
   });
 
   const defaultValues = useMemo(
     () => ({
-      name: currentProduct?.name || '',
-      description: currentProduct?.description || '',
-      images: currentProduct?.images || [],
-      code: currentProduct?.code || '',
-      sku: currentProduct?.sku || '',
-      price: currentProduct?.price || 0,
-      priceSale: currentProduct?.priceSale || 0,
-      tags: currentProduct?.tags || [TAGS_OPTION[0]],
-      inStock: true,
-      taxes: true,
-      gender: currentProduct?.gender || GENDER_OPTION[2],
-      category: currentProduct?.category || CATEGORY_OPTION[0].classify[1],
+      itemName: currentItem?.itemName || '',
+      itemCode : currentItem?.itemCode || '',
+      manufacturer : currentItem?.manufacturer || '',
+      stockingUnit: currentItem?.stockingUnit || '',
+      reorderLevel : currentItem?.reorderLevel || 0,
+      retailPrice : currentItem?.retailPrice || 0,
+      itemType : currentItem?.itemType || '',
+      strength : currentItem?.strength || '',
+      quantity : currentItem?.quantity || 0,
+      batch : currentItem?.batch || '',
+      unitCost : currentItem?.unitCost || 0,
+      expMonth : currentItem?.expMonth || 1,
+      expYear : currentItem?.expYear || 2022,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentProduct]
+    [currentItem]
   );
 
   const methods = useForm({
@@ -111,21 +145,22 @@ export default function InventoryNewEditForm({ isEdit, currentProduct }) {
   const values = watch();
 
   useEffect(() => {
-    if (isEdit && currentProduct) {
+    if (isEdit && currentItem) {
       reset(defaultValues);
     }
     if (!isEdit) {
       reset(defaultValues);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, currentProduct]);
+  }, [isEdit, currentItem]);
 
-  const onSubmit = async () => {
+  const onSubmit = async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      console.log(data)
+      const response = isEdit ? dispatch(modifyInventory(data, currentItem.id)) : dispatch(addInventory(data))
       reset();
       enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
-      navigate(PATH_DASHBOARD.eCommerce.list);
+      navigate(PATH_DASHBOARD.settings.inventory);
     } catch (error) {
       console.error(error);
     }
@@ -160,25 +195,22 @@ export default function InventoryNewEditForm({ isEdit, currentProduct }) {
         <Grid item xs={12} md={8}>
           <Card sx={{ p: 3 }}>
             <Stack spacing={3}>
-              <RHFTextField name="name" label="Product Name" />
+              <RHFTextField name="itemName" label="Item Name" />
+              <RHFTextField name="itemCode" label="Item Code" />
+              <RHFTextField name="manufacturer" label="Manufacturer" />
+              <RHFTextField name="stockingUnit" label="Stocking Units" />
+              <RHFTextField name="reorderLevel" label="Re-order level" />
 
-              <div>
-                <LabelStyle>Description</LabelStyle>
-                <RHFEditor simple name="description" />
-              </div>
 
-              <div>
-                <LabelStyle>Images</LabelStyle>
-                <RHFUploadMultiFile
-                  name="images"
-                  showPreview
-                  accept="image/*"
-                  maxSize={3145728}
-                  onDrop={handleDrop}
-                  onRemove={handleRemove}
-                  onRemoveAll={handleRemoveAll}
-                />
-              </div>
+              <RHFSelect name="itemType" label="Item Type">
+                <option value="" />
+                {ITEMTYPE_OPTION.map((type) => (
+                  <option key={type.id} value={type.name}>
+                  {type.label}
+                  </option>
+                ))}
+              </RHFSelect>
+              <RHFTextField name="strength" label="Strength" />
             </Stack>
           </Card>
         </Grid>
@@ -186,80 +218,59 @@ export default function InventoryNewEditForm({ isEdit, currentProduct }) {
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
             <Card sx={{ p: 3 }}>
-              <RHFSwitch name="inStock" label="In stock" />
-
               <Stack spacing={3} mt={2}>
-                <RHFTextField name="code" label="Product Code" />
-                <RHFTextField name="sku" label="Product SKU" />
-
-                <RHFSelect name="category" label="Category">
-                  {CATEGORY_OPTION.map((category) => (
-                    <optgroup key={category.group} label={category.group}>
-                      {category.classify.map((classify) => (
-                        <option key={classify} value={classify}>
-                          {classify}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </RHFSelect>
-
-                <Controller
-                  name="tags"
-                  control={control}
-                  render={({ field }) => (
-                    <Autocomplete
-                      {...field}
-                      multiple
-                      freeSolo
-                      onChange={(event, newValue) => field.onChange(newValue)}
-                      options={TAGS_OPTION.map((option) => option)}
-                      renderTags={(value, getTagProps) =>
-                        value.map((option, index) => (
-                          <Chip {...getTagProps({ index })} key={option} size="small" label={option} />
-                        ))
-                      }
-                      renderInput={(params) => <TextField label="Tags" {...params} />}
-                    />
-                  )}
+                <RHFTextField name="quantity" label="Quantity" />
+                <RHFTextField name="batch" label="Batch" />
+                <RHFTextField
+                  name="retailPrice"
+                  label="Retail Price"
+                  placeholder="0.00"
+                  value={getValues('retailPrice') === 0 ? '' : getValues('retailPrice')}
+                  onChange={(event) => setValue('retailPrice', Number(event.target.value))}
+                  InputLabelProps={{ shrink: true }}
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+                    type: 'number',
+                  }}
+                />
+                <RHFTextField
+                  name="unitCost"
+                  label="Unit Cost"
+                  placeholder="0.00"
+                  value={getValues('unitCost') === 0 ? '' : getValues('unitCost')}
+                  onChange={(event) => setValue('unitCost', Number(event.target.value))}
+                  InputLabelProps={{ shrink: true }}
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+                    type: 'number',
+                  }}
                 />
               </Stack>
             </Card>
 
             <Card sx={{ p: 3 }}>
               <Stack spacing={3} mb={2}>
-                <RHFTextField
-                  name="price"
-                  label="Regular Price"
-                  placeholder="0.00"
-                  value={getValues('price') === 0 ? '' : getValues('price')}
-                  onChange={(event) => setValue('price', Number(event.target.value))}
-                  InputLabelProps={{ shrink: true }}
-                  InputProps={{
-                    startAdornment: <InputAdornment position="start">₹</InputAdornment>,
-                    type: 'number',
-                  }}
-                />
-
-                <RHFTextField
-                  name="priceSale"
-                  label="Sale Price"
-                  placeholder="0.00"
-                  value={getValues('priceSale') === 0 ? '' : getValues('priceSale')}
-                  onChange={(event) => setValue('price', Number(event.target.value))}
-                  InputLabelProps={{ shrink: true }}
-                  InputProps={{
-                    startAdornment: <InputAdornment position="start">₹</InputAdornment>,
-                    type: 'number',
-                  }}
-                />
+                <RHFSelect name="expMonth" label="Exp Month">
+                  <option value="" />
+                  {MONTH_OPTION.map((month) => (
+                    <option key={month.id} value={month.id}>
+                    {month.name}
+                    </option>
+                  ))}
+                </RHFSelect>
+                <RHFSelect name="expYear" label="Exp Year">
+                  <option value="" />
+                  {YEAR_OPTION.map((month) => (
+                    <option key={month.id} value={month.code}>
+                      {month.name}
+                    </option>
+                  ))}
+                </RHFSelect>
               </Stack>
-
-              <RHFSwitch name="taxes" label="Price includes taxes" />
             </Card>
 
             <LoadingButton type="submit" variant="contained" size="large" loading={isSubmitting}>
-              {!isEdit ? 'Create Product' : 'Save Changes'}
+              {!isEdit ? 'Create Item' : 'Save Changes'}
             </LoadingButton>
           </Stack>
         </Grid>

@@ -7,7 +7,7 @@ import LogoOnlyLayout from '../layouts/LogoOnlyLayout';
 // guards
 import GuestGuard from '../guards/GuestGuard';
 import AuthGuard from '../guards/AuthGuard';
-// import RoleBasedGuard from '../guards/RoleBasedGuard';
+import RoleBasedGuard from '../guards/RoleBasedGuard';
 // config
 import { PATH_AFTER_LOGIN } from '../config';
 // components
@@ -19,7 +19,7 @@ import LoadingScreen from '../components/LoadingScreen';
 const Loadable = (Component) => (props) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const { pathname } = useLocation();
-
+  
   return (
     <Suspense fallback={<LoadingScreen isDashboard={pathname.includes('/dashboard')} />}>
       <Component {...props} />
@@ -28,6 +28,8 @@ const Loadable = (Component) => (props) => {
 };
 
 export default function Router() {
+  const adminDoctor = ['admin', 'doctor']
+  const frontOffice = ['front_office']
   return useRoutes([
     {
       path: 'auth',
@@ -91,7 +93,7 @@ export default function Router() {
             { path: 'cards', element: <UserCards /> },
             { path: 'list', element: <UserList /> },
             { path: 'new', element: <UserCreate /> },
-            { path: ':username/edit', element: <UserCreate /> },
+            { path: ':id/edit', element: <UserCreate /> },
             { path: 'account', element: <UserAccount /> },
           ],
         },
@@ -99,23 +101,88 @@ export default function Router() {
           path: 'patient',
           children: [
             { element: <Navigate to="/dashboard/patient/profile" replace />, index: true },
-            { path: 'profile', element: <PatientCards /> },
-            { path: 'cards', element: <UserCards /> },
-            { path: 'list', element: <UserList /> },
+            /* { path: 'profile', element: <PatientCards /> }, */
+            { path: 'profile/:id/selected', element: <PatientCards /> },
+            { path: ':tab/:id', element: <PatientCards /> },
+            { path: ':tab', element: <PatientCards /> },
+            /* { path: 'appointments', element: <UserCards /> }, */
+            { path: 'appointments/new', element: <UserCards /> },
+            { path: 'appointments/:id/edit', element: <UserCards /> },
+            /* { path: 'plans', element: <UserList /> }, */
+            { path: 'plans/new', element: <TreatmentPlanCart /> },
+            { path: 'plans/:id/edit', element: <TreatmentPlanCart /> },
+            { path: 'prescriptions/new', element: <PrescriptionCart /> },
+            /* { path: 'files', element: <UserList /> }, */
+            { path: 'mlc/new', element: <MLCNewEditForm /> }, 
+            { path: 'files/new', element: <FileNewEditForm /> },
+            { path: 'mlc/:id/edit', element: <MLCNewEditForm /> },
+            /* { path: 'payments', element: <UserList /> }, */
+            /* { path: 'communication', element: <UserList /> }, */
             { path: 'new', element: <PatientCreate /> },
             { path: ':name/edit', element: <PatientCreate /> },
             { path: 'account', element: <UserAccount /> },
           ],
         },
         {
+          path: 'labs',
+          children: [
+            { element: <Navigate to="/dashboard/labs/orders" replace />, index: true },
+            { path: 'orders', element: <LabOrders /> },
+            { path: 'new', element: <LabsCreate /> },
+            { path: ':id/:name/new', element: <LabsCreate /> },
+            { path: ':id/edit', element: <LabsCreate /> },
+          ],
+        },
+        {
+          path: 'files',
+          children: [
+            { element: <Navigate to="/dashboard/files" replace />, index: true },
+            { path: ':id/:name/new', element: <FileNewEditForm /> },
+            { path: ':id/edit', element: <FileNewEditForm /> },
+          ],
+        },
+        {
+          path: 'mlc',
+          children: [
+            { element: <Navigate to="/dashboard/mlc" replace />, index: true },
+            { path: ':id/:name/new', element: <MLCNewEditForm /> },
+            { path: ':id/edit', element: <MLCNewEditForm /> },
+          ],
+        },
+        {
+          path: 'treatments',
+          children: [
+            { element: <Navigate to="/dashboard/treatments" replace />, index: true },
+            { path: ':id/:name/new', element: <TreatmentPlanCart /> },
+            { path: ':id/edit', element: <TreatmentPlanCart /> },
+          ],
+        },
+        {
+          path: 'notes',
+          children: [
+            { element: <Navigate to="/dashboard/notes" replace />, index: true },
+            { path: ':id/:name/new', element: <NotesNewEditForm /> },
+            { path: ':id/edit', element: <NotesNewEditForm /> },
+          ],
+        },
+        {
+          path: 'prescription',
+          children: [
+            { element: <Navigate to="/dashboard/prescription" replace />, index: true },
+            { path: ':id/:name/new', element: <PrescriptionCart /> },
+            { path: ':id/edit', element: <PrescriptionCart /> },
+          ],
+        },
+        {
           path: 'settings',
           children: [
             { element: <Navigate to="/dashboard/settings/practicedetails" replace />, index: true },
-            { path: 'practicedetails', element: <PracticeDetails /> },
+            { path: 'practicedetails', element: (<RoleBasedGuard accessibleRoles={adminDoctor}><PracticeDetails /></RoleBasedGuard>)},
             { path: 'practicestaff', element: <PracticeStaff /> },
             { path: 'inventory', element: <Inventory /> },
+            { path: 'labwork', element: <LabsWork /> },
             { path: 'inventory/new', element: <InventoryCreate /> },
-            { path: 'inventory/:name/edit', element: <InventoryCreate /> },
+            { path: 'inventory/:id/edit', element: <InventoryCreate /> },
             { path: 'new', element: <PatientCreate /> },
             { path: ':name/edit', element: <PatientCreate /> },
             { path: 'account', element: <UserAccount /> },
@@ -129,6 +196,7 @@ export default function Router() {
             { path: ':id', element: <InvoiceDetails /> },
             { path: ':id/edit', element: <InvoiceEdit /> },
             { path: 'new', element: <InvoiceCreate /> },
+            { path: ':id/:name/new', element: <InvoiceCreate /> },
           ],
         },
         {
@@ -158,7 +226,16 @@ export default function Router() {
             { path: ':conversationKey', element: <Chat /> },
           ],
         },
-        { path: 'calendar', element: <Calendar /> },
+        {
+          path: 'calendar',
+          children: [
+            { element: <Calendar />, index: true },
+            { path: 'calendar', element: <Calendar /> },
+            { path: ':id/:name/new', element: <Calendar /> },
+            { path: ':id/edit', element: <Calendar /> },
+          ],
+        },
+        // { path: 'calendar', element: <Calendar /> },
         { path: 'kanban', element: <Kanban /> },
       ],
     },
@@ -238,8 +315,17 @@ const PatientCreate = Loadable(lazy(() => import('../pages/dashboard/PatientCrea
 //
 const PracticeDetails = Loadable(lazy(() => import('../pages/dashboard/PracticeDetails')));
 const PracticeStaff = Loadable(lazy(() => import('../pages/dashboard/PracticeStaff')));
+const LabOrders = Loadable(lazy(() => import('../pages/dashboard/LabOrders')));
+const LabsCreate = Loadable(lazy(() => import('../pages/dashboard/LabsCreate')));
+const TreatmentPlanCart = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/checkout/TreatmentPlanCart')));
+const NotesNewEditForm = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/NotesNewEditForm')));
+const PrescriptionCart = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/checkout/PrescriptionCart')));
+
+const MLCNewEditForm = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/MLCNewEditForm')));
+const FileNewEditForm = Loadable(lazy(() => import('../sections/@dashboard/e-commerce/FileNewEditForm')));
 const Inventory = Loadable(lazy(() => import('../pages/dashboard/Inventory')));
 const InventoryCreate = Loadable(lazy(() => import('../pages/dashboard/InventoryCreate')));
+const LabsWork = Loadable(lazy(() => import('../pages/dashboard/LabsWork')));
 // APP
 const Chat = Loadable(lazy(() => import('../pages/dashboard/Chat')));
 const Mail = Loadable(lazy(() => import('../pages/dashboard/Mail')));

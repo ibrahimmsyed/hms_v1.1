@@ -3,10 +3,12 @@ import { useState } from 'react';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import { Avatar, Checkbox, TableRow, TableCell, Typography, MenuItem } from '@mui/material';
+import moment from 'moment'
 // components
 import Label from '../../../../components/Label';
 import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu } from '../../../../components/table';
+
 
 // ----------------------------------------------------------------------
 
@@ -21,6 +23,7 @@ UserTableRow.propTypes = {
 export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const theme = useTheme();
 
+  // const { first_name: firstName, last_name: lastName, display_picture: displayPicture, is_staff: isStaff, is_active: isActive, is_superuser: isSuperuser, is_front_office: isFrontOffice, is_back_office: isBackOffice, last_login: lastLogin } = row
   const { firstName, lastName, displayPicture, isActive, isSuperuser, isFrontOffice, isBackOffice, isStaff, lastLogin, status } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
@@ -47,9 +50,9 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
       </TableCell>
 
       <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
-        {isSuperuser ? 'Admin': ''}
-        {isStaff ? 'Doctor': ''}
-        {isFrontOffice ? 'Front Office': 'Back Office'}
+        {isSuperuser ? '/ Admin /': ''}
+        {isStaff ? '/ Doctor /': ''}
+        {isFrontOffice ? '/ Front Office /': '/ Back Office /'}
       </TableCell>
 
       <TableCell align="left">
@@ -63,7 +66,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
       </TableCell>
 
       <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
-        {new Date(lastLogin).toString()}
+         {lastLogin && <span>{moment(lastLogin).format('YYYY-MM-DD HH:mm:ss')}</span>}
       </TableCell>
 
       <TableCell align="right">

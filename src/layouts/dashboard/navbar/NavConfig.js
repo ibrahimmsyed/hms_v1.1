@@ -3,6 +3,7 @@ import { PATH_DASHBOARD } from '../../../routes/paths';
 // components
 import Label from '../../../components/Label';
 import SvgIconStyle from '../../../components/SvgIconStyle';
+import Iconify from '../../../components/Iconify';
 
 // ----------------------------------------------------------------------
 
@@ -31,24 +32,36 @@ const navConfig = [
     subheader: 'management',
     items: [
       // USER
-      { title: 'calendar', path: PATH_DASHBOARD.calendar, icon: ICONS.calendar },
+      { title: 'calendar', path: PATH_DASHBOARD.calendar, icon: ICONS.calendar, access: ['admin', 'doctor']  },
       {
         title: 'Patients',
         path: PATH_DASHBOARD.user.root,
         icon: ICONS.user,
         children: [
-          { title: 'Profile', path: PATH_DASHBOARD.patient.profile },
+          { title: 'Profile', path: PATH_DASHBOARD.patient.profile, access: ['admin', 'doctor']  },
         ],
+        access: ['admin', 'doctor']
+      },
+      {
+        title: 'Labs',
+        path: PATH_DASHBOARD.user.root,
+        icon: <Iconify icon={'ic:outline-biotech'} width={24} height={24} />,
+        children: [
+          { title: 'Orders', path: PATH_DASHBOARD.labs.orders, access: ['admin', 'doctor']  },
+        ],
+        access: ['admin', 'doctor']
       },
       {
         title: 'Settings',
         path: PATH_DASHBOARD.user.root,
         icon: ICONS.dashboard,
         children: [
-          { title: 'Practice Details', path: PATH_DASHBOARD.settings.practicedetails },
-          { title: 'Practice Staff', path: PATH_DASHBOARD.settings.practicestaff },
-          { title: 'Inventory', path: PATH_DASHBOARD.settings.inventory },
+          { title: 'Practice Details', path: PATH_DASHBOARD.settings.practicedetails, access: ['admin', 'doctor'] },
+          { title: 'Practice Staff', path: PATH_DASHBOARD.settings.practicestaff, access: ['admin', 'doctor'] },
+          { title: 'Inventory', path: PATH_DASHBOARD.settings.inventory, access: ['admin', 'doctor']  },
+          { title: 'Lab Work', path: PATH_DASHBOARD.settings.labwork, access: ['admin', 'doctor']  },
         ],
+        access: ['admin', 'doctor']
       },
       // INVOICE
       {
@@ -56,8 +69,9 @@ const navConfig = [
         path: PATH_DASHBOARD.invoice.root,
         icon: ICONS.invoice,
         children: [
-          { title: 'list', path: PATH_DASHBOARD.invoice.list },
+          { title: 'list', path: PATH_DASHBOARD.invoice.list, access: ['admin', 'doctor']  },
         ],
+        access: ['admin', 'doctor']
       }
     ],
   }

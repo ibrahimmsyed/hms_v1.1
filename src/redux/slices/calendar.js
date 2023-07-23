@@ -9,11 +9,14 @@ import { dispatch } from '../store';
 const initialState = {
   isLoading: false,
   error: null,
+  calendarEvents: [],
   events: [],
   isOpenModal: false,
   selectedEventId: null,
   selectedRange: null,
 };
+
+const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
 
 const slice = createSlice({
   name: 'calendar',
@@ -28,6 +31,27 @@ const slice = createSlice({
     hasError(state, action) {
       state.isLoading = false;
       state.error = action.payload;
+    },
+
+    getCalendarEventsSuccess(state, action) {
+      state.isLoading = false;
+      state.calendarEvents = action.payload;
+    },
+
+    setCalendarEvents(state, action) {
+      state.isLoading = false;
+      state.calendarEvents = [...state.calendarEvents, action.payload]
+    },
+
+    modifyCalendarEvents(state, action) {
+      state.isLoading = false;
+      state.calendarEvents = state.calendarEvents.map((item) => item.id === action?.payload?.id ? action.payload : item);
+      // state.calendarEvents = [...state.calendarEvents, action.payload]
+    },
+
+    removeCalendarEvents(state, action) {
+      state.isLoading = false;
+      state.calendarEvents = state.calendarEvents.filter(plan => plan.id !== action.payload)
     },
 
     // GET EVENTS
@@ -163,9 +187,82 @@ export function selectRange(start, end) {
   return async () => {
     dispatch(
       slice.actions.selectRange({
-        start: start.getTime(),
-        end: end.getTime(),
+        start,
+        end,
       })
     );
+  };
+}
+
+// -------------------
+
+/** ******************************************************** */
+
+export function getCalendarEvents() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.get(`${API_ENDPOINT}/eventcalendar/`, headers);
+      dispatch(slice.actions.getCalendarEventsSuccess(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function addCalendarEvents(plan) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.post(`${API_ENDPOINT}/eventcalendar/`, plan, headers);
+      dispatch(slice.actions.setCalendarEvents(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function deleteCalendarEvents(id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.delete(`${API_ENDPOINT}/eventcalendar/${id}/`, headers);
+      dispatch(slice.actions.removeCalendarEvents(id));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function updateCalendarEvents(data, id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.put(`${API_ENDPOINT}/eventcalendar/${id}/`, data, headers);
+      dispatch(slice.actions.modifyCalendarEvents(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
   };
 }

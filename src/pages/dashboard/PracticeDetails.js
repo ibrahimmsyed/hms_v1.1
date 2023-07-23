@@ -15,11 +15,20 @@ import Page from '../../components/Page';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 // sections
 import PracticeNewEditForm from '../../sections/@dashboard/user/PracticeNewEditForm';
+//
+import { useDispatch, useSelector } from '../../redux/store';
+import { getPracticeDetails } from '../../redux/slices/setting';
 
 // ----------------------------------------------------------------------
 
 export default function PracticeDetails() {
-  const { practicedetails:_userList } = useUsers();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getPracticeDetails());
+  },[dispatch])
+
+  const { practiceDetails } = useSelector((state) => state.setting);
 
   const { themeStretch } = useSettings();
 
@@ -27,13 +36,7 @@ export default function PracticeDetails() {
 
   const { name = '' } = useParams();
 
-  const [currentUser, setCurrentUser] = useState(false);
-
-  const isEdit = true;
-
-  useEffect(() => {
-    if(_userList) {setCurrentUser(_userList)}
-  }, [_userList])
+  const isEdit = !!practiceDetails.length;
 
   return (
     <Page title="Practice Details">
@@ -46,7 +49,7 @@ export default function PracticeDetails() {
           ]}
         />
 
-        <PracticeNewEditForm isEdit={isEdit} currentUser={currentUser} />
+        <PracticeNewEditForm isEdit={isEdit} currentUser={practiceDetails[0]} />
       </Container>
     </Page>
   );

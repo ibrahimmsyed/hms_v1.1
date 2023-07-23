@@ -25,7 +25,8 @@ import {
   FormControlLabel,
   DialogTitle,
   DialogActions,
-  Typography
+  Typography,
+  Alert
 } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
@@ -36,7 +37,7 @@ import useSettings from '../../hooks/useSettings';
 import useTable, { getComparator, emptyRows } from '../../hooks/useTable';
 // _mock_
 import { useDispatch, useSelector } from '../../redux/store';
-import { getUsersDetails } from '../../redux/slices/user';
+import { deleteUser } from '../../redux/slices/user';
 import { _userList } from '../../_mock';
 // components
 import Page from '../../components/Page';
@@ -72,11 +73,21 @@ const TABLE_HEAD = [
 
 export default function PracticeStaff() {
   const userApiService = new UserApiService();
+  const SUPER_USER = process.env.REACT_APP_SUPER_USER
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
-  const { user: _userList } = useUsers();
-  
+  const { user } = useUsers();
+  const { users: stateUser } = useSelector((state) => state.user);
+  const [users, setUsers] = useState(null);
+
+  useEffect(() => {
+    if(user.length)
+      setUsers(user)
+    if(stateUser.length)
+      setUsers(stateUser)
+  }, [user, stateUser])  
+
   const {
     dense,
     page,
@@ -97,8 +108,10 @@ export default function PracticeStaff() {
   } = useTable();
 
   useEffect(() => {
-    if(_userList) {setTableData(_userList)}
-  }, [_userList])
+    if(users?.length) { 
+      setTableData(users)
+    }
+  }, [users])
 
   const { themeStretch } = useSettings();
 
@@ -106,7 +119,11 @@ export default function PracticeStaff() {
 
   const [id, setDeleteId] = useState(false);
 
-  const [tableData, setTableData] = useState(_userList);
+  const [alert, setAlert] = useState(false);
+
+  const [itsSuperUser, setItsSuperUser] = useState(false);
+
+  const [tableData, setTableData] = useState([]);
 
   const [filterName, setFilterName] = useState('');
 
@@ -124,20 +141,26 @@ export default function PracticeStaff() {
   };
   
   const openDialog = (id) => {
+    if(tableData.find(user => user.id === id && user.isSuperuser)){
+      setAlert(true)
+    }
+    if(Number(SUPER_USER) === id){
+      setAlert(false)
+      setItsSuperUser(true)
+    }
     setOpen(true);
     setDeleteId(id)
   };
 
   const handleDeleteRow = () => {
     console.log(id)
-    const response = userApiService.deleteUser(id)
+    dispatch(deleteUser(id));
     enqueueSnackbar('Deleted successfully');
-    const deleteRow = tableData.filter((row) => row.id !== id);
-    setSelected([]);
-    setTableData(deleteRow);
     setOpen(false);
   };
   const handleClose = (value: string) => {
+    setItsSuperUser(false)
+    setAlert(false)
     setOpen(false);
   };
 
@@ -147,8 +170,8 @@ export default function PracticeStaff() {
     // setTableData(deleteRows);
   };
 
-  const handleEditRow = (username) => {
-    navigate(PATH_DASHBOARD.user.edit(paramCase(username)));
+  const handleEditRow = (id, name) => {
+    navigate(PATH_DASHBOARD.user.edit(id));
   };
 
   const dataFiltered = applySortFilter({
@@ -258,7 +281,7 @@ export default function PracticeStaff() {
                       selected={selected.includes(row.id)}
                       onSelectRow={() => onSelectRow(row.id)}
                       onDeleteRow={() => openDialog(row.id)}
-                      onEditRow={() => handleEditRow(row.username)}
+                      onEditRow={() => handleEditRow(row.id, row.username)}
                     />
                   ))}
 
@@ -289,14 +312,20 @@ export default function PracticeStaff() {
           </Box>
         </Card>
         <DialogAnimate maxWidth={false}  open={open} onClose={handleClose} sx={{maxWidth: 860}}>
-        <DialogActions sx={{ py: 2, px: 3 }}>
-          <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
-            You are deleting the user. Once deleted you can't retrieve.
-            Please confirm.
-          </Typography>
-          <Button onClick={handleDeleteRow} variant="contained">Confirm</Button>
-          <Button onClick={handleClose}>Cancel</Button>
-        </DialogActions>          
+          {alert && <Alert variant="filled" severity="warning">
+            You are deleting an admin user.
+          </Alert>}
+          {itsSuperUser && <Alert variant="filled" severity="error">
+            You are trying to delete Super Admin, You can't delete the Super Admin.
+          </Alert>}
+          <DialogActions sx={{ py: 2, px: 3 }}>
+            <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+              You are deleting the user. Once deleted you can't retrieve.
+              Please confirm.
+            </Typography>
+            <Button onClick={handleDeleteRow} variant="contained" disabled={itsSuperUser}>Confirm</Button>
+            <Button onClick={handleClose}>Cancel</Button>
+          </DialogActions>          
         </DialogAnimate>
       </Container>
     </Page>

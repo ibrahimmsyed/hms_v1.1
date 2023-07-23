@@ -1,9 +1,12 @@
 // form
 import { useFormContext, useFieldArray } from 'react-hook-form';
+import {useState, SyntheticEvent, ReactNode, useEffect} from 'react';
 // @mui
 import { Box, Stack, Button, Divider, Typography, InputAdornment, MenuItem } from '@mui/material';
 // utils
 import { fNumber } from '../../../../utils/formatNumber';
+import { useDispatch, useSelector } from '../../../../redux/store';
+import { getProcedure } from '../../../../redux/slices/patient';
 // components
 import Iconify from '../../../../components/Iconify';
 import { RHFSelect, RHFTextField } from '../../../../components/hook-form';
@@ -20,6 +23,13 @@ const SERVICE_OPTIONS = [
 
 export default function InvoiceNewEditDetails() {
   const { control, setValue, watch } = useFormContext();
+  const dispatch = useDispatch();
+
+  const { procedure } = useSelector((state) => state.patient);
+
+  useEffect(() => {
+    dispatch(getProcedure());
+  },[dispatch])
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -27,6 +37,12 @@ export default function InvoiceNewEditDetails() {
   });
 
   const values = watch();
+  const total = values.items.reduce((n, {price, quantity}) => n + (quantity * price), 0)  + values.taxes - values.discount
+  
+
+  useEffect(()=> {
+    console.log(fields)
+  },[fields])
 
   const handleAdd = () => {
     append({
@@ -42,6 +58,12 @@ export default function InvoiceNewEditDetails() {
   const handleRemove = (index) => {
     remove(index);
   };
+
+  const onServiceChange = (value, i) => {
+    setValue(`items[${i}].service`, value)
+    setValue(`items[${i}].price`, Number(procedure.filter(plan => plan.id === value)[0].cost))
+    console.log(value)
+  }
 
   return (
     <Box sx={{ p: 3 }}>
@@ -74,6 +96,7 @@ export default function InvoiceNewEditDetails() {
                 InputLabelProps={{ shrink: true }}
                 SelectProps={{ native: false, sx: { textTransform: 'capitalize' } }}
                 sx={{ maxWidth: { md: 160 } }}
+                onChange={(event) => onServiceChange(event.target.value, index)}
               >
                 <MenuItem
                   value=""
@@ -88,10 +111,10 @@ export default function InvoiceNewEditDetails() {
                   None
                 </MenuItem>
                 <Divider />
-                {SERVICE_OPTIONS.map((option) => (
+                {procedure.map((option) => (
                   <MenuItem
-                    key={option}
-                    value={option}
+                    key={option.id}
+                    value={option.id}
                     sx={{
                       mx: 1,
                       my: 0.5,
@@ -100,7 +123,7 @@ export default function InvoiceNewEditDetails() {
                       textTransform: 'capitalize',
                     }}
                   >
-                    {option}
+                    {option.procedureName}
                   </MenuItem>
                 ))}
               </RHFSelect>
@@ -121,7 +144,7 @@ export default function InvoiceNewEditDetails() {
                 label="Price"
                 onChange={(event) => setValue(`items[${index}].price`, Number(event.target.value))}
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                 }}
                 sx={{ maxWidth: { md: 96 } }}
               />
@@ -133,7 +156,7 @@ export default function InvoiceNewEditDetails() {
                 label="Total"
                 value={fNumber(values.items[index].quantity * values.items[index].price)}
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                 }}
                 sx={{ maxWidth: { md: 96 } }}
               />
@@ -176,6 +199,16 @@ export default function InvoiceNewEditDetails() {
             label="Taxes"
             name="taxes"
             onChange={(event) => setValue('taxes', Number(event.target.value))}
+            sx={{ maxWidth: { md: 200 } }}
+          />
+
+          <RHFTextField
+            disabled
+            size="small"
+            label="Grand Total"
+            name="grandTotal"
+            value={total}
+            onChange={(event) => setValue('grandTotal', total)}
             sx={{ maxWidth: { md: 200 } }}
           />
         </Stack>

@@ -8,7 +8,7 @@ import mapKeys from 'lodash/mapKeys';
 
 import axios from '../utils/axios';
 
-
+const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
 
 const baseUrl = 'http:/.../WebServices/api';
 
@@ -25,7 +25,7 @@ class PracticeDetailsApiService extends EventEmitter {
         try {
             this.practiceDetails = {...details, logo: details.logo.preview}
             const accessToken = window.localStorage.getItem('accessToken');
-            const response = await axios.put(`http://localhost:8000/auth/practicedetails/${id}/`, this.practiceDetails,{
+            const response = await axios.put(`${API_ENDPOINT}/practicedetails/${id}/`, this.practiceDetails,{
                 headers: {
                 Authorization: `JWT ${accessToken}`
                 }

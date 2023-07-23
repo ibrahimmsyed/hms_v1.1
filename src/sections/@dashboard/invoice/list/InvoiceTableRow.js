@@ -27,7 +27,7 @@ InvoiceTableRow.propTypes = {
 export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow, onEditRow, onDeleteRow }) {
   const theme = useTheme();
 
-  const { sent, invoiceNumber, createDate, dueDate, status, invoiceTo, totalPrice } = row;
+  const { sent, invoiceId, createDate, dueDate, status, invoiceTo, grandTotal, patient } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -46,17 +46,17 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
       </TableCell>
 
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={invoiceTo.name} color={createAvatar(invoiceTo.name).color} sx={{ mr: 2 }}>
-          {createAvatar(invoiceTo.name).name}
+        <Avatar alt={patient?.patientName} color={createAvatar(patient?.patientName)?.color} sx={{ mr: 2 }}>
+          {createAvatar(patient?.patientName)?.patientName}
         </Avatar>
 
         <Stack>
           <Typography variant="subtitle2" noWrap>
-            {invoiceTo.name}
+            {patient?.patientName}
           </Typography>
 
           <Link noWrap variant="body2" onClick={onViewRow} sx={{ color: 'text.disabled', cursor: 'pointer' }}>
-            {invoiceNumber}
+            {invoiceId}
           </Link>
         </Stack>
       </TableCell>
@@ -65,11 +65,7 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow,
 
       <TableCell align="left">{fDate(dueDate)}</TableCell>
 
-      <TableCell align="center">{fCurrency(totalPrice)}</TableCell>
-
-      <TableCell align="center" sx={{ textTransform: 'capitalize' }}>
-        {sent}
-      </TableCell>
+      <TableCell align="center">{fCurrency(grandTotal)}</TableCell>
 
       <TableCell align="left">
         <Label

@@ -19,6 +19,8 @@ const initialState = {
   currentUser: {}
 };
 
+const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
+
 const slice = createSlice({
   name: 'user',
   initialState,
@@ -38,6 +40,18 @@ const slice = createSlice({
     getUsersSuccess(state, action) {
       state.isLoading = false;
       state.users = action.payload;
+    },
+    setUsers(state, action) {
+      state.isLoading = false;
+      state.users = action.payload
+    },
+    updateUsers(state, action) {
+      state.isLoading = false;
+      state.users = [...state.users, action.payload]
+    },
+    removeUsers(state, action) {
+      state.isLoading = false;
+      state.users = state.users.filter(user => user.id !== action.payload)
     },
     setCurrentUser(state, action) {
         state.isLoading = false;
@@ -67,7 +81,7 @@ export function getUsersDetails() {
             Authorization: `JWT ${accessToken}`
             }
         }
-      const res = await axios.get('http://localhost:8000/auth/users/', headers);
+      const res = await axios.get(`${API_ENDPOINT}/users/`, headers);
       const response = res.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
       dispatch(slice.actions.getUsersSuccess(response));
     } catch (error) {
@@ -85,7 +99,7 @@ export function getCurrentUser() {
               Authorization: `JWT ${accessToken}`
               }
           }
-        const response = await axios.get('http://localhost:8000/auth/users/me/', headers);
+        const response = await axios.get(`${API_ENDPOINT}/users/me`, headers);
         dispatch(slice.actions.setCurrentUser(response));
       } catch (error) {
         dispatch(slice.actions.hasError(error));
@@ -93,4 +107,130 @@ export function getCurrentUser() {
     };
   }
 
+/** PRACTICE STAFF ******************************************************** */
 
+export function getUsers() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.get(`${API_ENDPOINT}/practicestaff/`, headers);
+      const user = response.data.map(res=> mapKeys(res, (v, k) => camelCase(k)))
+      dispatch(slice.actions.setUsers(user));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function addUser(data) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const userDetails = {
+          username: data.username,
+          first_name: data.firstName,
+          last_name: data.lastName,
+          email: data.email,
+          registration_number: data.registrationNumber,
+          calendar_color: data.calendarColor,
+          display_picture: data.displayPicture,
+          phone_number: data.phoneNumber,
+          is_staff: data.isStaff,
+          is_active: data.isActive,
+          is_superuser: data.isSuperuser,
+          is_front_office: data.isFrontOffice,
+          is_back_office: data.isBackOffice,
+          password: data.newPassword,
+          re_password: data.confirmNewPassword
+      }
+      const formData = new FormData();
+      Object.keys(userDetails).forEach(key => { 
+          formData.append(key, userDetails[key]);
+      })
+      const headers = {
+          headers: {
+          Authorization: `JWT ${accessToken}`,
+          'Content-type':'multipart/form-data',
+          'Content-Disposition': `attachment; filename=${data?.displayPicture?.name}`,
+          }
+      }
+      const response = await axios.post(`${API_ENDPOINT}/createuser/`, formData, headers);
+      const arrResponse = [response.data]
+      const user = arrResponse.map(res=> mapKeys(res, (v, k) => camelCase(k)))
+      dispatch(slice.actions.updateUsers(user[0]));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function deleteUser(id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.delete(`${API_ENDPOINT}/deleteuser/${id}/`, headers);
+      dispatch(slice.actions.removeUsers(id));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function updateUser(data, id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        let headers = {}
+        const userDetails = {
+          username: data.username,
+          first_name: data.firstName,
+          last_name: data.lastName,
+          email: data.email,
+          registration_number: data.registrationNumber,
+          calendar_color: data.calendarColor,
+          display_picture: data.displayPicture,
+          phone_number: data.phoneNumber,
+          is_staff: data.isStaff,
+          is_active: data.isActive,
+          is_superuser: data.isSuperuser,
+          is_front_office: data.isFrontOffice,
+          is_back_office: data.isBackOffice,
+        }
+        const formData = new FormData();
+        Object.keys(userDetails).forEach(key => { 
+            if(userDetails[key])
+            formData.append(key, userDetails[key]);
+        })
+        if(data.displayPicture){
+          headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`,
+            'Content-type':'multipart/form-data',
+            'Content-Disposition': `attachment; filename=${data?.displayPicture?.name}`,
+              }
+            }
+        }else{
+          headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+          }
+        }
+      const response = await axios.put(`${API_ENDPOINT}/updateuser/${id}/`, formData, headers);
+      dispatch(slice.actions.setCurrentInventory(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}

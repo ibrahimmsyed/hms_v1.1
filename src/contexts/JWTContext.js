@@ -6,6 +6,7 @@ import { isValidToken, setSession } from '../utils/jwt';
 import useUsers from '../hooks/useUsers';
 import { UsersContext } from './UsersContext';
 
+
 // ----------------------------------------------------------------------
 
 const initialState = {
@@ -13,6 +14,8 @@ const initialState = {
   isInitialized: false,
   user: null,
 };
+
+const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
 
 const handlers = {
   INITIALIZE: (state, action) => {
@@ -76,15 +79,17 @@ function AuthProvider({ children }) {
         if (accessToken && isValidToken(accessToken)) {
           setSession(accessToken);
           
-          const response = await axios.get('http://localhost:8000/auth/users/me/', {
+          const response = await axios.get(`${API_ENDPOINT}/users/me/`, {
             headers: {
               Authorization: `JWT ${accessToken}`
             }
           })
           await useUsers.userDetails()
-          await useUsers.practiceDetails()
+          await useUsers.patientsDetails()
+          // await useUsers.practiceDetails()
+          // await useUsers.inventoryDetails()
+          // await useUsers.patientDetails()
           const { data:user } = response;
-
           dispatch({
             type: 'INITIALIZE',
             payload: {
@@ -117,15 +122,14 @@ function AuthProvider({ children }) {
   }, []);
 
   // https://minimal-assets-api.vercel.app/api/account/login
-  // http://localhost:8000/auth/token/login/
   const login = async (email, password) => {
-    const response = await axios.post('http://localhost:8000/auth/api/token/', {
+    const response = await axios.post(`${API_ENDPOINT}/api/token/`, {
       email,
       password,
     });
     const { access: accessToken } = response.data;
     setSession(accessToken);
-    const userresponse = await axios.get('http://localhost:8000/auth/users/me/', {
+    const userresponse = await axios.get(`${API_ENDPOINT}/users/me/`, {
       headers: {
         Authorization: `JWT ${accessToken}`
       }
@@ -159,12 +163,6 @@ function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    // const accessToken = window.localStorage.getItem('accessToken');
-    // const userresponse = await axios.get('http://localhost:8000/auth/users/me/', {
-    //   headers: {
-    //     Authorization: `JWT ${accessToken}`
-    //   }
-    // })
     setSession(null);
     dispatch({ type: 'LOGOUT' });
   };

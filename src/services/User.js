@@ -8,7 +8,7 @@ import mapKeys from 'lodash/mapKeys';
 
 import axios from '../utils/axios';
 
-
+const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
 
 const baseUrl = 'http:/.../WebServices/api';
 
@@ -31,7 +31,7 @@ class UserApiService extends EventEmitter {
                 new_password: password.newPassword,
                 re_new_password: password.confirmNewPassword
             }
-            const response = await axios.post('http://localhost:8000/auth/users/set_password/', this.passwordChange,{
+            const response = await axios.post(`${API_ENDPOINT}/users/set_password/`, this.passwordChange,{
                 headers: {
                 Authorization: `JWT ${accessToken}`
                 }
@@ -66,7 +66,7 @@ class UserApiService extends EventEmitter {
                 password: user.newPassword,
                 re_password: user.confirmNewPassword
             }
-            const response = await axios.post('http://localhost:8000/auth/users/', this.userDetails,{
+            const response = await axios.post(`${API_ENDPOINT}/users/`, this.userDetails,{
                 headers: {
                 Authorization: `JWT ${accessToken}`
                 }
@@ -92,7 +92,7 @@ class UserApiService extends EventEmitter {
                 email: user.email,
                 registration_number: user.registrationNumber,
                 calendar_color: user.calendarColor,
-                display_picture: user.avatarUrl.preview,
+                display_picture: user.display_picture.preview,
                 phone_number: user.phoneNumber,
                 is_staff: user.isStaff,
                 is_active: user.isActive,
@@ -100,7 +100,7 @@ class UserApiService extends EventEmitter {
                 is_front_office: user.isFrontOffice,
                 is_back_office: user.isBackOffice,
             }
-            const response = await axios.put(`http://localhost:8000/auth/update_profile/${id}/`, this.userDetails,{
+            const response = await axios.put(`${API_ENDPOINT}/update_profile/${id}/`, this.userDetails,{
                 headers: {
                 Authorization: `JWT ${accessToken}`
                 }
@@ -118,7 +118,7 @@ class UserApiService extends EventEmitter {
         try {
             this.accessToken = window.localStorage.getItem('accessToken');
             let message;
-            const response = await axios.get('http://localhost:8000/auth/users/', 
+            const response = await axios.get(`${API_ENDPOINT}/users/`, 
             {
                 headers: {
                 Authorization: `JWT ${this.accessToken}`
@@ -136,7 +136,7 @@ class UserApiService extends EventEmitter {
         try {
             this.accessToken = window.localStorage.getItem('accessToken');
             let message;
-            const response = await axios.delete(`http://localhost:8000/auth/delete-user/${id}/`, 
+            const response = await axios.delete(`${API_ENDPOINT}/delete-user/${id}/`, 
             {
                 headers: {
                 Authorization: `JWT ${this.accessToken}`
