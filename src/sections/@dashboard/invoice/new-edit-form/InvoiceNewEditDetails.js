@@ -133,7 +133,7 @@ export default function InvoiceNewEditDetails() {
                 type="number"
                 name={`items[${index}].quantity`}
                 label="Quantity"
-                onChange={(event) => setValue(`items[${index}].quantity`, Number(event.target.value))}
+                onChange={(event) => event?.target?.value ? setValue(`items[${index}].quantity`, event?.target?.value ) : setValue(`items[${index}].quantity`, '')}
                 sx={{ maxWidth: { md: 96 } }}
               />
 
@@ -142,7 +142,7 @@ export default function InvoiceNewEditDetails() {
                 type="number"
                 name={`items[${index}].price`}
                 label="Price"
-                onChange={(event) => setValue(`items[${index}].price`, Number(event.target.value))}
+                onChange={(event) => setValue(`items[${index}].price`, event?.target?.value ? Number(event?.target?.value) : '')}
                 InputProps={{
                   startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                 }}
@@ -190,7 +190,7 @@ export default function InvoiceNewEditDetails() {
             size="small"
             label="Discount"
             name="discount"
-            onChange={(event) => setValue('discount', Number(event.target.value))}
+            onChange={(event) => setValue('discount', event?.target?.value ? Number(event?.target?.value) : '')}
             sx={{ maxWidth: { md: 200 } }}
           />
 
@@ -198,7 +198,7 @@ export default function InvoiceNewEditDetails() {
             size="small"
             label="Taxes"
             name="taxes"
-            onChange={(event) => setValue('taxes', Number(event.target.value))}
+            onChange={(event) => setValue('taxes', event?.target?.value ? Number(event?.target?.value) : '')}
             sx={{ maxWidth: { md: 200 } }}
           />
 

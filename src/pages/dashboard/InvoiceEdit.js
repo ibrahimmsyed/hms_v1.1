@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom';
+import { useState, useEffect} from 'react';
 // @mui
 import { Container } from '@mui/material';
 // routes
@@ -10,6 +11,9 @@ import { _invoices } from '../../_mock';
 // components
 import Page from '../../components/Page';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
+// redux
+import { getPatientsDetails, getInvoice } from '../../redux/slices/patient';
+import { useDispatch, useSelector } from '../../redux/store';
 // sections
 import InvoiceNewEditForm from '../../sections/@dashboard/invoice/new-edit-form';
 
@@ -17,10 +21,38 @@ import InvoiceNewEditForm from '../../sections/@dashboard/invoice/new-edit-form'
 
 export default function InvoiceEdit() {
   const { themeStretch } = useSettings();
+  const dispatch = useDispatch();
+
+  const { invoice, patients } = useSelector((state) => state.patient);
 
   const { id } = useParams();
 
-  const currentInvoice = _invoices.find((invoice) => invoice.id === id);
+  const [currentInvoice, setCurrentInvoice] = useState(null);
+
+  const [currentPatient, setCurrentPatient] = useState(null);
+
+  useEffect(() => {
+    dispatch(getInvoice());
+    if( !patients?.length )
+      dispatch(getPatientsDetails());
+  },[dispatch])
+
+  useEffect(() => {
+    let currInv = invoice?.find((inv) => Number(inv.id) === Number(id))
+    if(currInv){
+      currInv = {...currInv, items : JSON.parse(currInv.items)}
+      setCurrentInvoice(currInv)
+    }
+  }, [invoice])
+
+  useEffect(() => {
+    const currPateint = patients?.find((user) => Number(user.id) === Number(currentInvoice?.patientId))
+    if(currPateint){
+      setCurrentPatient(currPateint)
+    }
+  }, [currentInvoice, patients])
+
+  
 
   return (
     <Page title="Invoices: Edit">
@@ -34,7 +66,7 @@ export default function InvoiceEdit() {
           ]}
         />
 
-        <InvoiceNewEditForm isEdit currentInvoice={currentInvoice} />
+        <InvoiceNewEditForm isEdit currentInvoice={currentInvoice} currentPatient={currentPatient}/>
       </Container>
     </Page>
   );

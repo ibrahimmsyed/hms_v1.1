@@ -14,6 +14,7 @@ import Page from '../../components/Page';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 // sections
 import { getCalendarEvents } from '../../redux/slices/calendar';
+import { getPatientsDetails } from '../../redux/slices/patient';
 import InvoiceNewEditForm from '../../sections/@dashboard/invoice/new-edit-form';
 
 
@@ -28,11 +29,15 @@ export default function InvoiceCreate() {
   const { id = '' } = useParams();
   const { calendarEvents } = useSelector((state) => state.calendar);
   const appointment = calendarEvents.find((event) => Number(event.id) === Number(id));
-  const { patients } = useUsers();
+  const { patients } = useSelector((state) => state.patient);
+
+  const isEdit = pathname.includes('edit');
   
   
   useEffect(() => {
     dispatch(getCalendarEvents());
+    if( !patients?.length )
+      dispatch(getPatientsDetails());
   },[dispatch])
 
   useEffect(() => {
