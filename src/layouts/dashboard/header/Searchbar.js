@@ -1,12 +1,15 @@
 import { useState } from 'react';
 // @mui
-import { styled } from '@mui/material/styles';
-import { Input, Slide, Button, InputAdornment, ClickAwayListener } from '@mui/material';
+import { styled, alpha } from '@mui/material/styles';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
+import { Input, Slide, Button, InputAdornment, ClickAwayListener, Box, IconButton } from '@mui/material';
 // utils
 import cssStyles from '../../../utils/cssStyles';
 // components
 import Iconify from '../../../components/Iconify';
+import { PATH_DASHBOARD } from '../../../routes/paths';
 import { IconButtonAnimate } from '../../../components/animate';
+import { PatientSearch } from '../../../sections/@dashboard/user/profile'
 
 // ----------------------------------------------------------------------
 
@@ -34,6 +37,8 @@ const SearchbarStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function Searchbar() {
+  const navigate = useNavigate();
+  
   const [isOpen, setOpen] = useState(false);
 
   const handleOpen = () => {
@@ -42,6 +47,12 @@ export default function Searchbar() {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const selectedPatient = (selected) => {
+    navigate(PATH_DASHBOARD.patient.selected( 'profile', selected.id));
+    // setSelectedPatientId(selected.id)
+    console.log(selected)
   };
 
   return (
@@ -55,7 +66,14 @@ export default function Searchbar() {
 
         <Slide direction="down" in={isOpen} mountOnEnter unmountOnExit>
           <SearchbarStyle>
-            <Input
+          <Box
+              sx={{
+                display: 'block', width: '50%' , m: '24px auto'
+              }}
+            >
+            <PatientSearch selectedPatient={selectedPatient}/>
+          </Box>
+            {/* <Input
               autoFocus
               fullWidth
               disableUnderline
@@ -72,7 +90,21 @@ export default function Searchbar() {
             />
             <Button variant="contained" onClick={handleClose}>
               Search
-            </Button>
+            </Button> */}
+            <IconButton
+                size="small"
+                onClick={() => handleClose()}
+                sx={{
+                  p: '2px',
+                  color: 'common.white',
+                  bgcolor: (theme) => alpha(theme.palette.grey[900], 0.72),
+                  '&:hover': {
+                    bgcolor: (theme) => alpha(theme.palette.grey[900], 0.48),
+                  },
+                }}
+              >
+                <Iconify icon={'eva:close-fill'} />
+            </IconButton>
           </SearchbarStyle>
         </Slide>
       </div>

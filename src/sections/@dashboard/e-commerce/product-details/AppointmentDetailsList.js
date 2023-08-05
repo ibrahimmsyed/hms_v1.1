@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // @mui
 import { Box, List, MenuItem, Alert, Button, Rating, Avatar, ListItem, Pagination, Typography, styled, Paper, TableRow, TableCell, TableBody, Table, DialogTitle  } from '@mui/material';
 // utils
@@ -9,6 +10,7 @@ import { fShortenNumber } from '../../../../utils/formatNumber';
 import { deletePresciption, deleteClinicalNotes } from '../../../../redux/slices/patient';
 import { modifyInventory } from '../../../../redux/slices/setting';
 import { useDispatch, useSelector } from '../../../../redux/store';
+import { PATH_DASHBOARD } from '../../../../routes/paths';
 // components
 import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu, TableHeadCustom } from '../../../../components/table';
@@ -191,6 +193,9 @@ TreatmentPlanItem.propTypes = {
 };
 
 function TreatmentPlanItem({ plan }) {
+
+  const navigate = useNavigate();
+
   const [isHelpful, setHelpfuls] = useState(false);
 
   const { patient, procedure, doctor } = plan;
@@ -204,8 +209,8 @@ function TreatmentPlanItem({ plan }) {
     setOpenMenuActions(null);
   };
 
-  const onEditRow = () => {
-    
+  const onEditRow = (id) => {
+    navigate(PATH_DASHBOARD.treatments.edit(id));
   };
   const TABLE_HEAD = [
     { id: 'procedure', label: 'Procedure', align: 'left' },
@@ -307,12 +312,12 @@ function TreatmentPlanItem({ plan }) {
                 <>
                   <MenuItem
                     onClick={() => {
-                      onEditRow();
+                      onEditRow(plan.id);
                       handleCloseMenu();
                     }}
                   >
-                    <Iconify icon={'eva:printer-fill'} />
-                    Print
+                    <Iconify icon={'eva:edit-fill'} />
+                    Edit
                   </MenuItem>
                 </>
               }

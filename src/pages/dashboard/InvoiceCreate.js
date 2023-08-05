@@ -31,9 +31,6 @@ export default function InvoiceCreate() {
   const appointment = calendarEvents.find((event) => Number(event.id) === Number(id));
   const { patients } = useSelector((state) => state.patient);
 
-  const isEdit = pathname.includes('edit');
-  
-  
   useEffect(() => {
     dispatch(getCalendarEvents());
     if( !patients?.length )
