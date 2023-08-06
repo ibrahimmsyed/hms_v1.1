@@ -6,6 +6,7 @@ import timelinePlugin from '@fullcalendar/timeline';
 import interactionPlugin from '@fullcalendar/interaction';
 //
 import { useState, useRef, useEffect } from 'react';
+import { Link as RouterLink, useParams, useLocation, useNavigate } from 'react-router-dom';
 // @mui
 import { Card, Button, Container, DialogTitle, Alert, InputLabel, MenuItem, Select, FormControl, Stack, Box } from '@mui/material';
 // redux
@@ -44,6 +45,8 @@ const selectedEventSelector = (state) => {
 
 export default function Calendar() {
   const { themeStretch } = useSettings();
+
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
 
@@ -213,6 +216,10 @@ export default function Calendar() {
     dispatch(openModal());
   };
 
+  const handleAddPatient = () => {
+    navigate(PATH_DASHBOARD.patient.new);
+  };
+
   const handleCloseModal = () => {
     dispatch(closeModal());
   };
@@ -237,7 +244,7 @@ export default function Calendar() {
                 display: 'grid',
                 columnGap: 1,
                 rowGap: 1,
-                gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(2, 1fr)' },
+                gridTemplateColumns: { xs: 'repeat(3, 1fr)', sm: 'repeat(3, 1fr)' },
               }}
             >
               <FormControl fullWidth>
@@ -261,6 +268,14 @@ export default function Calendar() {
                 onClick={handleAddEvent}
               >
                 New Event
+              </Button>
+              <Button
+                variant="contained"
+                color="inherit"
+                startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
+                onClick={handleAddPatient}
+              >
+                New Patient
               </Button>
             </Box>
           }

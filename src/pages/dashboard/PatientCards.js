@@ -84,7 +84,7 @@ export default function UserCards() {
       const doctor = user.find(user => user.isStaff && Number(user.id) === Number(plan.orderedBy))
       console.log(patient , doctor)
       const planObj = {
-        id: i+1,
+        id: plan.id,
         procedure: JSON.parse(plan.selection).updatedProcedure[0],
         patient,
         doctor 

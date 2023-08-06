@@ -131,6 +131,7 @@ export default function Router() {
             { path: 'new', element: <LabsCreate /> },
             { path: ':id/:name/new', element: <LabsCreate /> },
             { path: ':id/edit', element: <LabsCreate /> },
+            { path: ':id/edit/view', element: <LabsCreate /> },
           ],
         },
         {
@@ -153,7 +154,7 @@ export default function Router() {
           path: 'treatments',
           children: [
             { element: <Navigate to="/dashboard/treatments" replace />, index: true },
-            { path: ':id/:name/new', element: <TreatmentPlanCart /> },
+            { path: ':patientId/:name/new', element: <TreatmentPlanCart /> },
             { path: ':id/edit', element: <TreatmentPlanCart /> },
           ],
         },

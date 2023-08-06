@@ -44,7 +44,7 @@ export default function InventoryCreate() {
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
             {
               name: 'Inventory',
-              href: PATH_DASHBOARD.eCommerce.root,
+              href: PATH_DASHBOARD.settings.inventory,
             },
             { name: !isEdit ? 'New Item' : id },
           ]}

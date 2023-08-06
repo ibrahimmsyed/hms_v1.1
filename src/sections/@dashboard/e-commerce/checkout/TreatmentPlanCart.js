@@ -14,8 +14,8 @@ import { Grid, Card, TextField, Button, Avatar, CardHeader, Typography, List, Li
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // redux
-import { addProcedure, getProcedure, getAllTreatmentPlans } from '../../../../redux/slices/patient';
-import { addTreatmentPlans } from '../../../../redux/slices/lab';
+import { addProcedure, getProcedure, getAllTreatmentPlans, getPatientDetails } from '../../../../redux/slices/patient';
+import { addTreatmentPlans, updateTreatmentPlans } from '../../../../redux/slices/lab';
 import { useDispatch, useSelector } from '../../../../redux/store';
 import {
   deleteCart,
@@ -50,7 +50,7 @@ export default function TreatmentPlanCart() {
 
   const { checkout } = useSelector((state) => state.product);
 
-  const { procedure: treatmentPlan, treatmentPlans } = useSelector((state) => state.patient);
+  const { procedure: treatmentPlan, treatmentPlans, patients } = useSelector((state) => state.patient);
   
   const [procedure, setProcedure ] = useState([]) 
 
@@ -82,13 +82,11 @@ export default function TreatmentPlanCart() {
 
   const totalItems = sum(cart.map((item) => item.quantity));
 
-  const { patients } = useUsers();
-
   const { user: _userList } = useUsers();
 
-  const { name = '', id = '' } = useParams();
+  const { name = '', id = '', patientId = '' } = useParams();
 
-  // const currentPatient = patients.find((user) => Number(user.id) === Number(id));
+  
 
   useEffect(() => {
     const staff =  _userList.filter(user => user.isStaff)
@@ -100,16 +98,23 @@ export default function TreatmentPlanCart() {
   const [user, setUser] = useState([])
 
   useEffect(() => {
-    if(!treatmentPlans?.length) {
+    if(!treatmentPlan?.length) {
       dispatch(getProcedure()); 
+    }
+    if(!patients?.length) {
+      dispatch(getPatientDetails())
     }
     dispatch(getAllTreatmentPlans());
   },[dispatch])
 
   useEffect(() => {
+    setCurrentPatient(patients.find((user) => Number(user.id) === Number(patientId)));
+  },[patients])
+
+  useEffect(() => {
     const plans = treatmentPlan.map(plan => ({...plan, isChecked : false, isVisible: true}));
     setProcedure(plans)
-  },[treatmentPlan])
+  },[treatmentPlan]) 
 
   useEffect(() => {
     const plan = treatmentPlans.find((plan) => Number(plan.id) === Number(id));
@@ -121,7 +126,7 @@ export default function TreatmentPlanCart() {
     }
     
     setTreatPlan(plan)
-  },[treatmentPlans])
+  },[treatmentPlans, patients])
 
   useEffect(() => {
     const clonedProcedure = [...procedure]
@@ -136,6 +141,9 @@ export default function TreatmentPlanCart() {
       procedure.forEach(proc => {
         proc.isChecked = !!selectedTreatment.find(treat => treat.id === proc.id)
       })
+      // const clonedProcedure = procedure
+      // const selectedPlans = clonedProcedure.filter(plan => plan.isChecked);
+      // setSelectedProcedure(selectedPlans)
     }
   },[selectedTreatment])
 
@@ -233,9 +241,13 @@ export default function TreatmentPlanCart() {
     try {
       data.selection = updatedProcedure
       data.patientId = `${currentPatient.id}`
-      dispatch(addTreatmentPlans(data));
+      if(isEdit) {
+        dispatch(updateTreatmentPlans(data, treatPlan.id))
+      }else{
+        dispatch(addTreatmentPlans(data));
+      }
       enqueueSnackbar('Create success!');
-      navigate(PATH_DASHBOARD.labs.plans);
+      navigate(PATH_DASHBOARD.patient.plans);
       console.log(data)
     } catch (error) {
       console.error(error);
@@ -273,9 +285,9 @@ export default function TreatmentPlanCart() {
             title={
               <Typography variant="h6">
                 Treatment Plans
-                <Typography component="span" sx={{ color: 'text.secondary' }}>
-                  &nbsp;({selectedProcedure?.length} item)
-                </Typography>
+                {!isEdit && <Typography component="span" sx={{ color: 'text.secondary' }}>
+                  &nbsp; ({selectedProcedure?.length} item)
+                </Typography>}
               </Typography>
             }
             sx={{ mb: 3 }}
