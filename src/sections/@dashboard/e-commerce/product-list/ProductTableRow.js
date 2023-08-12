@@ -27,7 +27,7 @@ ProductTableRow.propTypes = {
 export default function ProductTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const theme = useTheme();
 
-  const { itemName, itemCode, itemType, retailPrice, quantity, reorderLevel } = row;
+  const { itemName, id, itemCode, itemType, retailPrice, quantity, reorderLevel } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -45,7 +45,7 @@ export default function ProductTableRow({ row, selected, onEditRow, onSelectRow,
         {itemName}
       </TableCell>
 
-      <TableCell>{itemCode}</TableCell>
+      <TableCell>000{id}</TableCell>
       <TableCell>{itemType}</TableCell>
       <TableCell>{retailPrice}</TableCell>
       <TableCell>{quantity}</TableCell>

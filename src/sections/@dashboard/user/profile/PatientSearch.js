@@ -5,7 +5,7 @@ import match from 'autosuggest-highlight/match';
 import { useNavigate } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
-import { Link, Typography, Autocomplete, InputAdornment, Popper, TextField, Stack, Box  } from '@mui/material';
+import { Link, Typography, Autocomplete, InputAdornment, Popper, TextField, Stack, Box, createFilterOptions } from '@mui/material';
 // hooks
 import useIsMountedRef from '../../../../hooks/useIsMountedRef';
 // utils
@@ -71,6 +71,11 @@ export default function PatientSearch({selectedPatient}) {
     }
   };
 
+  const filterOptions = createFilterOptions({
+    matchFrom: 'any',
+    stringify: (option) => option.patientName + option.primaryMobNo,
+  });
+
   return (
     <Stack spacing={2}>
       <Autocomplete
@@ -80,11 +85,12 @@ export default function PatientSearch({selectedPatient}) {
         onInputChange={(event, value) => handleChangeSearch(value)}
         disableClearable
         // options={searchResults.map((option) => option.patientName)}
-        getOptionLabel={(option) => option.patientName}
+        getOptionLabel={(option) => option.patientName }
         options={searchResults}
+        filterOptions={filterOptions}
         renderOption={(props, option) => (
           <Box component="li" {...props} key={option.id}>
-            {option.patientName}
+            {option.patientName} - <span sx={{ fontSize: 9 }}>{option.primaryMobNo}</span>
           </Box>
         )}
         renderInput={(params) => (

@@ -95,6 +95,7 @@ export const PATH_DASHBOARD = {
   },
   treatments:{
     new: (id, name) => path(ROOTS_DASHBOARD, `/treatments/${id}/${name}/new`),
+    edit: (id) => path(ROOTS_DASHBOARD, `/treatments/${id}/edit`),
   },
   notes:{
     new: (id, name) => path(ROOTS_DASHBOARD, `/notes/${id}/${name}/new`),
@@ -107,6 +108,7 @@ export const PATH_DASHBOARD = {
     profile: path(ROOTS_DASHBOARD, '/labs/profile'),
     account: path(ROOTS_DASHBOARD, '/labs/account'),
     edit: (id) => path(ROOTS_DASHBOARD, `/labs/${id}/edit`),
+    view: (id) => path(ROOTS_DASHBOARD, `/labs/${id}/edit/view`),
     new: (id, name) => path(ROOTS_DASHBOARD, `/labs/${id}/${name}/new`),
     demoEdit: path(ROOTS_DASHBOARD, `/labs/reece-chung/edit`),
   },

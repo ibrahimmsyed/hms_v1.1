@@ -50,11 +50,26 @@ TreatmentPlansList.propTypes = {
   updatedProcedures: PropTypes.func,
 };
 
-export default function TreatmentPlansList({ selectedProcedure, onDelete, onIncreaseQuantity, onDecreaseQuantity, updatedProcedures }) {
+export default function TreatmentPlansList({ selectedProcedure, selectedTreatment, onDelete, onIncreaseQuantity, onDecreaseQuantity, updatedProcedures }) {
 
   const [selectedTeeths, setSelectedTeeths] = useState([]);
 
   const [updatedProcedure,  setUpdatedProcedure] = useState([]);
+
+  const [savedProcedure,  setSavedProcedure] = useState([]);
+
+  useEffect(() => {
+    const treat = [...selectedTreatment]
+    setSavedProcedure(treat)
+    console.log(treat)
+  },[selectedTreatment])
+
+  useEffect(() => {
+    console.log(savedProcedure)
+    if(savedProcedure?.length){
+      setUpdatedProcedure(savedProcedure);
+    }
+  },[savedProcedure])
 
   useEffect(() => {
     const cloneProcedure = selectedProcedure.map(plan => ({...plan, quantity : 1, discount: 0, total: plan.cost, notes: '', teeths: []}));
@@ -62,6 +77,7 @@ export default function TreatmentPlansList({ selectedProcedure, onDelete, onIncr
   },[selectedProcedure])
 
   useEffect(() => {
+    console.log(updatedProcedure)
     updatedProcedures(updatedProcedure)
   },[updatedProcedure])
 
@@ -202,12 +218,12 @@ export default function TreatmentPlansList({ selectedProcedure, onDelete, onIncr
                       Child Teeth
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <ToothSelectionButton from={55} to={51} i={i} selectedTeeths={selectedTeeths} selectedTeeth={selectedTeeth}/>
-                      <ToothSelectionButton from={61} to={65} i={i} selectedTeeths={selectedTeeths} selectedTeeth={selectedTeeth}/>
+                      <ToothSelectionButton from={55} to={51} i={i} selectedTeeths={teeths} selectedTeeth={selectedTeeth}/>
+                      <ToothSelectionButton from={61} to={65} i={i} selectedTeeths={teeths} selectedTeeth={selectedTeeth}/>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <ToothSelectionButton from={85} to={81} i={i} selectedTeeths={selectedTeeths} selectedTeeth={selectedTeeth}/>
-                      <ToothSelectionButton from={71} to={75} i={i} selectedTeeths={selectedTeeths} selectedTeeth={selectedTeeth}/>
+                      <ToothSelectionButton from={85} to={81} i={i} selectedTeeths={teeths} selectedTeeth={selectedTeeth}/>
+                      <ToothSelectionButton from={71} to={75} i={i} selectedTeeths={teeths} selectedTeeth={selectedTeeth}/>
                     </Box>
                   </TableCell>
                 </TableRow>

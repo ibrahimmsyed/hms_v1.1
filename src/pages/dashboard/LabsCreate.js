@@ -47,6 +47,8 @@ export default function LabsCreate() {
 
   const isEdit = pathname.includes('edit');
 
+  const isView = pathname.includes('view');
+
   useEffect(() => {
     let currentWork = labs.find((lab) => Number(lab.id) === Number(id));
     if(!isEdit && labs.length){
@@ -70,7 +72,7 @@ export default function LabsCreate() {
     <Page title="Labs: Create a new order">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading={!isEdit ? 'Create a new order' : 'Edit user'}
+          heading={isEdit || isView ? 'Edit/View Order' : 'Create a new order'}
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
             { name: 'Labs', href: PATH_DASHBOARD.labs.orders },
@@ -78,7 +80,7 @@ export default function LabsCreate() {
           ]}
         />
 
-        <LabsNewEditForm isEdit={isEdit} currentPatient={currentPatient} currentWork={currentWork}/>
+        <LabsNewEditForm isEdit={isEdit} isView={isView} currentPatient={currentPatient} currentWork={currentWork}/>
       </Container>
     </Page>
   );

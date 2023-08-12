@@ -12,6 +12,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 // redux
 import { useDispatch, useSelector } from '../../../../redux/store';
 import { getAllInventory } from '../../../../redux/slices/setting';
+import { getPatientsDetails } from '../../../../redux/slices/patient';
 import {
   deleteCart,
   onNextStep,
@@ -38,11 +39,14 @@ import PrescriptionList from './PrescriptionList';
 export default function PrescriptionCart() {
   const dispatch = useDispatch();
 
+  const { patients } = useSelector((state) => state.patient);
+
   useEffect(() => {
     dispatch(getAllInventory());
+    if( !patients?.length )
+      dispatch(getPatientsDetails());
   },[dispatch])
 
-  const { patients } = useUsers();
   const { name = '', id = '' } = useParams();
   const currentPatient = patients.find((user) => Number(user.id) === Number(id));
 
@@ -113,7 +117,8 @@ export default function PrescriptionCart() {
 
   const NewProcedureSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
-    amount: Yup.string().required('amount is required')
+    strength: Yup.string().required('Strength is required'),
+    unit: Yup.string().required('Unit is required')
   });
 
   const handleDeleteCart = (productId) => {
@@ -154,6 +159,9 @@ export default function PrescriptionCart() {
   } = methods;
 
   const handleToggle = (value: number) => () => {
+    if( value.quantity <= 0 ){
+      return false
+    }
     const items = [...inventroyItems];
     items.forEach((item) => {
       if(item.id === value.id){
@@ -192,7 +200,7 @@ export default function PrescriptionCart() {
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', m: 2 }}>
             <Avatar alt='' src='' sx={{ mr: 2 }} />
             <Typography variant="subtitle2" noWrap>
-              {currentPatient.patientName}
+              {currentPatient?.patientName}
             </Typography>
           </Box>
 
@@ -222,11 +230,11 @@ export default function PrescriptionCart() {
                 Drugs
               </Typography>
               
-            <IconButton onClick={toggleAddForm}>
+            {/* <IconButton onClick={toggleAddForm}>
               <Iconify icon={showAddForm? 'eva:close-circle-outline':'eva:plus-circle-outline'} />
-            </IconButton>
+            </IconButton> */}
             </Stack>
-            {showAddForm && (<FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+            {/* {showAddForm && (<FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
               <Box
                 sx={{
                   px:1,
@@ -238,40 +246,28 @@ export default function PrescriptionCart() {
               >
                 <RHFTextField name="name" label="Drug Name" />
                 <RHFTextField name="strength" label="Strength" />
-                <TextField
-                    select
-                    fullWidth
-                    label="Drug type"
-                    placeholder="type"
-                    SelectProps={{ native: true }}
-                  >
+                <RHFSelect name="drug" label="Type" placeholder="Type">
                     <option value="" />
                     {drugType.map((option) => (
                       <option key={option.code} value={option.name}>
                         {option.name}
                       </option>
                     ))}
-                  </TextField>
-                  <TextField
-                    select
-                    fullWidth
-                    label="Unit"
-                    placeholder="unit"
-                    SelectProps={{ native: true }}
-                  >
+                </RHFSelect>
+                <RHFSelect name="unit" label="unit" placeholder="Unit">
                     <option value="" />
                     {units.map((option) => (
                       <option key={option.code} value={option.name}>
                         {option.name}
                       </option>
                     ))}
-                  </TextField>
+                </RHFSelect>
                 <RHFTextField name="instruction" label="Instruction" />
                 <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                   Save
                 </LoadingButton>
               </Box>
-            </FormProvider>)}
+            </FormProvider>)} */}
             <Box
               sx={{
                 display: 'flex', justifyContent: 'center', my: 1 
@@ -297,6 +293,7 @@ export default function PrescriptionCart() {
 
                 return (
                   <ListItem
+                    style={{ opacity: value.quantity <= 0 && '0.5' }}
                     key={value.id}
                     secondaryAction={
                       <IconButton edge="end" aria-label="comments">
@@ -305,7 +302,7 @@ export default function PrescriptionCart() {
                     }
                     disablePadding
                   >
-                    <ListItemButton role={undefined} onClick={handleToggle(value)} dense>
+                    <ListItemButton role={undefined} onClick={handleToggle(value)} dense style={{ cursor: value.quantity <= 0 && 'not-allowed' }}>
                       <ListItemIcon>
                         <Checkbox
                           edge="start"

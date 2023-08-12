@@ -110,7 +110,7 @@ export default function InventoryNewEditForm({ isEdit, currentItem }) {
   const defaultValues = useMemo(
     () => ({
       itemName: currentItem?.itemName || '',
-      itemCode : currentItem?.itemCode || '',
+      itemCode : `000${currentItem?.id}` || 'NA',
       manufacturer : currentItem?.manufacturer || '',
       stockingUnit: currentItem?.stockingUnit || '',
       reorderLevel : currentItem?.reorderLevel || 0,
@@ -196,7 +196,7 @@ export default function InventoryNewEditForm({ isEdit, currentItem }) {
           <Card sx={{ p: 3 }}>
             <Stack spacing={3}>
               <RHFTextField name="itemName" label="Item Name" />
-              <RHFTextField name="itemCode" label="Item Code" />
+              <RHFTextField name="itemCode" label="Item Code" disabled/>
               <RHFTextField name="manufacturer" label="Manufacturer" />
               <RHFTextField name="stockingUnit" label="Stocking Units" />
               <RHFTextField name="reorderLevel" label="Re-order level" />

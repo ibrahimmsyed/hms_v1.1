@@ -165,6 +165,11 @@ export default function LabOrders() {
     navigate(PATH_DASHBOARD.labs.edit(id));
   };
 
+  const handleViewRow = (id) => {
+    navigate(PATH_DASHBOARD.labs.view(id));
+  };
+
+
   const onStatusSelected = (row) => {
     dispatch(updateLabDetail(row, row.id))
     console.log(row)
@@ -205,7 +210,7 @@ export default function LabOrders() {
     <Page title="Lab: Orders">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading="Lab Orders"
+          heading="Lab"
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
             { name: 'Lab', href: PATH_DASHBOARD.labs.orders },
@@ -284,6 +289,7 @@ export default function LabOrders() {
                       onSelectRow={() => onSelectRow(row.id)}
                       onDeleteRow={() => handleDeleteRow(row)}
                       onEditRow={() => handleEditRow(row.id)}
+                      onViewRow={() => handleViewRow(row.id)}
                       onStatusSelected={onStatusSelected}
                     />
                   ))}

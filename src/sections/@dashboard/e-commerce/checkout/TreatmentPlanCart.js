@@ -14,8 +14,8 @@ import { Grid, Card, TextField, Button, Avatar, CardHeader, Typography, List, Li
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // redux
-import { addProcedure, getProcedure } from '../../../../redux/slices/patient';
-import { addTreatmentPlans } from '../../../../redux/slices/lab';
+import { addProcedure, getProcedure, getAllTreatmentPlans, getPatientDetails } from '../../../../redux/slices/patient';
+import { addTreatmentPlans, updateTreatmentPlans } from '../../../../redux/slices/lab';
 import { useDispatch, useSelector } from '../../../../redux/store';
 import {
   deleteCart,
@@ -44,14 +44,23 @@ export default function TreatmentPlanCart() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
+  const { pathname } = useLocation();
+
+  const isEdit = pathname.includes('edit');
 
   const { checkout } = useSelector((state) => state.product);
 
-  const { procedure: treatmentPlan } = useSelector((state) => state.patient);
+  const { procedure: treatmentPlan, treatmentPlans, patients } = useSelector((state) => state.patient);
   
   const [procedure, setProcedure ] = useState([]) 
 
+  const [treatPlan, setTreatPlan ] = useState([]) 
+
   const [ selectedProcedure, setSelectedProcedure ] = useState([]) 
+
+  const [ selectedTreatment, setSelectedTreatment ] = useState([])
+
+  const [ currentPatient, setCurrentPatient ] = useState({})
 
   const [ updatedProcedure, setUpdatedProcedure ] = useState('')
 
@@ -73,13 +82,11 @@ export default function TreatmentPlanCart() {
 
   const totalItems = sum(cart.map((item) => item.quantity));
 
-  const { patients } = useUsers();
-
   const { user: _userList } = useUsers();
 
-  const { name = '', id = '' } = useParams();
+  const { name = '', id = '', patientId = '' } = useParams();
 
-  const currentPatient = patients.find((user) => Number(user.id) === Number(id));
+  
 
   useEffect(() => {
     const staff =  _userList.filter(user => user.isStaff)
@@ -91,13 +98,35 @@ export default function TreatmentPlanCart() {
   const [user, setUser] = useState([])
 
   useEffect(() => {
-    dispatch(getProcedure());
+    if(!treatmentPlan?.length) {
+      dispatch(getProcedure()); 
+    }
+    if(!patients?.length) {
+      dispatch(getPatientDetails())
+    }
+    dispatch(getAllTreatmentPlans());
   },[dispatch])
+
+  useEffect(() => {
+    setCurrentPatient(patients.find((user) => Number(user.id) === Number(patientId)));
+  },[patients])
 
   useEffect(() => {
     const plans = treatmentPlan.map(plan => ({...plan, isChecked : false, isVisible: true}));
     setProcedure(plans)
-  },[treatmentPlan])
+  },[treatmentPlan]) 
+
+  useEffect(() => {
+    const plan = treatmentPlans.find((plan) => Number(plan.id) === Number(id));
+    if(plan?.selection){ 
+      const patient = patients.find((user) => Number(user.id) === Number(plan.patientId));
+      setCurrentPatient(patient)
+      const selection = JSON.parse(plan.selection)?.updatedProcedure
+      setSelectedTreatment(selection) 
+    }
+    
+    setTreatPlan(plan)
+  },[treatmentPlans, patients])
 
   useEffect(() => {
     const clonedProcedure = [...procedure]
@@ -105,6 +134,18 @@ export default function TreatmentPlanCart() {
     setEmptyCart(!selectedPlans.length > 0)
     setSelectedProcedure(selectedPlans)
   },[procedure])
+
+  useEffect(() => {
+    if(selectedTreatment?.length){
+      setEmptyCart(false)
+      procedure.forEach(proc => {
+        proc.isChecked = !!selectedTreatment.find(treat => treat.id === proc.id)
+      })
+      // const clonedProcedure = procedure
+      // const selectedPlans = clonedProcedure.filter(plan => plan.isChecked);
+      // setSelectedProcedure(selectedPlans)
+    }
+  },[selectedTreatment])
 
   const NewProcedureSchema = Yup.object().shape({
     procedureName: Yup.string().required('Name is required'),
@@ -200,9 +241,13 @@ export default function TreatmentPlanCart() {
     try {
       data.selection = updatedProcedure
       data.patientId = `${currentPatient.id}`
-      dispatch(addTreatmentPlans(data));
+      if(isEdit) {
+        dispatch(updateTreatmentPlans(data, treatPlan.id))
+      }else{
+        dispatch(addTreatmentPlans(data));
+      }
       enqueueSnackbar('Create success!');
-      navigate(PATH_DASHBOARD.labs.plans);
+      navigate(PATH_DASHBOARD.patient.plans);
       console.log(data)
     } catch (error) {
       console.error(error);
@@ -240,9 +285,9 @@ export default function TreatmentPlanCart() {
             title={
               <Typography variant="h6">
                 Treatment Plans
-                <Typography component="span" sx={{ color: 'text.secondary' }}>
-                  &nbsp;({selectedProcedure?.length} item)
-                </Typography>
+                {!isEdit && <Typography component="span" sx={{ color: 'text.secondary' }}>
+                  &nbsp; ({selectedProcedure?.length} item)
+                </Typography>}
               </Typography>
             }
             sx={{ mb: 3 }}
@@ -251,6 +296,7 @@ export default function TreatmentPlanCart() {
           {!isEmptyCart ? (
             <Scrollbar>
               <TreatmentPlansList
+                selectedTreatment={selectedTreatment}
                 selectedProcedure={selectedProcedure}
                 onDelete={handleDeleteCart}
                 onIncreaseQuantity={handleIncreaseQuantity}
@@ -338,7 +384,7 @@ export default function TreatmentPlanCart() {
                       <ListItemIcon>
                         <Checkbox
                           edge="start"
-                          checked={value.checked}
+                          checked={value.isChecked}
                           tabIndex={-1}
                           disableRipple
                           inputProps={{ 'aria-labelledby': labelId }}

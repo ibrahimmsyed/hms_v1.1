@@ -48,7 +48,7 @@ LabsNewEditForm.propTypes = {
   currentWork: PropTypes.object,
 };
 
-export default function LabsNewEditForm({ isEdit, currentPatient, currentWork }) {
+export default function LabsNewEditForm({ isEdit, isView, currentPatient, currentWork }) {
 
   const dispatch = useDispatch();
 
@@ -361,7 +361,7 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
   return (
     <>
     
-      <Grid container spacing={3}>
+      <Grid container spacing={3} style={{ position: 'relative'}}>
         <Grid item xs={12} md={9}>
           <Card sx={{ p: 3, display: 'grid', rowGap: 3, }}>
           <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -533,6 +533,7 @@ export default function LabsNewEditForm({ isEdit, currentPatient, currentWork })
             </Scrollbar>
           </Card>
         </Grid>
+        {isView && (<div style={{ position: 'absolute', inset: '0', cursor: 'not-allowed' }} />)}
       </Grid>
     
     <Dialog open={open} onClose={handleClose}>

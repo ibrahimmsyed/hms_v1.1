@@ -23,7 +23,7 @@ LabOrdersTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
 };
 
-export default function LabOrdersTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onStatusSelected }) {
+export default function LabOrdersTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onViewRow, onStatusSelected }) {
   const theme = useTheme();
 
   const { users } = useSelector((state) => state.user);
@@ -125,6 +125,15 @@ export default function LabOrdersTableRow({ row, selected, onEditRow, onSelectRo
               >
                 <Iconify icon={'eva:edit-fill'} />
                 Edit
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  onViewRow();
+                  handleCloseMenu();
+                }}
+              >
+                <Iconify icon={'eva:eye-fill'} />
+                View
               </MenuItem>
             </>
           }

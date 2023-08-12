@@ -107,14 +107,14 @@ AddressInfo.propTypes = {
 function AddressInfo({address}) {
   return (
     <>
-      <Typography variant="subtitle2">{address.name} {address.patientName}</Typography>
+      <Typography variant="subtitle2">{address?.name} {address?.patientName}</Typography>
       <Typography variant="body2" sx={{ mt: 1, mb: 0.5 }}>
-        {address.address} {address.street} {address.locality} <br/>
-        {address.city} - {address.zipcode} {address.pinCode}<br/>
-        {address.state} {address.primaryMobNo}<br/>
-        {address.country} {address.landlineNo}<br/>
+        {address?.address} {address?.street} {address?.locality} <br/>
+        {address?.city} - {address?.zipcode} {address?.pinCode}<br/>
+        {address?.state} {address?.primaryMobNo}<br/>
+        {address?.country} {address?.landlineNo}<br/>
       </Typography>
-      <Typography variant="body2">{address.phoneNumber} {address.secondaryMobNo}</Typography>
+      <Typography variant="body2">{address?.phoneNumber} {address?.secondaryMobNo}</Typography>
     </>
   );
 }

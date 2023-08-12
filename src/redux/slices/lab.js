@@ -90,7 +90,7 @@ const slice = createSlice({
       state.isLoading = false;
       state.treatmentPlans = action.payload
     },
-    updateTreatmentPlans(state, action) {
+    modifyTreatmentPlans(state, action) {
       state.isLoading = false;
       state.treatmentPlans = [...state.treatmentPlans, action.payload]
     },
@@ -114,7 +114,7 @@ export const {
     setlabName,
     updatelabName,
     getTreatmentPlansSuccess,
-    updateTreatmentPlans
+    modifyTreatmentPlans
 } = slice.actions;
 
 // ----------------------------------------------------------------------
@@ -307,7 +307,24 @@ export function addTreatmentPlans(data) {
             }
         }
       const response = await axios.post(`${API_ENDPOINT}/treatmentplans/`, data, headers);
-      dispatch(slice.actions.updateTreatmentPlans(response.data));
+      dispatch(slice.actions.modifyTreatmentPlans(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+export function updateTreatmentPlans(data, id) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.put(`${API_ENDPOINT}/treatmentplans/${id}/`, data, headers);
+      dispatch(slice.actions.modifyTreatmentPlans(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
