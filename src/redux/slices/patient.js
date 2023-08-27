@@ -782,6 +782,7 @@ export function getPatientDetails(id) {
       let prescription = []
       let uploads = [];
       let invoice = [];
+      let mlc = [];
       if(id){
         const patient = response.data
         dispatch(slice.actions.setClinicalNotes(patient.notes));
@@ -791,6 +792,7 @@ export function getPatientDetails(id) {
         dispatch(slice.actions.setCalendarEvent(patient.calendar));
         dispatch(slice.actions.getPatientsSuccess([patient]));
         dispatch(slice.actions.setInvoice(patient.invoice));
+        dispatch(slice.actions.setMedicalCertificate(patient.mlc));
       }else{
         response.data.forEach(data => {
           if(data.calendar.length){ calendar = [...data.calendar, ...calendar] }
@@ -799,6 +801,7 @@ export function getPatientDetails(id) {
           if(data.prescription.length){ prescription = [...data.prescription, ...prescription] }
           if(data.uploads.length){ uploads = [...data.uploads, ...uploads] }
           if(data.invoice.length){ invoice = [...data.invoice, ...invoice] }
+          if(data.mlc.length){ mlc = [...data.mlc, ...mlc] }
         })
         dispatch(slice.actions.setClinicalNotes(notes));
         dispatch(slice.actions.setFiles(uploads));
@@ -806,6 +809,7 @@ export function getPatientDetails(id) {
         dispatch(slice.actions.getTreatmentPlansSuccess(plans)); 
         dispatch(slice.actions.setCalendarEvent(calendar));
         dispatch(slice.actions.setInvoice(invoice));
+        dispatch(slice.actions.setMedicalCertificate(mlc));
         console.log(calendar, plans, notes, prescription, uploads)
         dispatch(slice.actions.getPatientsSuccess(response.data));
     }

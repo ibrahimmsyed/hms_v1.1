@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 // form
 import { useForm, Controller } from 'react-hook-form';
@@ -15,7 +15,7 @@ import DatePicker from '@mui/lab/DatePicker';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // redux
-import { addMedicalCertificate } from '../../../redux/slices/patient';
+import { addMedicalCertificate, getMedicalCertificate } from '../../../redux/slices/patient';
 import { useDispatch, useSelector } from '../../../redux/store';
 // components
 import {
@@ -51,11 +51,29 @@ MLCNewEditForm.propTypes = {
 export default function MLCNewEditForm() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isEdit = pathname.includes('edit'); 
   const { patients, user: _userList } = useUsers();
   const { name = '', id = '' } = useParams();
   const currentPatient = patients.find((user) => Number(user.id) === Number(id));
   const [user, setUser] = useState([])
   const [currentMLCDetail, setCurrentMLCDetail] = useState({});
+
+  const { medicalCertificate } = useSelector((state) => state.patient);
+
+  useEffect(() => {
+    dispatch(getMedicalCertificate())
+  },[dispatch])
+
+  useEffect(() => {
+    
+    if(isEdit && medicalCertificate.length){
+      const current = medicalCertificate.find((mlc) => Number(mlc.id) === Number(id));
+      setCurrentMLCDetail(current)
+      reset(defaultValues);
+    }
+    
+  },[medicalCertificate])
 
   useEffect(() => {
     const staff =  _userList.filter(user => user.isStaff)
@@ -70,13 +88,14 @@ export default function MLCNewEditForm() {
   });
   const defaultValues = useMemo(
     () => ({
-      issuedOn: new Date(),
-      exusedStart: new Date(),
-      exusedEnd: new Date(),
-      fitStart: new Date(),
-      fitEnd: new Date(),
-      attendanceStart: new Date(),
-      attendanceEnd: new Date()
+      MLNo: `000${currentMLCDetail.id}` || 'NA',
+      issuedOn: currentMLCDetail.issuedOn || new Date(),
+      exusedStart: currentMLCDetail.exusedStart || new Date(),
+      exusedEnd: currentMLCDetail.exusedEnd || new Date(),
+      fitStart: currentMLCDetail.fitStart || new Date(),
+      fitEnd: currentMLCDetail.fitEnd || new Date(),
+      attendanceStart: currentMLCDetail.attendanceStart || new Date(),
+      attendanceEnd: currentMLCDetail.attendanceEnd || new Date(),
 
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -112,6 +131,7 @@ export default function MLCNewEditForm() {
       data.attendanceStart = moment(data.attendanceStart).format('YYYY-MM-DD HH:mm:ss')
       data.attendanceEnd = moment(data.attendanceEnd).format('YYYY-MM-DD HH:mm:ss')
       dispatch(addMedicalCertificate(data))
+      navigate(-1)
       console.log('Submit', data);
     } catch (error) {
       console.error(error);

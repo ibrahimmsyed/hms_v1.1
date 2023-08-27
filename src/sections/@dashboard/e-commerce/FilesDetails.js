@@ -57,7 +57,7 @@ FilesDetails.propTypes = {
   currentProduct: PropTypes.object,
 };
 
-export default function FilesDetails(files) {
+export default function FilesDetails({filesList, files, mlc}) {
 
   const { patients } = useUsers();
   const [ fileLists, setFileLists ] = useState([])
@@ -77,12 +77,23 @@ export default function FilesDetails(files) {
   ]
 
   useEffect(()=>{
+    const grouped = groupBy(cloneFiles, 'patientId');
+    setFileLists(grouped)
+  }, [cloneFiles])
+
+  useEffect(()=>{
+    const groupedMLC = groupBy(mlc, 'patientId');
+    setMLCLists(groupedMLC)
+    console.log(mlc)
+  }, [mlc])
+
+/*   useEffect(()=>{
     const grouped = groupBy(cloneFiles.files, 'patientId');
     const groupedMLC = groupBy(cloneFiles.medicalCertificate, 'patientId');
     console.log(grouped)
     setMLCLists(groupedMLC)
     setFileLists(grouped)
-  }, [cloneFiles])
+  }, [cloneFiles]) */
 
   const getPatientsDetails = (id) => {
     return patients.filter(patient => Number(patient.id) === Number(id))[0]
@@ -90,10 +101,10 @@ export default function FilesDetails(files) {
 
   const filterFilesByTag = (tag) => {
     setShowMLC(false)
-    const cloned = [...files.files]
+    const cloned = filesList
     let filteredFiles = {}
     if(tag !== "All"){
-      filteredFiles.files = cloned.filter(file => file.tags === tag);
+      filteredFiles = cloned.filter(file => file.tags === tag);
     }else{
       filteredFiles = files
     }

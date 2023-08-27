@@ -131,7 +131,7 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice, appointment
       await new Promise((resolve) => setTimeout(resolve, 500));
       reset();
       setLoadingSave(true);
-      navigate(PATH_DASHBOARD.patient.payments);
+      navigate(-1);
       console.log(JSON.stringify(newInvoice, null, 2));
     } catch (error) {
       console.error(error);

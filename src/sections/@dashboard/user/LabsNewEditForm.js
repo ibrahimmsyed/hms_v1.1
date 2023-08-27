@@ -237,7 +237,7 @@ export default function LabsNewEditForm({ isEdit, isView, currentPatient, curren
       const newObj = {...p}
       Object.assign(newObj, {treatments:[], showForm: false})
       subCategory.forEach((c) => {
-          if(newObj.categoryID === c.parentId){
+          if(newObj.id === Number(c.parentId)){
             newObj.treatments.push(c) 
           }
       })
@@ -411,7 +411,7 @@ export default function LabsNewEditForm({ isEdit, isView, currentPatient, curren
                   )}
                 />
               </Box>
-              <RHFTextField name="workName" label="Work Name"/>
+              <RHFTextField name="workName" label="Work Name" disabled/>
               <RHFSelect name="shade" label="Please select Shade" placeholder="Please select Shade">
                 <option value="" />
                 {shade.map((option) => (

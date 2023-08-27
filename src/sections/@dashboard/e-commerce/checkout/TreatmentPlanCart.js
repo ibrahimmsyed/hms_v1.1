@@ -48,6 +48,8 @@ export default function TreatmentPlanCart() {
 
   const isEdit = pathname.includes('edit');
 
+  const isView = pathname.includes('view');
+
   const { checkout } = useSelector((state) => state.product);
 
   const { procedure: treatmentPlan, treatmentPlans, patients } = useSelector((state) => state.patient);
@@ -247,7 +249,8 @@ export default function TreatmentPlanCart() {
         dispatch(addTreatmentPlans(data));
       }
       enqueueSnackbar('Create success!');
-      navigate(PATH_DASHBOARD.patient.plans);
+      navigate(-1);
+      // navigate(PATH_DASHBOARD.patient.plans);
       console.log(data)
     } catch (error) {
       console.error(error);
@@ -401,37 +404,38 @@ export default function TreatmentPlanCart() {
         </Card> 
       </Grid>
 
-        <FormProvider methods={labMethods} onSubmit={handleSubmitForm(handleSubmitPlan)}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-evenly', p: 2, position: 'fixed', bottom: 0, left: '10%', right: '10%', background: '#FFF', width: '80%', gap: '20px' }}>
-          <RHFSelect name="orderedBy" label="Ordered By" placeholder="Ordered By">
-            {user?.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.firstName} {option.lastName}
-              </option>
-            ))}
-          </RHFSelect>
-          <Controller
-            name="plannedOn"
-            control={controlNewForm}
-            render={({ field, fieldState: { error } }) => (
-              <DatePicker
-                label="Planned On"
-                value={field.value}
-                onChange={(newValue) => {
-                  field.onChange(newValue);
-                }}
-                renderInput={(params) => (
-                  <TextField {...params} fullWidth error={!!error} helperText={error?.message} />
-                )}
-              />
-            )}
-          />
-          <LoadingButton type="submit" variant="contained" size="large" loading={isSubmitting}>
-            Save
-          </LoadingButton>
-          </Box>
-        </FormProvider>
+      <FormProvider methods={labMethods} onSubmit={handleSubmitForm(handleSubmitPlan)}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-evenly', p: 2, position: 'fixed', bottom: 0, left: '10%', right: '10%', background: '#FFF', width: '80%', gap: '20px' }}>
+        <RHFSelect name="orderedBy" label="Ordered By" placeholder="Ordered By">
+          {user?.map((option) => (
+            <option key={option.id} value={option.id}>
+              {option.firstName} {option.lastName}
+            </option>
+          ))}
+        </RHFSelect>
+        <Controller
+          name="plannedOn"
+          control={controlNewForm}
+          render={({ field, fieldState: { error } }) => (
+            <DatePicker
+              label="Planned On"
+              value={field.value}
+              onChange={(newValue) => {
+                field.onChange(newValue);
+              }}
+              renderInput={(params) => (
+                <TextField {...params} fullWidth error={!!error} helperText={error?.message} />
+              )}
+            />
+          )}
+        />
+        <LoadingButton type="submit" variant="contained" size="large" loading={isSubmitting}>
+          Save
+        </LoadingButton>
+        </Box>
+      </FormProvider>
       
+      {isView && (<div style={{ position: 'absolute', inset: '0', cursor: 'not-allowed' }} />)}
     </Grid>
   );
 }

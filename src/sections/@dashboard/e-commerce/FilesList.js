@@ -31,6 +31,7 @@ import {
 } from '../../../components/hook-form';
 import Image from '../../../components/Image';
 import { calculateAge, mediaURL } from '../../../utils/utilities';
+
 // ----------------------------------------------------------------------
 
 const GENDER_OPTION = ['Men', 'Women', 'Kids'];
@@ -83,11 +84,12 @@ export default function FilesList({patient, fileLists, mlcLists}) {
     setOpenMenuActions(null);
   };
 
-  const onDeleteRow = () => {
+  const onDeleteRow = (id) => {
     console.log('D')
   };
 
-  const onEditRow = () => {
+  const onEditRow = (id) => {
+    navigate(PATH_DASHBOARD.mlc.edit(id));
     console.log('E')
   };
   // const [] = useState()
@@ -100,15 +102,15 @@ export default function FilesList({patient, fileLists, mlcLists}) {
       <Stack direction="row" alignItems="center" spacing={1} p={1} sx={{
               width: '100%'
             }}>
-          <Avatar alt={patient.patientName} src={patient.dop} sx={{ mr: 2 }} />
+          <Avatar alt={patient?.patientName} src={patient?.dop} sx={{ mr: 2 }} />
           <Typography variant="subtitle2" noWrap>
-            {patient.patientName}
+            {patient?.patientName}
           </Typography>
           <Typography variant="subtitle2" noWrap>
-          {calculateAge(patient.dob)} Year(s) / {patient.gender}
+          {calculateAge(patient?.dob)} Year(s) / {patient?.gender}
           </Typography>
           <Typography variant="subtitle2" noWrap>
-            {patient.id}
+            {patient?.id}
           </Typography>
       </Stack>
       <Divider/>
@@ -116,7 +118,7 @@ export default function FilesList({patient, fileLists, mlcLists}) {
               width: '100%'
             }}>
         
-        {fileLists && fileLists.length && fileLists.map((file, i) =>
+        {fileLists && fileLists?.length && fileLists.map((file, i) =>
         <div key={i}>
           <a href={mediaURL(file.File_to_upload)} download target="_blank" rel="noopener noreferrer">
           <Image
@@ -133,7 +135,7 @@ export default function FilesList({patient, fileLists, mlcLists}) {
           </Typography>
         </div>)
         }
-        {(mlcLists && mlcLists.length && <TableContainer>
+        {(mlcLists && mlcLists?.length && <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
@@ -156,7 +158,7 @@ export default function FilesList({patient, fileLists, mlcLists}) {
                       <>
                         <MenuItem
                           onClick={() => {
-                            onDeleteRow();
+                            onDeleteRow(mlc.id);
                             handleCloseMenu();
                           }}
                           sx={{ color: 'error.main' }}
@@ -166,7 +168,7 @@ export default function FilesList({patient, fileLists, mlcLists}) {
                         </MenuItem>
                         <MenuItem
                           onClick={() => {
-                            onEditRow();
+                            onEditRow(mlc.id);
                             handleCloseMenu();
                           }}
                         >
