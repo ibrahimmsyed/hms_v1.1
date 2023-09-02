@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 // form
@@ -13,7 +13,7 @@ import { Box, Card, Grid, Stack, Switch, Typography, FormControlLabel } from '@m
 // utils
 import { fData } from '../../../utils/formatNumber';
 import { useDispatch, useSelector } from '../../../redux/store';
-import { addUser, updateUser } from '../../../redux/slices/user';
+import { addUser, updateUser, resetSuccessUsers } from '../../../redux/slices/user';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // _mock
@@ -37,6 +37,24 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
   const userApiService = new UserApiService();
   const { setUserDetails } = useUsers();
   const { enqueueSnackbar } = useSnackbar();
+
+  const { error, success } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    if(success) {
+      enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
+      navigate(PATH_DASHBOARD.settings.practicestaff);
+      dispatch(resetSuccessUsers()) 
+    } 
+    if(error && Object.keys(error)?.length) {
+      Object.keys(error)?.forEach(key => {
+        error[key].forEach(err => {
+          enqueueSnackbar(err, { variant: 'error' });
+        })
+      })
+    }
+    
+  }, [error, success])
   
   const NewUserSchema = Yup.object().shape({
     username: Yup.string().required('username is required'),
@@ -166,10 +184,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
         }else{
           dispatch(addUser(data))  
         }
-        enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
-        navigate(PATH_DASHBOARD.settings.practicestaff);
       }
-      
     } catch (error) {
       console.error(error);
     }

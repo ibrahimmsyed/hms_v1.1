@@ -15,6 +15,7 @@ import { dispatch } from '../store';
 const initialState = {
   isLoading: false,
   error: null,
+  success: null,
   users: [],
   currentUser: {}
 };
@@ -35,7 +36,10 @@ const slice = createSlice({
       state.isLoading = false;
       state.error = action.payload;
     },
-
+    // HAS ERROR
+    resetSuccess(state, action) {
+      state.success = action.payload;
+    },
     // GET USERS
     getUsersSuccess(state, action) {
       state.isLoading = false;
@@ -47,7 +51,13 @@ const slice = createSlice({
     },
     updateUsers(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.users = [...state.users, action.payload]
+    },
+    updatedUsers(state, action) {
+      state.isLoading = false;
+      state.success = true;
+      state.users = state.users.map((item) => item.id === action.payload.id ? action.payload : item);  
     },
     removeUsers(state, action) {
       state.isLoading = false;
@@ -109,6 +119,12 @@ export function getCurrentUser() {
 
 /** PRACTICE STAFF ******************************************************** */
 
+export function resetSuccessUsers() {
+  return async () => {
+    dispatch(slice.actions.resetSuccess(null));
+  }
+}
+
 export function getUsers() {
   return async () => {
     dispatch(slice.actions.startLoading());
@@ -129,6 +145,7 @@ export function getUsers() {
 }
 export function addUser(data) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
@@ -188,6 +205,7 @@ export function deleteUser(id) {
 }
 export function updateUser(data, id) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
@@ -228,7 +246,8 @@ export function updateUser(data, id) {
           }
         }
       const response = await axios.put(`${API_ENDPOINT}/updateuser/${id}/`, formData, headers);
-      dispatch(slice.actions.setCurrentInventory(response.data));
+      dispatch(slice.actions.setUsers(response.data));
+      dispatch(slice.actions.resetSuccess(true));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

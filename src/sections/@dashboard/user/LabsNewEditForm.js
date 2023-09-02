@@ -19,7 +19,7 @@ import { PATH_DASHBOARD } from '../../../routes/paths';
 // _mock
 import { countries, _faqs, _labTreatments } from '../../../_mock';
 // redux
-import { getAllLabWork, addLabName, getAllLabNames, addLabDetail, updateLabDetail } from '../../../redux/slices/lab';
+import { getAllLabWork, addLabName, getAllLabNames, addLabDetail, updateLabDetail, resetSuccessLabs } from '../../../redux/slices/lab';
 import { useDispatch, useSelector } from '../../../redux/store';
 import { getProducts, resetCart } from '../../../redux/slices/product';
 // components
@@ -73,6 +73,24 @@ export default function LabsNewEditForm({ isEdit, isView, currentPatient, curren
   const [user, setUser] = useState([])
 
   const [open, setOpen] = useState(false);
+
+  const { labworks, labNames, error, success } = useSelector((state) => state.labs);
+
+  useEffect(() => {
+    if(success) {
+      enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
+      navigate(PATH_DASHBOARD.settings.labwork);
+      dispatch(resetSuccessLabs()) 
+    } 
+    if(error && Object.keys(error)?.length) {
+      Object.keys(error)?.forEach(key => {
+        error[key].forEach(err => {
+          enqueueSnackbar(err, { variant: 'error' });
+        })
+      })
+    }
+    
+  }, [error, success])
 
   const toothOption = {
     from: 21, 
@@ -223,8 +241,6 @@ export default function LabsNewEditForm({ isEdit, isView, currentPatient, curren
     dispatch(getAllLabNames());
   },[dispatch])
 
-  const { labworks, labNames } = useSelector((state) => state.labs);
-  
   useEffect(() => {
     setLabTreatments(cookArrayForView(labworks))
     setNewLabNames(labNames)
@@ -294,8 +310,6 @@ export default function LabsNewEditForm({ isEdit, isView, currentPatient, curren
         dispatch(addLabDetail(payload))
         reset();
       }
-      enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
-      navigate(PATH_DASHBOARD.labs.orders);
     } catch (error) {
       console.error(error);
     }

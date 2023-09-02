@@ -15,6 +15,7 @@ import { dispatch } from '../store';
 const initialState = {
   isLoading: false,
   error: null,
+  success: null,
   patients: [],
   currentPatient: {},
   calendarEvents: [],
@@ -43,7 +44,10 @@ const slice = createSlice({
       state.isLoading = false;
       state.error = action.payload;
     },
-
+    // HAS ERROR
+    resetSuccess(state, action) {
+      state.success = action.payload;
+    },
     // GET USERS
     getPatientsSuccess(state, action) {
       state.isLoading = false;
@@ -51,10 +55,12 @@ const slice = createSlice({
     },
     setPatientDetails(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.currentPatient = action.payload
     },
     updatePatientDetails(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.currentPatient = [...state.currentPatient, action.payload]
     },
     removePatientDetail(state, action) {
@@ -63,10 +69,12 @@ const slice = createSlice({
     },
     setPatientHistory(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.patientHistory = action.payload;
     },
     updatePatientHistory(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.patientHistory = [...state.patientHistory, action.payload]
     },
     deletePatientHistory(state, action) {
@@ -75,10 +83,12 @@ const slice = createSlice({
     },
     setProcedure(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.procedure = action.payload;
     },
     updateProcedure(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.procedure = [...state.procedure, action.payload]
     },
     removeProcedure(state, action) {
@@ -87,10 +97,12 @@ const slice = createSlice({
     },
     setPrescription(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.prescriptions = action.payload;
     },
     updatePrescription(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.prescriptions = [...state.prescriptions, action.payload]
     },
     removePrescription(state, action) {
@@ -99,10 +111,12 @@ const slice = createSlice({
     },
     setFiles(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.files = action.payload;
     },
     updateFiles(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.files = [...state.files, action.payload]
     },
     removeFiles(state, action) {
@@ -111,10 +125,12 @@ const slice = createSlice({
     },
     setMedicalCertificate(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.medicalCertificate = action.payload;
     },
     updateMedicalCertificate(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.medicalCertificate = [...state.medicalCertificate, action.payload]
     },
     removeMedicalCertificate(state, action) {
@@ -123,10 +139,12 @@ const slice = createSlice({
     },
     setClinicalNotes(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.clinicalNotes = action.payload;
     },
     updateClinicalNotes(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.clinicalNotes = [...state.clinicalNotes, action.payload]
     },
     removeClinicalNotes(state, action) {
@@ -135,10 +153,12 @@ const slice = createSlice({
     },
     setCalendarEvent(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.calendarEvents = action.payload;
     },
     updateCalendarEvents(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.calendarEvents = [...state.calendarEvents, action.payload]
     },
     removeCalendarEvents(state, action) {
@@ -151,14 +171,17 @@ const slice = createSlice({
     },
     updateTreatmentPlans(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.treatmentPlans = [...state.treatmentPlans, action.payload]
     },
     setInvoice(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.invoice = action.payload;
     },
     updateInvoice(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.invoice = [...state.invoice, action.payload]
     },
     removeInvoice(state, action) {
@@ -192,6 +215,12 @@ export const {
 } = slice.actions;
 
 // ----------------------------------------------------------------------
+
+export function resetSuccessPatient() {
+  return async () => {
+    dispatch(slice.actions.resetSuccess(null));
+  }
+}
 
 export function getPatientsDetails() {
   return async () => {
@@ -231,6 +260,7 @@ export function getCurrentPatientsDetails(id) {
 }
 export function addPatientsDetail(data) {
     return async () => {
+      dispatch(slice.actions.hasError(null));
       dispatch(slice.actions.startLoading());
       try {
           const accessToken = window.localStorage.getItem('accessToken');
@@ -255,6 +285,7 @@ export function addPatientsDetail(data) {
 
 export function updatePatientsDetail(data, id) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
@@ -314,6 +345,7 @@ export function getMedicalHistory() {
 }
 export function addMedicalHistory(history) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
@@ -366,6 +398,7 @@ export function getProcedure() {
 }
 export function addProcedure(plan) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
@@ -418,6 +451,7 @@ export function getPresciptions() {
 }
 export function addPresciption(plan) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
@@ -471,6 +505,7 @@ export function getUploadFiles() {
 }
 export function uploadFiles(plan) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const formData = new FormData();
@@ -513,6 +548,7 @@ export function getMedicalCertificate() {
 }
 export function addMedicalCertificate(plan) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
@@ -567,6 +603,7 @@ export function getClinicalNotes() {
 }
 export function addClinicalNotes(plan) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
@@ -621,6 +658,7 @@ export function getInvoice() {
 }
 export function addInvoice(plan) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
@@ -675,6 +713,7 @@ export function getCalendarEvents() {
 }
 export function addCalendarEvents(plan) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
@@ -692,6 +731,7 @@ export function addCalendarEvents(plan) {
 }
 export function updateCalendarEvents(data, id) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
@@ -746,6 +786,7 @@ export function getAllTreatmentPlans() {
 }
 export function addTreatmentPlans(data) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
@@ -766,6 +807,7 @@ export function addTreatmentPlans(data) {
 
 export function getPatientDetails(id) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');

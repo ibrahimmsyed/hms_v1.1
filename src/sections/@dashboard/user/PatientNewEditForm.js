@@ -22,7 +22,7 @@ import useUsers from '../../../hooks/useUsers';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
 import { getProducts } from '../../../redux/slices/product';
-import { getMedicalHistory, addMedicalHistory, deleteMedicalHistory, addPatientsDetail, updatePatientsDetail } from '../../../redux/slices/patient';
+import { getMedicalHistory, addMedicalHistory, deleteMedicalHistory, addPatientsDetail, updatePatientsDetail, resetSuccessPatient } from '../../../redux/slices/patient';
 // Service
 import PatientApiService from '../../../services/Patient'
 // components
@@ -55,6 +55,23 @@ export default function PatientNewEditForm({ isEdit, currentPatient, newPatientI
   const patientApiService = new PatientApiService();
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
+  const { patientHistory, isLoading, error, success } = useSelector((state) => state.patient);
+
+  useEffect(() => {
+    if(success) {
+      enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
+      navigate(-1);
+      dispatch(resetSuccessPatient()) 
+    } 
+    if(error && Object.keys(error)?.length) {
+      Object.keys(error)?.forEach(key => {
+        error[key].forEach(err => {
+          enqueueSnackbar(err, { variant: 'error' });
+        })
+      })
+    }
+    
+  }, [error, success])
 
   const GENDER_OPTION = ['Men', 'Women', 'Kids'];
   const LANGUAGES_OPTION = [
@@ -89,7 +106,6 @@ export default function PatientNewEditForm({ isEdit, currentPatient, newPatientI
     marginBottom: theme.spacing(1),
   }));
 
-  const { patientHistory, isLoading } = useSelector((state) => state.patient);
   useEffect(() => {
     setTableData(patientHistory)
   }, [patientHistory]);

@@ -153,9 +153,11 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice, appointment
       newInvoice.patientId = currentPatient.id
       console.log(newInvoice);
       dispatch(addInvoice(newInvoice))
-      const invoicedAppointment = {...appointment}
-      invoicedAppointment.status = 'Invoiced'
-      dispatch(updateCalendarEvents(invoicedAppointment, invoicedAppointment.id))
+      if(appointment.id){
+        const invoicedAppointment = {...appointment}
+        invoicedAppointment.status = 'Invoiced'
+        dispatch(updateCalendarEvents(invoicedAppointment, invoicedAppointment.id))
+      }
       enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
       navigate(PATH_DASHBOARD.patient.payments);
     } catch (error) {
