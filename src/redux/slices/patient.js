@@ -55,6 +55,7 @@ const slice = createSlice({
     },
     setPatientDetails(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.currentPatient = action.payload
     },
     updatePatientDetails(state, action) {
@@ -68,6 +69,7 @@ const slice = createSlice({
     },
     setPatientHistory(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.patientHistory = action.payload;
     },
     updatePatientHistory(state, action) {
@@ -81,6 +83,7 @@ const slice = createSlice({
     },
     setProcedure(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.procedure = action.payload;
     },
     updateProcedure(state, action) {
@@ -94,6 +97,7 @@ const slice = createSlice({
     },
     setPrescription(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.prescriptions = action.payload;
     },
     updatePrescription(state, action) {
@@ -107,6 +111,7 @@ const slice = createSlice({
     },
     setFiles(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.files = action.payload;
     },
     updateFiles(state, action) {
@@ -120,6 +125,7 @@ const slice = createSlice({
     },
     setMedicalCertificate(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.medicalCertificate = action.payload;
     },
     updateMedicalCertificate(state, action) {
@@ -133,6 +139,7 @@ const slice = createSlice({
     },
     setClinicalNotes(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.clinicalNotes = action.payload;
     },
     updateClinicalNotes(state, action) {
@@ -146,6 +153,7 @@ const slice = createSlice({
     },
     setCalendarEvent(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.calendarEvents = action.payload;
     },
     updateCalendarEvents(state, action) {
@@ -168,6 +176,7 @@ const slice = createSlice({
     },
     setInvoice(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.invoice = action.payload;
     },
     updateInvoice(state, action) {
