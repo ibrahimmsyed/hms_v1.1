@@ -155,7 +155,7 @@ export default function NotesNewEditForm({ isEdit, currentNotes }) {
         }
         dispatch(addClinicalNotes(payload))
         enqueueSnackbar('Create success!');
-        navigate(PATH_DASHBOARD.patient.notes);
+        navigate(-1);
         console.log(payload)
     }
 

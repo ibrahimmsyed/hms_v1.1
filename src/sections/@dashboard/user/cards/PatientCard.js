@@ -45,7 +45,8 @@ export default function PatientCard({ patient, isSearch, url }) {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
   const { patientName, id, primaryMobNo, gender, dop, cover } = patient;
-  const redirectLink = isSearch ? `${PATH_DASHBOARD[url].new(id, patientName)}` : `${PATH_DASHBOARD.patient.edit(id, patientName)}`
+  const redirectLink = isSearch ? `${PATH_DASHBOARD[url].new(id, patientName)}`: `${PATH_DASHBOARD.patient.selected('profile', id)}`;
+  const editLink = `${PATH_DASHBOARD.patient.edit(id, patientName)}`
   const [openDialog, setOpenDialog] = useState(false)
   const [value, setValue] = useState('')
   const handleDeleteRows = (id) => {
@@ -102,6 +103,17 @@ export default function PatientCard({ patient, isSearch, url }) {
             }}>
           <IconButton color="primary" onClick={() => handleDeleteRows(id)}>
             <Iconify icon={'eva:trash-2-outline'} />
+          </IconButton>
+        </Tooltip>}
+        {!isSearch && <Tooltip title="Edit" sx={{
+              position: 'absolute',
+              top: '0',
+              left: '0',
+              zIndex: '9',
+              color: '#FFF'
+            }}>
+          <IconButton color="primary" component={RouterLink} to={editLink}>
+            <Iconify icon={'eva:edit-2-outline'} />
           </IconButton>
         </Tooltip>}
       </Box>

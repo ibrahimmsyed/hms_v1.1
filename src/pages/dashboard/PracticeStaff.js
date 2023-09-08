@@ -37,7 +37,7 @@ import useSettings from '../../hooks/useSettings';
 import useTable, { getComparator, emptyRows } from '../../hooks/useTable';
 // _mock_
 import { useDispatch, useSelector } from '../../redux/store';
-import { deleteUser } from '../../redux/slices/user';
+import { deleteUser, getUsers } from '../../redux/slices/user';
 import { _userList } from '../../_mock';
 // components
 import Page from '../../components/Page';
@@ -80,6 +80,10 @@ export default function PracticeStaff() {
   const { user } = useUsers();
   const { users: stateUser } = useSelector((state) => state.user);
   const [users, setUsers] = useState(null);
+
+  useEffect(() => {
+    dispatch(getUsers());
+  },[dispatch])
 
   useEffect(() => {
     if(user.length)

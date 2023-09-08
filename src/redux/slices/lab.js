@@ -15,6 +15,7 @@ import { dispatch } from '../store';
 const initialState = {
   isLoading: false,
   error: null,
+  success: null,
   labs: [],
   currentLab: {},
   labworks: [],
@@ -38,6 +39,10 @@ const slice = createSlice({
       state.isLoading = false;
       state.error = action.payload;
     },
+    // HAS ERROR
+    resetSuccess(state, action) {
+      state.success = action.payload;
+    },
 
     // GET LAB DETAILS
     getLabDetailsSuccess(state, action) {
@@ -46,10 +51,12 @@ const slice = createSlice({
     },
     setLabDetails(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.currentLab = action.payload
     },
     updateLabDetails(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.currentLab = [...state.currentLab, action.payload]
     },
     removeLabDetails(state, action) {
@@ -63,10 +70,12 @@ const slice = createSlice({
     },
     setLabWork(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.labworks = [...state.labworks, action.payload]
     },
     updateLabWork(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.labworks = [...state.labworks, action.payload]
     },
     removeLabWork(state, action) {
@@ -80,6 +89,7 @@ const slice = createSlice({
     },
     setlabName(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.labNames = [...state.labNames, action.payload]
     },
     updatelabName(state, action) {
@@ -92,6 +102,7 @@ const slice = createSlice({
     },
     modifyTreatmentPlans(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.treatmentPlans = [...state.treatmentPlans, action.payload]
     },
   },
@@ -118,6 +129,12 @@ export const {
 } = slice.actions;
 
 // ----------------------------------------------------------------------
+
+export function resetSuccessLabs() {
+  return async () => {
+    dispatch(slice.actions.resetSuccess(null));
+  }
+}
 
 export function getLabDetails() {
   return async () => {
@@ -157,6 +174,7 @@ export function getCurrentLabDetail(id) {
 }
 export function addLabDetail(data) {
     return async () => {
+      dispatch(slice.actions.hasError(null));
       dispatch(slice.actions.startLoading());
       try {
           const accessToken = window.localStorage.getItem('accessToken');
@@ -174,6 +192,7 @@ export function addLabDetail(data) {
 }
 export function updateLabDetail(data, id) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
@@ -228,6 +247,7 @@ export function getAllLabWork() {
 }
 export function addLabWorks(data) {
     return async () => {
+      dispatch(slice.actions.hasError(null));
       dispatch(slice.actions.startLoading());
       try {
           const accessToken = window.localStorage.getItem('accessToken');
@@ -245,6 +265,7 @@ export function addLabWorks(data) {
 }
 export function updateLabWorks(data, id) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
@@ -298,6 +319,7 @@ export function getAllTreatmentPlans() {
 }
 export function addTreatmentPlans(data) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
@@ -315,6 +337,7 @@ export function addTreatmentPlans(data) {
 }
 export function updateTreatmentPlans(data, id) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');
@@ -352,6 +375,7 @@ export function getAllLabNames() {
 }
 export function addLabName(data) {
   return async () => {
+    dispatch(slice.actions.hasError(null));
     dispatch(slice.actions.startLoading());
     try {
         const accessToken = window.localStorage.getItem('accessToken');

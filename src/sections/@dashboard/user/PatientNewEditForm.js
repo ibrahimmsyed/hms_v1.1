@@ -22,7 +22,7 @@ import useUsers from '../../../hooks/useUsers';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
 import { getProducts } from '../../../redux/slices/product';
-import { getMedicalHistory, addMedicalHistory, deleteMedicalHistory, addPatientsDetail, updatePatientsDetail } from '../../../redux/slices/patient';
+import { getMedicalHistory, addMedicalHistory, deleteMedicalHistory, addPatientsDetail, updatePatientsDetail, resetSuccessPatient } from '../../../redux/slices/patient';
 // Service
 import PatientApiService from '../../../services/Patient'
 // components
@@ -55,6 +55,23 @@ export default function PatientNewEditForm({ isEdit, currentPatient, newPatientI
   const patientApiService = new PatientApiService();
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
+  const { patientHistory, isLoading, error, success } = useSelector((state) => state.patient);
+
+  useEffect(() => {
+    if(success) {
+      enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
+      navigate(-1);
+      dispatch(resetSuccessPatient()) 
+    } 
+    if(error && Object.keys(error)?.length) {
+      Object.keys(error)?.forEach(key => {
+        error[key].forEach(err => {
+          enqueueSnackbar(err, { variant: 'error' });
+        })
+      })
+    }
+    
+  }, [error, success])
 
   const GENDER_OPTION = ['Men', 'Women', 'Kids'];
   const LANGUAGES_OPTION = [
@@ -89,7 +106,6 @@ export default function PatientNewEditForm({ isEdit, currentPatient, newPatientI
     marginBottom: theme.spacing(1),
   }));
 
-  const { patientHistory, isLoading } = useSelector((state) => state.patient);
   useEffect(() => {
     setTableData(patientHistory)
   }, [patientHistory]);
@@ -123,22 +139,22 @@ export default function PatientNewEditForm({ isEdit, currentPatient, newPatientI
   const [newHistory, setNewHistory] = useState('');
   const NewUserSchema = Yup.object().shape({
     patientName: Yup.string().required('patientName is required'),
-    aadharId: Yup.string().required('AadharId is required'),
+    // aadharId: Yup.string().required('AadharId is required'),
     gender: Yup.string().required('Gender is required'),
-    dob: Yup.string().required('date of birth is required'),
-    anniversary: Yup.string().required('Anniversary is required'),
-    bloodGroup: Yup.string().required('Blood group is required'),
+    // dob: Yup.string().required('date of birth is required'),
+    // anniversary: Yup.string().required('Anniversary is required'),
+    // bloodGroup: Yup.string().required('Blood group is required'),
     email: Yup.string().required('Email is required'),
     primaryMobNo: Yup.string().required('Primary Moile No is required'),
-    secondaryMobNo: Yup.string().required('Secondary Moile No is required'),
-    landlineNo: Yup.string().required('Landline No is required'),
-    relationType:Yup.string().required('Relation Type is required'),
-    relationName:Yup.string().required('Relation Name is required'),
-    languagePref:Yup.string().required('Language Preference is required'),
-    street: Yup.string().required('Street is required'),
-    city: Yup.string().required('City is required'),
-    pinCode: Yup.string().required('Pincode is required'),
-    locality: Yup.string().required('Locality is required'),
+    // secondaryMobNo: Yup.string().required('Secondary Moile No is required'),
+    // landlineNo: Yup.string().required('Landline No is required'),
+    // relationType:Yup.string().required('Relation Type is required'),
+    // relationName:Yup.string().required('Relation Name is required'),
+    // languagePref:Yup.string().required('Language Preference is required'),
+    // street: Yup.string().required('Street is required'),
+    // city: Yup.string().required('City is required'),
+    // pinCode: Yup.string().required('Pincode is required'),
+    // locality: Yup.string().required('Locality is required'),
     // otherHistory: Yup.string().required('Other History is required'),
     // medicalHistory: Yup.string().required('Medical History is required'),
   });
@@ -157,7 +173,7 @@ export default function PatientNewEditForm({ isEdit, currentPatient, newPatientI
       landlineNo: currentPatient?.landlineNo || '',
       relationType: currentPatient?.relationType || '',
       relationName: currentPatient?.relationName || '',
-      languagePref: currentPatient?.languagePref || '',
+      languagePref: currentPatient?.languagePref || 'English',
       street: currentPatient?.street || '',
       city: currentPatient?.city || '',
       pinCode: currentPatient?.pinCode || '',
@@ -468,7 +484,7 @@ export default function PatientNewEditForm({ isEdit, currentPatient, newPatientI
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <Button onClick={onAddNew} sx={{ mr: -0.5 }}>
+                      <Button onClick={onAddNew} sx={{ mr: -0.5 }} disabled={!newHistory}>
                         Add
                       </Button>
                     </InputAdornment>

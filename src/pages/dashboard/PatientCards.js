@@ -52,7 +52,6 @@ export default function UserCards() {
       dispatch(getPatientDetails())
     }
     dispatch(getAllInventory());
-    dispatch(getMedicalCertificate())
   },[dispatch])
 
   useEffect(() => {
@@ -70,6 +69,8 @@ export default function UserCards() {
   const [appointments, setAppointments] = useState([]);
   const [notes, setNotes] = useState([]);
   const [invoices, setInvoices] = useState([]);
+  const [filesList, setFilesList] = useState([]);
+  const [mlc, setMLC] = useState([]);
   const [isPrintOpen, setPrintOpen] = useState(false);
   const [isOpen, setDialogState] = useState(false);
   const [url , setRedirectURL] = useState('labs')
@@ -92,7 +93,7 @@ export default function UserCards() {
       plans.push(planObj)
     });
     console.log(plans)
-
+    plans.sort((a, b) => b.id - a.id)
     setPlans(plans)
   },[treatmentPlans, patients]) 
 
@@ -175,6 +176,36 @@ export default function UserCards() {
     setInvoices(items)
   },[invoice, patients])
 
+  useEffect(() => {
+    const items = []
+    files?.forEach((item, i) => {
+      const patient = patients.find(patient => Number(patient.id) === Number(item.patientId))
+      const itemObj = {
+        id: item.id,
+        patient,
+        ...item
+      }
+      items.push(itemObj)
+    });
+    console.log(items)
+    setFilesList(items)
+  },[files, patients])
+
+  useEffect(() => {
+    const items = []
+    medicalCertificate?.forEach((item, i) => {
+      const patient = patients.find(patient => Number(patient.id) === Number(item.patientId))
+      const itemObj = {
+        id: item.id,
+        patient,
+        ...item
+      }
+      items.push(itemObj)
+    });
+    console.log(items)
+    setMLC(items)
+  },[medicalCertificate, patients])
+
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     if(id){
       navigate(PATH_DASHBOARD.patient.selected( TAB_VALUE[newValue], selectedPatientId));
@@ -189,8 +220,13 @@ export default function UserCards() {
     
   }
   const handleAddNew = (url) => {
-    setRedirectURL(url)
-    setDialogState(true)
+    if(id) {
+      const patient = patients.find(patient => Number(patient.id) === Number(id))
+      navigate(PATH_DASHBOARD[url].new(id, patient.patientName));
+    } else {
+      setRedirectURL(url)
+      setDialogState(true)
+    }
   }
   const onClose = () => {
     setDialogState(true)
@@ -224,8 +260,7 @@ export default function UserCards() {
           heading="Patients"
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Patients', href: PATH_DASHBOARD.user.root },
-            { name: 'Profile' },
+            { name: 'Patients' },
           ]}
           action={
             <Button
@@ -378,7 +413,7 @@ export default function UserCards() {
               Add Files
             </Button>
           </Stack>
-          <FilesDetails files={files} medicalCertificate={medicalCertificate}/>
+          <FilesDetails filesList={filesList} files={files} mlc={mlc}/>
         </TabPanel>
       </Container>
       <DialogAnimate fullWidth maxWidth="md" open={isOpen} onClose={onClose}>
@@ -390,6 +425,7 @@ export default function UserCards() {
                 p: '2px',
                 right: 6,
                 position: 'absolute',
+                zIndex: '9',
                 color: 'common.white',
                 bgcolor: (theme) => alpha(theme.palette.grey[900], 0.72),
                 '&:hover': {

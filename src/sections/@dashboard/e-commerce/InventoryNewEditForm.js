@@ -27,7 +27,7 @@ import useUsers from '../../../hooks/useUsers';
 
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
-import { addInventory, modifyInventory } from '../../../redux/slices/setting';
+import { addInventory, modifyInventory, resetSuccessSettings } from '../../../redux/slices/setting';
 // ----------------------------------------------------------------------
 
 const ITEMTYPE_OPTION = [
@@ -85,6 +85,24 @@ export default function InventoryNewEditForm({ isEdit, currentItem }) {
   const { enqueueSnackbar } = useSnackbar();
   const { setInventoryDetails } = useUsers();
 
+  const { error, success } = useSelector((state) => state.setting);
+
+  useEffect(() => {
+    if(success) {
+      enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
+      navigate(PATH_DASHBOARD.settings.inventory);
+      dispatch(resetSuccessSettings()) 
+    } 
+    if(error && Object.keys(error)?.length) {
+      Object.keys(error)?.forEach(key => {
+        error[key].forEach(err => {
+          enqueueSnackbar(err, { variant: 'error' });
+        })
+      })
+    }
+    
+  }, [error, success])
+
   const units = [
     {id: 1, name: 'mg' },
     {id: 2, name: 'gm' },
@@ -110,7 +128,7 @@ export default function InventoryNewEditForm({ isEdit, currentItem }) {
   const defaultValues = useMemo(
     () => ({
       itemName: currentItem?.itemName || '',
-      itemCode : `000${currentItem?.id}` || 'NA',
+      itemCode : currentItem?.id && `000${currentItem?.id}` || 'NA',
       manufacturer : currentItem?.manufacturer || '',
       stockingUnit: currentItem?.stockingUnit || '',
       reorderLevel : currentItem?.reorderLevel || 0,
@@ -158,9 +176,6 @@ export default function InventoryNewEditForm({ isEdit, currentItem }) {
     try {
       console.log(data)
       const response = isEdit ? dispatch(modifyInventory(data, currentItem.id)) : dispatch(addInventory(data))
-      reset();
-      enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
-      navigate(PATH_DASHBOARD.settings.inventory);
     } catch (error) {
       console.error(error);
     }

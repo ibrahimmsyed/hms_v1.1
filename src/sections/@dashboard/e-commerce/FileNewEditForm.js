@@ -103,7 +103,7 @@ export default function FileNewEditForm() {
       data.patientId = currentPatient.id
       dispatch(uploadFiles(data))
       enqueueSnackbar('Upload success!');
-      navigate(PATH_DASHBOARD.patient.files);
+      navigate(-1);
       console.log(data);
     } catch (error) {
       console.error(error);

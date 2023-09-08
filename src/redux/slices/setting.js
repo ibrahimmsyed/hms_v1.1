@@ -15,6 +15,7 @@ import { dispatch } from '../store';
 const initialState = {
   isLoading: false,
   error: null,
+  success: null,
   inventory: [],
   notes: [],
   practiceDetails: []
@@ -36,6 +37,10 @@ const slice = createSlice({
       state.isLoading = false;
       state.error = action.payload;
     },
+    // HAS ERROR
+    resetSuccess(state, action) {
+      state.success = action.payload;
+    },
 
     setInventory(state, action) {
       state.isLoading = false;
@@ -43,10 +48,12 @@ const slice = createSlice({
     },
     setCurrentInventory(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.currentInventory = action.payload;
     },
     updateInventory(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.inventory = [...state.inventory, action.payload]
     },
     removeInventory(state, action) {
@@ -55,10 +62,12 @@ const slice = createSlice({
     },
     setNotes(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.notes = action.payload;
     },
     updateNotes(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.notes = [...state.notes, action.payload]
     },
     removeNotes(state, action) {
@@ -67,6 +76,7 @@ const slice = createSlice({
     },
     setPracticeDetails(state, action) {
       state.isLoading = false;
+      state.success = true;
       state.practiceDetails = action.payload;
     },
   },
@@ -87,6 +97,12 @@ export const {
 } = slice.actions;
 
 // ----------------------------------------------------------------------
+export function resetSuccessSettings() {
+  return async () => {
+    dispatch(slice.actions.resetSuccess(null));
+  }
+}
+
 // Inventory
 export function getAllInventory() {
   return async () => {

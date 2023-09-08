@@ -131,7 +131,7 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice, appointment
       await new Promise((resolve) => setTimeout(resolve, 500));
       reset();
       setLoadingSave(true);
-      navigate(PATH_DASHBOARD.patient.payments);
+      navigate(-1);
       console.log(JSON.stringify(newInvoice, null, 2));
     } catch (error) {
       console.error(error);
@@ -153,9 +153,11 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice, appointment
       newInvoice.patientId = currentPatient.id
       console.log(newInvoice);
       dispatch(addInvoice(newInvoice))
-      const invoicedAppointment = {...appointment}
-      invoicedAppointment.status = 'Invoiced'
-      dispatch(updateCalendarEvents(invoicedAppointment, invoicedAppointment.id))
+      if(appointment.id){
+        const invoicedAppointment = {...appointment}
+        invoicedAppointment.status = 'Invoiced'
+        dispatch(updateCalendarEvents(invoicedAppointment, invoicedAppointment.id))
+      }
       enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
       navigate(PATH_DASHBOARD.patient.payments);
     } catch (error) {

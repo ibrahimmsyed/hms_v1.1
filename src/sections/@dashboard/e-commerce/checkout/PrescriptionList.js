@@ -199,7 +199,7 @@ export default function PrescriptionList({ patient, drugs, onDelete, onIncreaseQ
       data.cart = JSON.stringify(cart)
       dispatch(addPresciption(data));
       enqueueSnackbar('Create success!');
-      navigate(PATH_DASHBOARD.patient.prescription);
+      navigate(-1);
       console.log(data);
   }
 

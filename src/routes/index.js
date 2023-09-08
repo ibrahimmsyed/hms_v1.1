@@ -156,6 +156,7 @@ export default function Router() {
             { element: <Navigate to="/dashboard/treatments" replace />, index: true },
             { path: ':patientId/:name/new', element: <TreatmentPlanCart /> },
             { path: ':id/edit', element: <TreatmentPlanCart /> },
+            { path: ':id/edit/view', element: <TreatmentPlanCart /> },
           ],
         },
         {

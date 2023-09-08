@@ -89,6 +89,7 @@ export const PATH_DASHBOARD = {
   },
   mlc:{
     new: (id, name) => path(ROOTS_DASHBOARD, `/mlc/${id}/${name}/new`),
+    edit: (id) => path(ROOTS_DASHBOARD, `/mlc/${id}/edit`),
   },
   prescription:{
     new: (id, name) => path(ROOTS_DASHBOARD, `/prescription/${id}/${name}/new`),
@@ -96,6 +97,7 @@ export const PATH_DASHBOARD = {
   treatments:{
     new: (id, name) => path(ROOTS_DASHBOARD, `/treatments/${id}/${name}/new`),
     edit: (id) => path(ROOTS_DASHBOARD, `/treatments/${id}/edit`),
+    view: (id) => path(ROOTS_DASHBOARD, `/treatments/${id}/edit/view`),
   },
   notes:{
     new: (id, name) => path(ROOTS_DASHBOARD, `/notes/${id}/${name}/new`),

@@ -212,6 +212,11 @@ function TreatmentPlanItem({ plan }) {
   const onEditRow = (id) => {
     navigate(PATH_DASHBOARD.treatments.edit(id));
   };
+
+  const onViewRow = (id) => {
+    navigate(PATH_DASHBOARD.treatments.view(id));
+  };
+
   const TABLE_HEAD = [
     { id: 'procedure', label: 'Procedure', align: 'left' },
     { id: 'cost', label: 'Cost', align: 'left' },
@@ -259,7 +264,7 @@ function TreatmentPlanItem({ plan }) {
               </Typography>
               <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
                 
-                {patient?.dob} / {patient?.gender}
+              {calculateAge(patient?.dob)} Year(s) / {patient?.gender}
               </Typography>
             </div>
           </Box>
@@ -318,6 +323,15 @@ function TreatmentPlanItem({ plan }) {
                   >
                     <Iconify icon={'eva:edit-fill'} />
                     Edit
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      onViewRow(plan.id);
+                      handleCloseMenu();
+                    }}
+                  >
+                    <Iconify icon={'eva:eye-fill'} />
+                    View
                   </MenuItem>
                 </>
               }
