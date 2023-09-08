@@ -88,7 +88,7 @@ export default function MLCNewEditForm() {
   });
   const defaultValues = useMemo(
     () => ({
-      MLNo: `000${currentMLCDetail.id}` || 'NA',
+      MLNo: currentMLCDetail?.id && `000${currentMLCDetail.id}` || 'NA',
       issuedOn: currentMLCDetail.issuedOn || new Date(),
       exusedStart: currentMLCDetail.exusedStart || new Date(),
       exusedEnd: currentMLCDetail.exusedEnd || new Date(),
