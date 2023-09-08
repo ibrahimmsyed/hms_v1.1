@@ -47,7 +47,6 @@ export default function TreatmentPlanCart() {
   const { pathname } = useLocation();
 
   const isEdit = pathname.includes('edit');
-
   const isView = pathname.includes('view');
 
   const { checkout } = useSelector((state) => state.product);
@@ -250,7 +249,6 @@ export default function TreatmentPlanCart() {
       }
       enqueueSnackbar('Create success!');
       navigate(-1);
-      // navigate(PATH_DASHBOARD.patient.plans);
       console.log(data)
     } catch (error) {
       console.error(error);
