@@ -59,6 +59,11 @@ const slice = createSlice({
       state.success = true;
       state.currentLab = [...state.currentLab, action.payload]
     },
+    modifyLabDetails(state, action) {
+      state.isLoading = false;
+      state.success = true;
+      state.currentLab = state?.currentLab?.map(obj => action.payload?.id === obj?.id && action.payload || obj) 
+    },
     removeLabDetails(state, action) {
       state.isLoading = false;
       state.labs = state.labs.filter(lab => lab.id !== action.payload)
@@ -77,6 +82,11 @@ const slice = createSlice({
       state.isLoading = false;
       state.success = true;
       state.labworks = [...state.labworks, action.payload]
+    },
+    modifyLabWork(state, action) {
+      state.isLoading = false;
+      state.success = true;
+      state.labworks = state?.labworks?.map(obj => action.payload?.id === obj?.id && action.payload || obj) 
     },
     removeLabWork(state, action) {
       state.isLoading = false;
@@ -100,10 +110,15 @@ const slice = createSlice({
       state.isLoading = false;
       state.treatmentPlans = action.payload
     },
-    modifyTreatmentPlans(state, action) {
+    updateTreatmentPlans(state, action) {
       state.isLoading = false;
       state.success = true;
       state.treatmentPlans = [...state.treatmentPlans, action.payload]
+    },
+    modifyTreatmentPlans(state, action) {
+      state.isLoading = false;
+      state.success = true;
+      state.treatmentPlans = state?.treatmentPlans?.map(obj => action.payload?.id === obj?.id && action.payload || obj) 
     },
   },
 });
@@ -202,7 +217,7 @@ export function updateLabDetail(data, id) {
             }
         }
       const response = await axios.put(`${API_ENDPOINT}/labdetails/${id}/`, data, headers);
-      dispatch(slice.actions.setLabDetails(response.data));
+      dispatch(slice.actions.modifyLabDetails(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -275,7 +290,7 @@ export function updateLabWorks(data, id) {
             }
         }
       const response = await axios.put(`${API_ENDPOINT}/labcategory/${id}/`, data, headers);
-      dispatch(slice.actions.setLabWork(response.data));
+      dispatch(slice.actions.modifyLabWork(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -329,7 +344,7 @@ export function addTreatmentPlans(data) {
             }
         }
       const response = await axios.post(`${API_ENDPOINT}/treatmentplans/`, data, headers);
-      dispatch(slice.actions.modifyTreatmentPlans(response.data));
+      dispatch(slice.actions.updateTreatmentPlans(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

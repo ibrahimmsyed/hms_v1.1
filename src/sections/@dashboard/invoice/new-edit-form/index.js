@@ -11,7 +11,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
 import { Card, Stack } from '@mui/material';
 //
-import { addInvoice, updateCalendarEvents } from '../../../../redux/slices/patient';
+import { addInvoice, updateCalendarEvents, modifyInvoice } from '../../../../redux/slices/patient';
 import { useDispatch, useSelector } from '../../../../redux/store';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
@@ -70,7 +70,7 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice, appointment
   const defaultValues = useMemo(
     () => ({
       createDate: currentInvoice?.createDate || new Date(),
-      dueDate: currentInvoice?.dueDate || null,
+      dueDate: currentInvoice?.dueDate || new Date(),
       grandTotal: currentInvoice?.grandTotal || 0,
       taxes: currentInvoice?.taxes || 0,
       status: currentInvoice?.status || 'draft',
@@ -152,8 +152,13 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice, appointment
       newInvoice.dueDate = moment(newInvoice.dueDate).format('YYYY-MM-DD')
       newInvoice.patientId = currentPatient.id
       console.log(newInvoice);
-      dispatch(addInvoice(newInvoice))
-      if(appointment.id){
+      if(isEdit) {
+        dispatch(modifyInvoice(newInvoice, currentInvoice?.id))
+      }else {
+        dispatch(addInvoice(newInvoice))
+      }
+      
+      if(appointment?.id){
         const invoicedAppointment = {...appointment}
         invoicedAppointment.status = 'Invoiced'
         dispatch(updateCalendarEvents(invoicedAppointment, invoicedAppointment.id))

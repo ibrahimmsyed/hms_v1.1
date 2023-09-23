@@ -62,6 +62,11 @@ const slice = createSlice({
       state.success = true;
       state.currentPatient = [...state.currentPatient, action.payload]
     },
+    modifyPatientDetails(state, action) {
+      state.isLoading = false;
+      state.success = true;
+      state.patients = state?.patients?.map(obj => action.payload?.id === obj?.id && action.payload || obj) 
+    },
     removePatientDetail(state, action) {
       state.isLoading = false;
       state.patients = state.patients.filter(patient => patient.id !== action.payload)
@@ -125,7 +130,7 @@ const slice = createSlice({
     updateMedicalCertificate(state, action) {
       state.isLoading = false;
       state.success = true;
-      state.medicalCertificate = [...state.medicalCertificate, action.payload]
+      state.medicalCertificate = state?.medicalCertificate?.map(obj => action.payload?.id === obj?.id && action.payload || obj) 
     },
     removeMedicalCertificate(state, action) {
       state.isLoading = false;
@@ -153,6 +158,11 @@ const slice = createSlice({
       state.success = true;
       state.calendarEvents = [...state.calendarEvents, action.payload]
     },
+    modifyCalendarEvents(state, action) {
+      state.isLoading = false;
+      state.success = true;
+      state.calendarEvents = state?.calendarEvents?.map(obj => action.payload?.id === obj?.id && action.payload || obj) 
+    },
     removeCalendarEvents(state, action) {
       state.isLoading = false;
       state.calendarEvents = state.calendarEvents.filter(plan => plan.id !== action.payload)
@@ -174,6 +184,11 @@ const slice = createSlice({
       state.isLoading = false;
       state.success = true;
       state.invoice = [...state.invoice, action.payload]
+    },
+    modifiedInvoice(state, action) {
+      state.isLoading = false;
+      state.success = true;
+      state.invoice = state?.invoice?.map(obj => action.payload?.id === obj?.id && action.payload || obj) 
     },
     removeInvoice(state, action) {
       state.isLoading = false;
@@ -292,7 +307,7 @@ export function updatePatientsDetail(data, id) {
             }
         }
       const response = await axios.put(`${API_ENDPOINT}/patientdetails/${id}/`, formData, headers);
-      dispatch(slice.actions.setPatientDetails(response.data));
+      dispatch(slice.actions.modifyPatientDetails(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -555,6 +570,24 @@ export function addMedicalCertificate(plan) {
     }
   };
 }
+export function modifyMedicalCertificate(data, id) {
+  return async () => {
+    dispatch(slice.actions.hasError(null));
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.put(`${API_ENDPOINT}/medicalcertificate/${id}/`, data, headers);
+      dispatch(slice.actions.updateMedicalCertificate(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
 export function deleteMedicalCertificate(id) {
   return async () => {
     dispatch(slice.actions.startLoading());
@@ -665,6 +698,26 @@ export function addInvoice(plan) {
     }
   };
 }
+
+export function modifyInvoice(data, id) {
+  return async () => {
+    dispatch(slice.actions.hasError(null));
+    dispatch(slice.actions.startLoading());
+    try {
+        const accessToken = window.localStorage.getItem('accessToken');
+        const headers = {
+            headers: {
+            Authorization: `JWT ${accessToken}`
+            }
+        }
+      const response = await axios.put(`${API_ENDPOINT}/invoice/${id}/`, data, headers);
+      dispatch(slice.actions.modifiedInvoice(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
 export function deleteInvoice(id) {
   return async () => {
     dispatch(slice.actions.startLoading());
@@ -732,7 +785,7 @@ export function updateCalendarEvents(data, id) {
             }
         }
       const response = await axios.put(`${API_ENDPOINT}/eventcalendar/${id}/`, data, headers);
-      dispatch(slice.actions.updateCalendarEvents(response.data));
+      dispatch(slice.actions.modifyCalendarEvents(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -827,14 +880,14 @@ export function getPatientDetails(id) {
         dispatch(slice.actions.setInvoice(patient.invoice));
         dispatch(slice.actions.setMedicalCertificate(patient.mlc));
       }else{
-        response.data.forEach(data => {
-          if(data.calendar.length){ calendar = [...data.calendar, ...calendar] }
-          if(data.plans.length){ plans = [...data.plans, ...plans] }
-          if(data.notes.length){ notes = [...data.notes, ...notes] }
-          if(data.prescription.length){ prescription = [...data.prescription, ...prescription] }
-          if(data.uploads.length){ uploads = [...data.uploads, ...uploads] }
-          if(data.invoice.length){ invoice = [...data.invoice, ...invoice] }
-          if(data.mlc.length){ mlc = [...data.mlc, ...mlc] }
+        response?.data?.forEach(data => {
+          if(data.calendar?.length){ calendar = [...data.calendar, ...calendar] }
+          if(data.plans?.length){ plans = [...data.plans, ...plans] }
+          if(data.notes?.length){ notes = [...data.notes, ...notes] }
+          if(data.prescription?.length){ prescription = [...data.prescription, ...prescription] }
+          if(data.uploads?.length){ uploads = [...data.uploads, ...uploads] }
+          if(data.invoice?.length){ invoice = [...data.invoice, ...invoice] }
+          if(data.mlc?.length){ mlc = [...data.mlc, ...mlc] }
         })
         dispatch(slice.actions.setClinicalNotes(notes));
         dispatch(slice.actions.setFiles(uploads));
