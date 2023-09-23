@@ -15,7 +15,7 @@ import DatePicker from '@mui/lab/DatePicker';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // redux
-import { addMedicalCertificate, getMedicalCertificate } from '../../../redux/slices/patient';
+import { addMedicalCertificate, modifyMedicalCertificate, getMedicalCertificate, getPatientsDetails } from '../../../redux/slices/patient';
 import { useDispatch, useSelector } from '../../../redux/store';
 // components
 import {
@@ -53,33 +53,44 @@ export default function MLCNewEditForm() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isEdit = pathname.includes('edit'); 
-  const { patients, user: _userList } = useUsers();
+  const { user: _userList } = useUsers();
   const { name = '', id = '' } = useParams();
-  const currentPatient = patients.find((user) => Number(user.id) === Number(id));
+  
   const [user, setUser] = useState([])
+  const [currentMLCUpdated, setCurrentMLCUpdated] = useState(false);
   const [currentMLCDetail, setCurrentMLCDetail] = useState({});
+  const [currentPatient, setCurrentPatient] = useState({});
 
-  const { medicalCertificate } = useSelector((state) => state.patient);
+  const { medicalCertificate, patients } = useSelector((state) => state.patient);
 
   useEffect(() => {
     dispatch(getMedicalCertificate())
+    if(!patients?.length){dispatch(getPatientsDetails())}
   },[dispatch])
 
   useEffect(() => {
-    
-    if(isEdit && medicalCertificate.length){
+    if(isEdit && medicalCertificate?.length && patients?.length){
       const current = medicalCertificate.find((mlc) => Number(mlc.id) === Number(id));
+      setCurrentPatient(patients.find((user) => Number(user.id) === Number(current.patientId)));
+      setCurrentMLCUpdated(true)
       setCurrentMLCDetail(current)
       reset(defaultValues);
+    } else {
+      setCurrentPatient(patients.find((user) => Number(user.id) === Number(id)));
     }
-    
-  },[medicalCertificate])
+  },[medicalCertificate, patients])
+
+  useEffect(() => {
+    if(currentMLCUpdated){
+      reset(defaultValues);
+    }
+  },[currentMLCUpdated])
 
   useEffect(() => {
     const staff =  _userList.filter(user => user.isStaff)
     setValue('issuedBy', staff[0].id)
     setValue('issuedOn', new Date()) 
-    setValue('patientId', currentPatient.id)
+    setValue('patientId', currentPatient?.id)
     setUser(staff)
   },[_userList])
 
@@ -90,12 +101,16 @@ export default function MLCNewEditForm() {
     () => ({
       MLNo: currentMLCDetail?.id && `000${currentMLCDetail.id}` || 'NA',
       issuedOn: currentMLCDetail.issuedOn || new Date(),
+      exused: currentMLCDetail.exused || false,
       exusedStart: currentMLCDetail.exusedStart || new Date(),
       exusedEnd: currentMLCDetail.exusedEnd || new Date(),
+      fitforlight: currentMLCDetail.fitforlight || false,
       fitStart: currentMLCDetail.fitStart || new Date(),
       fitEnd: currentMLCDetail.fitEnd || new Date(),
+      attendance: currentMLCDetail.attendance || false,
       attendanceStart: currentMLCDetail.attendanceStart || new Date(),
       attendanceEnd: currentMLCDetail.attendanceEnd || new Date(),
+      instruction: currentMLCDetail.instruction || '',
 
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,7 +145,11 @@ export default function MLCNewEditForm() {
       data.fitEnd = moment(data.fitEnd).format('YYYY-MM-DD')
       data.attendanceStart = moment(data.attendanceStart).format('YYYY-MM-DD HH:mm:ss')
       data.attendanceEnd = moment(data.attendanceEnd).format('YYYY-MM-DD HH:mm:ss')
-      dispatch(addMedicalCertificate(data))
+      if(isEdit) {
+        dispatch(modifyMedicalCertificate(data, currentMLCDetail.id))
+      } else {
+        dispatch(addMedicalCertificate(data))
+      }
       navigate(-1)
       console.log('Submit', data);
     } catch (error) {
@@ -148,15 +167,15 @@ export default function MLCNewEditForm() {
             <Stack direction="row" alignItems="center" spacing={1} p={1} sx={{
                   width: '100%'
                 }}>
-                <Avatar alt={currentPatient.patientName} src={currentPatient.dp} sx={{ mr: 2 }} />
+                <Avatar alt={currentPatient?.patientName} src={currentPatient?.dp} sx={{ mr: 2 }} />
                 <Typography variant="subtitle2" noWrap>
-                  {currentPatient.patientName}
+                  {currentPatient?.patientName}
                 </Typography>
                 <Typography variant="subtitle2" noWrap>
-                  {calculateAge(currentPatient.dob)} Year(s) / {currentPatient.gender}
+                  {calculateAge(currentPatient?.dob)} Year(s) / {currentPatient?.gender}
                 </Typography>
                 <Typography variant="subtitle2" noWrap>
-                  {currentPatient.id}
+                  {currentPatient?.id}
                 </Typography>
             </Stack>
             <Box 
@@ -167,7 +186,7 @@ export default function MLCNewEditForm() {
                 gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(1, 1fr)' },
               }}
             >
-              <RHFTextField name="MLNo" label="Medical Leave No" />
+              <RHFTextField name="MLNo" label="Medical Leave No" disabled />
               <RHFCheckbox name="exused" label="Excused from duty" />
               {watchExused && 
                 <>

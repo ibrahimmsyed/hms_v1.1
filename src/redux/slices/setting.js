@@ -56,6 +56,11 @@ const slice = createSlice({
       state.success = true;
       state.inventory = [...state.inventory, action.payload]
     },
+    modifyCurrentInventory(state, action) {
+      state.isLoading = false;
+      state.success = true;
+      state.inventory = state?.inventory?.map(obj => action.payload?.id === obj?.id && action.payload || obj) 
+    },
     removeInventory(state, action) {
       state.isLoading = false;
       state.inventory = state.inventory.filter(item => item.id !== action.payload)
@@ -78,6 +83,16 @@ const slice = createSlice({
       state.isLoading = false;
       state.success = true;
       state.practiceDetails = action.payload;
+    },
+    updatePracticeDetails(state, action) {
+      state.isLoading = false;
+      state.success = true;
+      state.practiceDetails = [...state.practiceDetails, action.payload]
+    },
+    modifyPracticeDetails(state, action) {
+      state.isLoading = false;
+      state.success = true;
+      state.practiceDetails = state?.practiceDetails?.map(obj => action.payload?.id === obj?.id && action.payload || obj) 
     },
   },
 });
@@ -166,7 +181,7 @@ export function modifyInventory(data, id) {
             }
         }
       const response = await axios.put(`${API_ENDPOINT}/inventorydetails/${id}/`, data, headers);
-      dispatch(slice.actions.setCurrentInventory(response.data));
+      dispatch(slice.actions.modifyCurrentInventory(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -305,7 +320,7 @@ export function updatePracticeDetails(data, id) {
             }
         }
       const response = await axios.put(`${API_ENDPOINT}/practicedetails/${id}/`, formData, headers);
-      dispatch(slice.actions.setPracticeDetails([...response.data]));
+      dispatch(slice.actions.modifyPracticeDetails(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
